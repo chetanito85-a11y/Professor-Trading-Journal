@@ -126,8 +126,10 @@ class Angel(Adapter):
             first = False
             if j + 49 < len(toks):
                 time.sleep(self.gap)
-        S = (q.get(INDEX[sym]) or {}).get('ltp') or S
+        ix = q.get(INDEX[sym]) or {}
+        S = ix.get('ltp') or S
         self.spot[sym] = S
+        prev = S - ix['netChange'] if ix.get('netChange') is not None else ix.get('close')
         rows, lot = [], None
         for k in pick:
             r = {'k': k}
@@ -142,4 +144,4 @@ class Angel(Adapter):
                 else:
                     r[t.lower()] = leg()
             rows.append(r)
-        return {'spot': S, 'expiry': exp, 'lot': lot, 'rows': rows}
+        return {'spot': S, 'prev': prev, 'expiry': exp, 'lot': lot, 'rows': rows}

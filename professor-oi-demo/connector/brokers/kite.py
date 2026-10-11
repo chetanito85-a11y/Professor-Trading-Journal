@@ -84,7 +84,8 @@ class Kite(Adapter):
         pick = strikes[max(0, i - n - 1): i + n + 2]
         keys = [SPOT[sym]] + ['NFO:' + con[(k, t)][0] for k in pick for t in ('CE', 'PE') if (k, t) in con]
         q = self.quote(keys)
-        S = (q.get(SPOT[sym]) or {}).get('last_price') or S
+        ix = q.get(SPOT[sym]) or {}
+        S = ix.get('last_price') or S
         self.spot[sym] = S
         rows, lot = [], None
         for k in pick:
@@ -95,4 +96,4 @@ class Kite(Adapter):
                 lot = lot or (c[1] if c else None)
                 r[t.lower()] = leg(x.get('last_price'), (x.get('ohlc') or {}).get('close'), x.get('oi'), None, None, x.get('volume')) if x else leg()
             rows.append(r)
-        return {'spot': S, 'expiry': exp, 'lot': lot, 'rows': rows}
+        return {'spot': S, 'prev': (ix.get('ohlc') or {}).get('close'), 'expiry': exp, 'lot': lot, 'rows': rows}

@@ -19,6 +19,7 @@ sys.path.insert(0, HERE)
 import core  # noqa: E402
 from core import AuthError, BrokerError, cache_path, load_json, normalise, save_json, today_ist  # noqa: E402
 import brokers  # noqa: E402
+from store import N as MINUTES, Store  # noqa: E402
 
 VERSION = '1.0'
 APP = os.path.join(os.path.dirname(HERE), 'index.html')
@@ -59,6 +60,7 @@ class Hub:
         self.started = time.time()
         self.wake = threading.Event()
         self.a = None
+        self.store = Store()
 
     def use(self, bid):
         """Make `bid` the active broker (reads its section from config) and log in if possible."""
@@ -143,7 +145,7 @@ class Hub:
                 'login_kind': a.login_kind, 'state': self.state, 'msg': self.msg, 'user': a.user,
                 'missing': a.missing(), 'fields': a.direct_fields() if a.login_kind == 'direct' else [],
                 'symbols': self.syms, 'redirect_url': a.redirect_url, 'market_open': core.market_open(),
-                'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000),
+                'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000), 'now': int(core.now_ts() * 1000),
                 'last': {s: c['ts'] for s, c in self.chains.items()}}
 
     def set(self, state, msg=''):
@@ -156,6 +158,10 @@ class Hub:
     def publish(self, c):
         s = c['sym']
         self.chains[s] = c
+        try:
+            self.store.put(c, self.a.id)
+        except Exception as e:                    # history is a bonus; never stop the live feed for it
+            log(f'History not saved: {e}')
         sm = c['sum']
         pt = {'t': c['ts'], 's': c['spot'], 'pcr': sm['pcr'], 'ce': sm['ce_oi'], 'pe': sm['pe_oi'], 'cc': sm['ce_oic'], 'pc': sm['pe_oic'],
               'mp': sm['max_pain'], 'sup': sm['sup'], 'res': sm['res'], 'iv': sm['atm_iv'], 'sd': sm['straddle']}
@@ -169,7 +175,7 @@ class Hub:
                 save_json(self.hist_path(s, today_ist().isoformat()), h)
         self.broadcast('chain', c)
         self.broadcast('point', {'sym': s, 'pt': pt})
-        self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open()})
+        self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open(), 'now': int(core.now_ts() * 1000)})
 
     def broadcast(self, ev, data):
         msg = f'event: {ev}\ndata: {json.dumps(data, separators=(",", ":"))}\n\n'.encode('utf-8')
@@ -358,6 +364,17 @@ def make_handler(hub, port):
                 return self.out(200, hub.hist.get(q.get('sym', 'NIFTY'), []))
             if p == '/api/brokers':
                 return self.out(200, hub.catalog())
+            if p == '/api/days':
+                return self.out(200, hub.store.days())
+            if p == '/api/day':
+                sym = q.get('sym', 'NIFTY')
+                d = hub.store.day(sym, q.get('day') or None)
+                c = hub.chains.get(sym)
+                if not d and c:                     # nothing stored yet (e.g. after hours): the latest chain stands for the whole day
+                    day = core.last_close().date().isoformat()
+                    d = {'sym': sym, 'day': day, 'expiry': c['expiry'], 'lot': c['lot'], 'prev': c.get('prev') or hub.store.prev_close(sym, day),
+                         'broker': c['broker'], 'synthetic': True, 'minutes': [[MINUTES, c['ts'], c['spot'], c['spot'], c['spot'], Store.pack(c)]]}
+                return self.out(200, d) if d else self.out(404, {'error': 'no data yet'})
             if p == '/api/login':
                 if a.id == 'none' or a.missing():
                     return self.redirect('/#broker')

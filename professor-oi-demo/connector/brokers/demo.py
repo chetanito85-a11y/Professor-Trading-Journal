@@ -67,4 +67,4 @@ class Demo(Adapter):
                          'ce': leg(round(c, 2), round(c * 1.04 + 1, 2), round(st['oi'][(k, 'ce')][0] / lot) * lot, st['oi'][(k, 'ce')][1], None, int(st['oi'][(k, 'ce')][0] * 3.1)),
                          'pe': leg(round(p, 2), round(p * 0.97 + 1, 2), round(st['oi'][(k, 'pe')][0] / lot) * lot, st['oi'][(k, 'pe')][1], None, int(st['oi'][(k, 'pe')][0] * 2.8))})
         time.sleep(0.05)
-        return {'spot': S, 'expiry': exp.isoformat(), 'lot': lot, 'rows': rows}
+        return {'spot': S, 'prev': round(s0 * 0.9968, 2), 'expiry': exp.isoformat(), 'lot': lot, 'rows': rows}

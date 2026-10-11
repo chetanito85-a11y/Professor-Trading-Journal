@@ -17,8 +17,24 @@ class BrokerError(Exception):
     """Any other broker-side failure (bad request, rate limit, outage)."""
 
 
+# Test hook: POI_FAKE_START="10:30" makes the connector believe the market is at 10:30 on the
+# latest weekday, and POI_FAKE_SPEED=60 runs that clock 60x faster. Leave unset for real use.
+_FAKE, _SPEED, _T0, _OFF = os.environ.get('POI_FAKE_START'), float(os.environ.get('POI_FAKE_SPEED') or 1), time.time(), None
+if _FAKE:
+    _h, _m = (int(x) for x in _FAKE.split(':'))
+    _tg = datetime.now(IST).replace(hour=_h, minute=_m, second=0, microsecond=0)
+    while _tg.weekday() >= 5:
+        _tg -= timedelta(days=1)
+    _OFF = _tg.timestamp() - _T0
+
+
+def now_ts():
+    t = time.time()
+    return t if _OFF is None else _T0 + _OFF + (t - _T0) * _SPEED
+
+
 def now_ist():
-    return datetime.now(IST)
+    return datetime.fromtimestamp(now_ts(), IST)
 
 
 def today_ist():
@@ -293,8 +309,8 @@ def normalise(sym, raw, n, base, broker):
     by_ce = sorted(out, key=lambda r: -r['ce']['oi'])
     by_pe = sorted(out, key=lambda r: -r['pe']['oi'])
     return {
-        'sym': sym, 'broker': broker, 'ts': int(time.time() * 1000), 'spot': round(spot, 2), 'expiry': raw.get('expiry'),
-        'lot': raw.get('lot'), 'rows': out, 'since_start': since_start,
+        'sym': sym, 'broker': broker, 'ts': int(now_ts() * 1000), 'spot': round(spot, 2), 'expiry': raw.get('expiry'),
+        'lot': raw.get('lot'), 'prev': num(raw.get('prev')) or None, 'rows': out, 'since_start': since_start,
         'sum': {'pcr': round(pe / ce, 3) if ce else None, 'ce_oi': ce, 'pe_oi': pe, 'ce_oic': cec, 'pe_oic': pec, 'atm': atm['k'],
                 'straddle': round(atm['ce']['ltp'] + atm['pe']['ltp'], 2), 'max_pain': mp,
                 'res': by_ce[0]['k'], 'res2': by_ce[1]['k'] if len(by_ce) > 1 else None,

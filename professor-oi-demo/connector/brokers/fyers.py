@@ -42,11 +42,13 @@ class Fyers(Adapter):
                 raise AuthError('Fyers: ' + msg)
             raise BrokerError('Fyers: ' + msg)
         d = r.get('data') or {}
-        S, by = 0, {}
+        S, prev, by = 0, None, {}
         for it in d.get('optionsChain') or []:
             t = it.get('option_type')
             if t not in ('CE', 'PE'):
                 S = it.get('ltp') or S
+                if it.get('ltp') is not None and it.get('ltpch') is not None:
+                    prev = it['ltp'] - it['ltpch']
                 continue
             ltp, ch = it.get('ltp'), it.get('ltpch')
             prev = ltp - ch if ltp is not None and ch is not None else None
@@ -59,4 +61,4 @@ class Fyers(Adapter):
             except (TypeError, ValueError):
                 exp = None
         rows = [{'k': k, 'ce': v.get('ce') or leg(), 'pe': v.get('pe') or leg()} for k, v in by.items()]
-        return {'spot': S, 'expiry': exp, 'rows': rows}
+        return {'spot': S, 'prev': prev, 'expiry': exp, 'rows': rows}

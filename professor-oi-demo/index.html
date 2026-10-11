@@ -803,6 +803,12 @@ main{padding:16px 22px 120px}
 .lvprobe a.ibtn{text-decoration:none}
 /* market closed: no "live" pulses on charts */
 .mkt-closed .chart .pl{display:none}
+/* ---- v8: live data marks ---- */
+.card-h .dm-tag{margin-left:auto;font-size:8.5px;padding:2px 6px}
+.card-h .sub+.dm-tag,.card-h h3+.dm-tag{margin-left:auto}
+.ldrep{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ldrep select{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:5px 8px;font:500 12px var(--f-mono)}
+.lvban.rp{border-left-color:var(--accent)}
 </style>
 
 </head>
@@ -1043,7 +1049,7 @@ function wallsFrom(core, sym, events) {
   const {K, strikes, cO, pO} = core, out = {};
   for (const side of ['S', 'R']) {
     const A = side === 'S' ? pO : cO;
-    const chg = (t, k) => A[t * K + k] - A[k];
+    const B0 = side === 'S' ? core.bP : core.bC, chg = (t, k) => A[t * K + k] - (B0 ? B0[k] : A[k]);
     const raw = t => { let b = -1, bv = 0; for (let k = 0; k < K; k++) { const v = chg(t, k); if (v > bv) { bv = v; b = k; } } if (b < 0) { b = 0; for (let k = 1; k < K; k++) if (A[t * K + k] > A[t * K + b]) b = k; } return b; };
     const ser = new Int16Array(N + 1), fk = new Int16Array(N + 1).fill(-1), fn = new Int8Array(N + 1);
     let cur = raw(3), cand = -1, cnt = 0;
@@ -1089,6 +1095,7 @@ function moreEvents(D) {
   D.events.sort((a, b) => a.t - b.t);
 }
 function state(D, tf) {
+  if (D.live) return D.snaps[clamp(Math.floor(tf), 0, N)];
   const t0 = Math.min(N, Math.floor(tf)), a = tf - t0, t1 = Math.min(N, t0 + 1);
   let S = lerp(D.spot[t0], D.spot[t1], a);
   if (a > 0) S += Math.sin(tf * 173.1) * D.c.spot0 * 0.00003;
@@ -1359,7 +1366,7 @@ function aiText(D, s) {
 /* ================= pages ================= */
 const MODS = {};
 const phead = (t, p, tools = '') => `<div class="phead"><div><h1>${t}</h1><p>${p}</p></div><div class="ptools">${tools}</div></div>`;
-const symLabel = () => `<span class="pill acc">${app.sym}</span>`;
+const symLabel = () => `<span class="pill acc">${app.sym}</span>${isLiveD(app.sym) ? '<span class="pill up live"><span class="dot"></span>LIVE DATA</span>' : LIVE.on ? '<span class="pill warn">DEMO DATA</span>' : ''}`;
 
 /* ---- live prices for paper trading (always at the live edge, not the replay cursor) ---- */
 let LC = {};
@@ -2629,7 +2636,7 @@ const FUT = {};
 function futOI(sym) {
   if (FUT[sym]) return FUT[sym];
   if (U[sym]) return FUT[sym] = {px: U[sym].px, oi: U[sym].oi};
-  const D = getData(sym), r = mulberry32(hashS(sym + 'fut')), oi = new Float64Array(N + 1), px = new Float64Array(N + 1); let o = D.c.base * 9, mode = 1;
+  const D = LD.sim[sym] || getData(sym), r = mulberry32(hashS(sym + 'fut')), oi = new Float64Array(N + 1), px = new Float64Array(N + 1); let o = D.c.base * 9, mode = 1;
   for (let t = 0; t <= N; t++) {
     if (t % 45 === 0) mode = r() < 0.65 ? 1 : -1;
     px[t] = D.spot[t] * (1 + RATE * (D.c.dte - 0.26 * t / N) / 365);
@@ -2837,10 +2844,10 @@ function liveProbe(el, bid) {
 }
 /* while the connector runs, the demo pages follow the real clock: paused at the close when the market is shut */
 function liveEdge(e) {
+  if (LD.replay) return N;
   if (!LIVE.st) return e;
   if (!LIVE.st.market_open) return N;
-  const d = new Date(Date.now() + 330 * 60000), m = d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60 - 555;
-  return clamp(m, 0, N);
+  return clamp(istMin(lvNow()), 0, N);
 }
 function liveInit() {
   if (!/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
@@ -2856,18 +2863,18 @@ function liveInit() {
 function liveSSE() {
   const es = LIVE.es = new EventSource('/stream');
   es.addEventListener('status', e => {
-    const s = lvJ(e); if (!s) return; const old = LIVE.st && LIVE.st.broker;
-    if (old && old !== s.broker) { LIVE.chains = {}; LIVE.prev = {}; LIVE.hist = {}; if (s.symbols && !s.symbols.includes(LIVE.sym)) LIVE.sym = s.symbols[0]; if (app.page === 'livechain') { LIVE.st = s; mount(); } }
+    const s = lvJ(e); if (!s) return; const old = LIVE.st && LIVE.st.broker; if (s.now) LIVE.skew = s.now - Date.now();
+    if (old && old !== s.broker) { LIVE.chains = {}; LIVE.prev = {}; LIVE.hist = {}; for (const k of Object.keys(CFG)) if (DATA[k] && DATA[k].live) { DATA[k] = LD.sim[k] || gen(k); LC = {}; } if (s.symbols && !s.symbols.includes(LIVE.sym)) LIVE.sym = s.symbols[0]; if (app.page === 'livechain') { LIVE.st = s; mount(); } }
     LIVE.st = s; LIVE.down = false; liveChrome();
     if (app.page === 'broker') MODS.broker.livePanel();
     if (app.page === 'livechain' && !MODS.livechain.ready) mount();
   });
   es.addEventListener('chain', e => {
     const c = lvJ(e); if (!c) return; const p = LIVE.chains[c.sym]; if (p && p.ts === c.ts) return;
-    LIVE.prev[c.sym] = p; LIVE.chains[c.sym] = c; LIVE.n++;
+    LIVE.prev[c.sym] = p; LIVE.chains[c.sym] = c; LIVE.n++; ldOnChain(c);
     if (app.page === 'broker') MODS.broker.liveTicks(c, p);
   });
-  es.addEventListener('stats', e => { const x = lvJ(e); if (x && LIVE.st) Object.assign(LIVE.st, x); });
+  es.addEventListener('stats', e => { const x = lvJ(e); if (!x) return; if (x.now) LIVE.skew = x.now - Date.now(); if (LIVE.st) Object.assign(LIVE.st, x); });
   es.addEventListener('history', e => { const h = lvJ(e); if (h) LIVE.hist[h.sym] = h.rows || []; });
   es.addEventListener('point', e => {
     const p = lvJ(e); if (!p) return; const h = LIVE.hist[p.sym] || (LIVE.hist[p.sym] = []), l = h[h.length - 1];
@@ -2885,16 +2892,16 @@ function liveChrome() {
   setText($('#rfVer'), (s.state === 'live' && !LIVE.down ? 'LIVE' : 'CONNECTOR') + ' · v7');
 }
 function liveFeedTick() {
-  const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
-  setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
-  const c = LIVE.chains[LIVE.sym], age = c ? Math.max(0, Math.round((Date.now() - c.ts) / 1000)) : null;
+  const s = LIVE.st || {}, open = s.market_open && !LIVE.down, rp = LD.replay || app.mode === 'replay';
+  setText($('#clock'), rp ? tls(Math.min(app.tf, N)) + ' IST' : hmIST(lvNow()) + ' IST'); setText($('#statusTxt'), rp ? 'Replay' : open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (rp ? 'warn' : open ? 'up live' : '');
+  const c = LIVE.chains[LIVE.sym], age = c ? Math.max(0, Math.round((lvNow() - c.ts) / 1000)) : null;
   setText($('#feedTps'), age == null ? '—' : age + 's');
   if (app.page === 'livechain') MODS.livechain.age();
   if (app.page === 'broker') MODS.broker.liveStats();
 }
 function liveTape() {
-  const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
-  setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
+  const s = LIVE.st || {}, open = s.market_open && !LIVE.down, rp = LD.replay || app.mode === 'replay';
+  setText($('#clock'), rp ? tls(Math.min(app.tf, N)) + ' IST' : hmIST(lvNow()) + ' IST'); setText($('#statusTxt'), rp ? 'Replay' : open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (rp ? 'warn' : open ? 'up live' : '');
   for (const sym of ['NIFTY', 'BANKNIFTY']) {
     const c = LIVE.chains[sym]; if (!c) continue;
     $$(`#tape .ti[data-tk="${sym}"]`).forEach(el => { el.classList.add('lvt'); setText(el.children[1], inr2(c.spot)); const b = el.children[2]; setText(b, 'LIVE'); b.className = 'b up'; });
@@ -2903,9 +2910,34 @@ function liveTape() {
 }
 function liveBan(v) {
   if (!LIVE.on || LIVE_PAGES.has(app.page)) return;
-  const s = LIVE.st || {}, ok = s.state === 'live' && !LIVE.down;
-  v.insertAdjacentHTML('afterbegin', `<div class="lvban" id="lvBan"><span class="pill ${ok ? 'up live' : 'warn'}"><span class="dot"></span>${ok ? 'LIVE' : 'CONNECTOR'}</span><span>${ok ? ((LIVE.st || {}).market_open ? L('Your broker is connected. <b>Live Chain</b> shows real data; this page still runs on demo data, timed to the real market clock.', 'Broker connected hai. <b>Live Chain</b> asli data dikhata hai; ye page abhi demo data par hai, asli market time ke saath.') : L('Market is closed. <b>Live Chain</b> shows your broker’s last prices; this demo page is paused at the close.', 'Market band hai. <b>Live Chain</b> broker ke aakhri bhaav dikhata hai; ye demo page close par ruka hua hai.')) : L('The connector is running but not logged in yet.', 'Connector chal raha hai par login abhi nahi hua.')}</span><button class="ibtn">${ok ? L('Open Live Chain', 'Live Chain kholo') : L('Log in', 'Login karo')} →</button></div>`);
-  $('#lvBan button').onclick = () => go(ok ? 'livechain' : 'broker');
+  const s = LIVE.st || {}, ok = s.state === 'live' && !LIVE.down, live = isLiveD('NIFTY');
+  const demoHere = STOCK_PAGES.has(app.page) || (SYM_PAGES.has(app.page) && !CFG[app.sym]);
+  let cls = '', pill, txt, btn = '';
+  if (LD.replay) {
+    cls = ' rp'; pill = `<span class="pill acc">REPLAY</span>`;
+    txt = L(`Replaying <b>${esc(LD.replay)}</b> from your stored history. Use play and the time bar below.`, `Stored history se <b>${esc(LD.replay)}</b> ka replay chal raha hai. Neeche play aur time bar use karo.`);
+    btn = `<button class="ibtn" data-ld="live">${L('Back to live', 'Live par wapas')} →</button>`;
+  } else if (live && !demoHere) {
+    pill = `<span class="pill up${ok && s.market_open ? ' live' : ''}"><span class="dot"></span>LIVE DATA</span>`;
+    txt = L(`Real NIFTY and BANKNIFTY data from <b>${esc((s.broker || '').toUpperCase())}</b>`, `<b>${esc((s.broker || '').toUpperCase())}</b> se asli NIFTY aur BANKNIFTY data`) + (s.market_open ? '' : L(' · market closed, showing the last session', ' · market band, pichhla session dikh raha hai')) + (DATA.NIFTY.first > 0 && !DATA.NIFTY.synthetic ? L(` · history from ${tl(DATA.NIFTY.first)}`, ` · history ${tl(DATA.NIFTY.first)} se`) : '') + '.';
+    btn = `<span class="ldrep"><select id="ldDay" aria-label="${L('Replay a stored day', 'Stored din ka replay')}"><option value="">${L('Replay a day…', 'Din ka replay…')}</option></select></span>`;
+  } else if (live) {
+    pill = `<span class="pill warn">DEMO DATA</span>`;
+    txt = L('Your broker is connected, but this page still runs on demo data. Live F&O stocks come in the next update.', 'Broker connected hai, par ye page abhi demo data par hai. Live F&O stocks agle update mein aayenge.');
+    btn = `<button class="ibtn" data-ld="chain">${L('Open Live Chain', 'Live Chain kholo')} →</button>`;
+  } else {
+    pill = `<span class="pill ${ok ? 'up live' : 'warn'}"><span class="dot"></span>${ok ? 'LIVE' : 'CONNECTOR'}</span>`;
+    txt = ok ? L('Loading your live data…', 'Live data load ho raha hai…') : L('The connector is running but not logged in yet.', 'Connector chal raha hai par login abhi nahi hua.');
+    btn = `<button class="ibtn" data-ld="${ok ? 'chain' : 'broker'}">${ok ? L('Open Live Chain', 'Live Chain kholo') : L('Log in', 'Login karo')} →</button>`;
+  }
+  v.insertAdjacentHTML('afterbegin', `<div class="lvban${cls}" id="lvBan">${pill}<span>${txt}</span>${btn}</div>`);
+  const b = $('#lvBan [data-ld]'); if (b) b.onclick = () => b.dataset.ld === 'live' ? (ldReplay(null), mount()) : go(b.dataset.ld === 'chain' ? 'livechain' : 'broker');
+  const sel = $('#ldDay');
+  if (sel) {
+    const fill = d => { const days = [...new Set(d.filter(x => CFG[x.sym]).map(x => x.day))]; sel.innerHTML = `<option value="">${days.length ? L('Replay a day…', 'Din ka replay…') : L('No stored days yet', 'Abhi koi stored din nahi')}</option>` + days.map(x => `<option>${esc(x)}</option>`).join(''); };
+    if (LD.days) fill(LD.days); ldDays(fill);
+    sel.onchange = () => { if (sel.value) { ldReplay(sel.value); setTimeout(mount, 400); } };
+  }
 }
 
 /* bars per strike: CE and PE side by side, spot and max-pain markers */
@@ -2983,7 +3015,7 @@ MODS.livechain = {
   },
   age() {
     const c = LIVE.chains[LIVE.sym], el = $('#lvAge'); if (!c || !el) return;
-    const s = LIVE.st || {}, a = Math.max(0, Math.round((Date.now() - c.ts) / 1000)), pill = $('#lvPill');
+    const s = LIVE.st || {}, a = Math.max(0, Math.round((lvNow() - c.ts) / 1000)), pill = $('#lvPill');
     const off = LIVE.down, closed = !s.market_open;
     setText(el, off ? L('OFFLINE · last data', 'OFFLINE · purana data') : `${closed ? L('LAST', 'LAST') : 'LIVE'} · ${(s.broker || '').toUpperCase()} · ${a}s`);
     if (pill) pill.className = 'pill ' + (off ? 'dn' : closed ? 'warn' : 'up live');
@@ -3152,7 +3184,7 @@ MODS.broker.livePanel = function () {
         ${s.msg && !['need_setup', 'need_config'].includes(s.state) ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}<div class="lvact">${act}</div></div>
       <div class="lvc-r"><div class="bk-m"><div><span>LAST UPDATE</span><b id="lvS1">—</b></div><div><span>API CALLS</span><b id="lvS2">—</b></div><div><span>ERRORS</span><b id="lvS3">—</b></div><div><span>SYMBOLS</span><b style="font-size:12px">${(s.symbols || []).map(esc).join(' · ')}</b></div><div><span>MARKET</span><b id="lvS4">—</b></div><div><span>UPTIME</span><b id="lvS5">—</b></div></div>
         ${s.login_kind === 'redirect' && s.broker !== 'demo' ? `<div class="lvred"><span>${L('Redirect URL for your broker app', 'Broker app ka Redirect URL')}</span><code>${esc(s.redirect_url || '')}</code><button class="ibtn" id="lvCopy">${L('Copy', 'Copy')}</button></div>` : ''}
-        <div class="lvh">${L('LIVE TICKS FROM YOUR BROKER', 'BROKER SE LIVE TICKS')}</div><ul class="ts" id="lvTs"><li><span class="tt">—</span><b>${L('Waiting for data…', 'Data ka intezaar…')}</b><span></span><span></span></li></ul></div>
+        <div class="lvh">${L('LIVE TICKS FROM YOUR BROKER', 'BROKER SE LIVE TICKS')}</div><ul class="ts" id="lvTs"><li><span class="tt">—</span><b>${s.market_open ? L('Waiting for data…', 'Data ka intezaar…') : L('Market closed · no new ticks', 'Market band · naye ticks nahi')}</b><span></span><span></span></li></ul></div>
     </div>`;
   const np = el.querySelector('.lvpaste'); if (np && keep.open) { np.open = true; $('#lvUrl').value = keep.url; }
   const err = m => { const e = $('#lvErr'); if (e) e.textContent = m || ''; };
@@ -3168,7 +3200,7 @@ MODS.broker.livePanel = function () {
 MODS.broker.liveStats = function () {
   if (!$('#lvS1')) return;
   const s = LIVE.st || {}, ts = Object.values(LIVE.chains).map(c => c.ts), last = ts.length ? Math.max(...ts) : 0;
-  setText($('#lvS1'), last ? Math.max(0, Math.round((Date.now() - last) / 1000)) + 's ago' : '—');
+  setText($('#lvS1'), last ? Math.max(0, Math.round((lvNow() - last) / 1000)) + 's ago' : '—');
   setText($('#lvS2'), inr(s.calls || 0)); setText($('#lvS3'), String(s.errors || 0));
   setText($('#lvS4'), s.market_open ? L('Open', 'Khula') : L('Closed', 'Band'));
   const up = Math.floor((Date.now() - (s.started || Date.now())) / 1000); setText($('#lvS5'), up >= 3600 ? `${Math.floor(up / 3600)}h ${Math.floor(up % 3600 / 60)}m` : `${Math.floor(up / 60)}m ${up % 60}s`);
@@ -3251,6 +3283,175 @@ MODS.broker.setup = function (id) {
     };
   }).catch(() => this.steps(id));
 };
+
+/* ---- v8: every index page on real data. The connector keeps one option-chain snapshot per minute;
+   here that history becomes the same day model the simulator builds, so all pages read it unchanged. ---- */
+const LD = {loading: {}, replay: null, days: null, sim: {}};
+const lvNow = () => Date.now() + (LIVE.skew || 0);
+const istMin = ts => { const d = new Date(ts + 330 * 60000); return d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60 - 555; };
+const SNAP_KEYS = ['cOI', 'pOI', 'cChg', 'pChg', 'cVol', 'pVol', 'cP', 'pP', 'cCh', 'pCh', 'cIV', 'pIV', 'cD', 'pD', 'cG', 'pG', 'cTh', 'pTh', 'cVe', 'pVe', 'cTV', 'pTV', 'revC', 'revP', 'pcrK', 'gexK', 'pain'];
+const isLiveD = sym => { const D = DATA[sym]; return !!(D && D.live); };
+// packed row: k, then ltp, oi, oic, vol, iv, chg for CE and for PE
+const packRows = c => c.rows.map(r => [r.k, r.ce.ltp, r.ce.oi, r.ce.oic, r.ce.vol, r.ce.iv, r.ce.chg, r.pe.ltp, r.pe.oi, r.pe.oic, r.pe.vol, r.pe.iv, r.pe.chg]);
+
+function ldFetch(sym, day) {
+  if (!CFG[sym] || LD.loading[sym]) return;
+  LD.loading[sym] = 1;
+  fetch('/api/day?sym=' + encodeURIComponent(sym) + (day ? '&day=' + encodeURIComponent(day) : ''), {cache: 'no-store'})
+    .then(r => r.ok ? r.json() : null).then(j => {
+      LD.loading[sym] = 0;
+      if (!j || !j.minutes || !j.minutes.length) return;
+      if (!LD.sim[sym]) LD.sim[sym] = DATA[sym] && !DATA[sym].live ? DATA[sym] : gen(sym);
+      const D = buildLiveD(sym, j); if (!D) return;
+      if (!day && LIVE.chains[sym]) ldApply(D, LIVE.chains[sym], true);
+      DATA[sym] = D; delete FUT[sym]; LC = {};
+      if (!['broker', 'livechain'].includes(app.page)) mount();
+    }).catch(() => { LD.loading[sym] = 0; });
+}
+
+function buildLiveD(sym, j) {
+  const ks = new Set();
+  for (const x of j.minutes) for (const r of x[5]) ks.add(r[0]);
+  const arr = [...ks].sort((a, b) => a - b); if (arr.length < 3) return null;
+  let step = Infinity; for (let i = 1; i < arr.length; i++) step = Math.min(step, arr[i] - arr[i - 1]);
+  const strikes = []; for (let x = arr[0]; x <= arr[arr.length - 1] + 1e-6 && strikes.length < 161; x += step) strikes.push(Math.round(x * 100) / 100);
+  const K = strikes.length, sz = (N + 1) * K, nan = () => new Float64Array(sz).fill(NaN);
+  const base = CFG[sym], sim = LD.sim[sym];
+  const D = {live: true, sym, day: j.day, synthetic: !!j.synthetic, broker: j.broker, K, strikes, idx: new Map(strikes.map((x, i) => [x, i])),
+    spot: new Float64Array(N + 1).fill(NaN), hi: new Float64Array(N + 1).fill(NaN), lo: new Float64Array(N + 1).fill(NaN), has: new Uint8Array(N + 1),
+    cO: nan(), pO: nan(), cV: nan(), pV: nan(), cL: nan(), pL: nan(), cI: nan(), pI: nan(),
+    bC: new Float64Array(K).fill(NaN), bP: new Float64Array(K).fill(NaN), prevC: new Float64Array(K).fill(NaN), prevP: new Float64Array(K).fill(NaN),
+    snaps: [], events: [], stocks: sim ? sim.stocks : []};
+  for (const [m, , S, hi, lo, rows] of j.minutes) ldPut(D, m, S, hi, lo, rows);
+  ldFill(D);
+  const t0 = D.has.indexOf(1), exp = j.expiry ? new Date(j.expiry + 'T15:30:00+05:30') : null, open = new Date(j.day + 'T09:15:00+05:30');
+  D.first = t0; D.last = D.has.lastIndexOf(1);
+  D.c = {...base, sym, kind: 'index', step, lot: j.lot || base.lot, prev: j.prev || D.spot[t0], spot0: D.spot[t0], half: (K - 1) / 2,
+    exp: exp ? exp.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', timeZone: 'Asia/Kolkata'}) : base.exp, expiry: j.expiry,
+    dte: exp ? Math.max(0.01, (exp - open) / 864e5) : base.dte};
+  for (let k = 0; k < K; k++) {               // strikes never quoted: no OI, intrinsic price
+    if (isNaN(D.bC[k])) D.bC[k] = 0; if (isNaN(D.bP[k])) D.bP[k] = 0;
+    if (isNaN(D.prevC[k])) D.prevC[k] = D.cL[D.first * K + k] || 0; if (isNaN(D.prevP[k])) D.prevP[k] = D.pL[D.first * K + k] || 0;
+  }
+  ldDerive(D, 0);
+  return D;
+}
+
+function ldPut(D, m, S, hi, lo, rows) {
+  m = clamp(Math.round(m), 0, N); const K = D.K, o = m * K;
+  D.has[m] = 1; D.spot[m] = S; D.hi[m] = Math.max(hi || S, S); D.lo[m] = Math.min(lo || S, S);
+  for (const r of rows) {
+    const k = D.idx.get(r[0]); if (k === undefined) continue;
+    const i = o + k;
+    D.cL[i] = r[1]; D.cO[i] = r[2]; D.cV[i] = r[4]; D.cI[i] = r[5] > 0 ? r[5] : NaN;
+    D.pL[i] = r[7]; D.pO[i] = r[8]; D.pV[i] = r[10]; D.pI[i] = r[11] > 0 ? r[11] : NaN;
+    if (isNaN(D.bC[k])) { D.bC[k] = r[2] - (r[3] || 0); D.prevC[k] = r[6] != null ? r[1] - r[6] : NaN; }
+    if (isNaN(D.bP[k])) { D.bP[k] = r[8] - (r[9] || 0); D.prevP[k] = r[12] != null ? r[7] - r[12] : NaN; }
+  }
+}
+
+/* minutes or strikes without a reading take the nearest earlier one (or the first one after) */
+function ldFill(D) {
+  const K = D.K, sers = [D.spot, D.hi, D.lo];
+  for (const a of sers) { let v = NaN; for (let t = 0; t <= N; t++) { if (isNaN(a[t])) a[t] = v; else v = a[t]; } v = NaN; for (let t = N; t >= 0; t--) { if (isNaN(a[t])) a[t] = v; else v = a[t]; } }
+  for (const a of [D.cO, D.pO, D.cV, D.pV, D.cL, D.pL, D.cI, D.pI]) for (let k = 0; k < K; k++) {
+    let v = NaN; for (let t = 0; t <= N; t++) { const i = t * K + k; if (isNaN(a[i])) a[i] = v; else v = a[i]; }
+    v = NaN; for (let t = N; t >= 0; t--) { const i = t * K + k; if (isNaN(a[i])) a[i] = v; else v = a[i]; }
+  }
+  for (let t = 0; t <= N; t++) for (let k = 0; k < K; k++) {
+    const i = t * K + k, S = D.spot[t], x = D.strikes[k];
+    if (isNaN(D.cO[i])) { D.cO[i] = 0; D.cV[i] = 0; D.cL[i] = Math.max(0.05, S - x); }
+    if (isNaN(D.pO[i])) { D.pO[i] = 0; D.pV[i] = 0; D.pL[i] = Math.max(0.05, x - S); }
+  }
+}
+
+/* one minute of the live day: real prices, OI and IV; greeks from Black-Scholes on that IV */
+function snapLive(D, t) {
+  const c = D.c, K = D.K, o = t * K, S = D.spot[t], T = Math.max(1e-5, (c.dte - t / N * 0.26) / 365);
+  const s = {t, t0: t, S, T, K, c};
+  for (const n of SNAP_KEYS) s[n] = new Float64Array(K);
+  let ivA = NaN, best = Infinity;
+  for (let k = 0; k < K; k++) { const d = Math.abs(D.strikes[k] - S), v = D.cI[o + k] > 0 ? D.cI[o + k] : D.pI[o + k]; if (d < best && v > 0) { best = d; ivA = v; } }
+  if (!(ivA > 0)) ivA = 15;
+  let sC = 0, sP = 0, sCc = 0, sPc = 0, gx = 0;
+  for (let k = 0; k < K; k++) {
+    const x = D.strikes[k], i = o + k, ivc = D.cI[i] > 0 ? D.cI[i] : ivA, ivp = D.pI[i] > 0 ? D.pI[i] : ivA;
+    const bc = bs(S, x, T, ivc / 100, true), bp = bs(S, x, T, ivp / 100, false);
+    s.cOI[k] = D.cO[i]; s.pOI[k] = D.pO[i]; s.cChg[k] = s.cOI[k] - D.bC[k]; s.pChg[k] = s.pOI[k] - D.bP[k];
+    s.cVol[k] = D.cV[i]; s.pVol[k] = D.pV[i];
+    s.cP[k] = D.cL[i]; s.pP[k] = D.pL[i]; s.cCh[k] = s.cP[k] - D.prevC[k]; s.pCh[k] = s.pP[k] - D.prevP[k];
+    s.cIV[k] = ivc; s.pIV[k] = ivp; s.cD[k] = bc.d; s.pD[k] = bp.d; s.cG[k] = bc.g; s.pG[k] = bp.g;
+    s.cTh[k] = bc.th; s.pTh[k] = bp.th; s.cVe[k] = bc.ve; s.pVe[k] = bp.ve;
+    s.cTV[k] = Math.max(0, s.cP[k] - Math.max(0, S - x)); s.pTV[k] = Math.max(0, s.pP[k] - Math.max(0, x - S));
+    const strd = s.cP[k] + s.pP[k]; s.revC[k] = Math.round(x - 0.08 * strd); s.revP[k] = Math.round(x - 0.3 * strd);
+    s.pcrK[k] = s.cOI[k] > 0 ? s.pOI[k] / s.cOI[k] : 0;
+    s.gexK[k] = (bc.g * s.cOI[k] - bp.g * s.pOI[k]) * c.lot * S * S * 0.01 / 1e7;
+    sC += s.cOI[k]; sP += s.pOI[k]; sCc += s.cChg[k]; sPc += s.pChg[k]; gx += s.gexK[k];
+  }
+  Object.assign(s, {totC: sC, totP: sP, totCc: sCc, totPc: sPc, pcr: sC ? sP / sC : 0, gex: gx});
+  s.atmK = 0; for (let k = 1; k < K; k++) if (Math.abs(D.strikes[k] - S) < Math.abs(D.strikes[s.atmK] - S)) s.atmK = k;
+  s.atm = D.strikes[s.atmK];
+  s.majR = argmax(s.cOI); s.majS = argmax(s.pOI);
+  s.rawR = Math.max(...s.cChg) > 0 ? argmax(s.cChg) : s.majR; s.rawS = Math.max(...s.pChg) > 0 ? argmax(s.pChg) : s.majS;
+  let cum = 0; s.flip = null;
+  for (let k = 0; k < K; k++) { const prev = cum; cum += s.gexK[k]; if (prev < 0 && cum >= 0 && s.flip === null) s.flip = D.strikes[k]; }
+  let bp2 = Infinity; s.maxPain = s.atm;
+  for (let j = 0; j < K; j++) { let p = 0; const xj = D.strikes[j]; for (let k = 0; k < K; k++) { const xk = D.strikes[k]; p += s.cOI[k] * Math.max(0, xj - xk) + s.pOI[k] * Math.max(0, xk - xj); } s.pain[j] = p * c.lot / 1e7; if (p < bp2) { bp2 = p; s.maxPain = xj; } }
+  s.F = s.atm + s.cP[s.atmK] - s.pP[s.atmK];
+  return s;
+}
+
+/* snapshots from minute `from` on (later minutes share the latest one), then series, walls and events */
+function ldDerive(D, from) {
+  const last = Math.max(D.last, from);
+  for (let t = from; t <= N; t++) D.snaps[t] = t <= last ? snapLive(D, t) : D.snaps[last];
+  D.dayHi = new Float64Array(N + 1); D.dayLo = new Float64Array(N + 1);
+  for (let t = 0; t <= N; t++) { D.dayHi[t] = Math.max(t ? D.dayHi[t - 1] : -Infinity, D.hi[t]); D.dayLo[t] = Math.min(t ? D.dayLo[t - 1] : Infinity, D.lo[t]); }
+  D.ser = {pcr: D.snaps.map(s => s.pcr), gex: D.snaps.map(s => s.gex), mp: D.snaps.map(s => s.maxPain), iv: D.snaps.map(s => s.cIV[s.atmK])};
+  D.events = []; Object.assign(D, wallsFrom(D, D.sym, D.events)); moreEvents(D);
+  if (D.first > 3) D.events = D.events.filter(e => e.t > D.first);     // nothing to say about minutes before the connector started
+}
+
+/* a fresh chain from the broker: write it into the current minute and carry it forward */
+function ldApply(D, c, quiet) {
+  if (LD.replay) return;
+  const rows = packRows(c);
+  if (rows.some(r => !D.idx.has(r[0]))) { if (!quiet) ldFetch(D.sym); return; }   // ATM moved past the stored grid: rebuild
+  const m = clamp(Math.floor(istMin(c.ts)), 0, N), K = D.K;
+  const hi = D.has[m] ? Math.max(D.hi[m], c.spot) : c.spot, lo = D.has[m] ? Math.min(D.lo[m], c.spot) : c.spot;
+  if (m < D.last) return;                                                    // late packet
+  for (let t = D.last + 1; t < m; t++) { D.spot[t] = D.spot[D.last]; D.hi[t] = D.lo[t] = D.spot[D.last]; for (const a of [D.cO, D.pO, D.cV, D.pV, D.cL, D.pL, D.cI, D.pI]) a.copyWithin(t * K, D.last * K, D.last * K + K); }
+  if (m > D.last) for (const a of [D.cO, D.pO, D.cV, D.pV, D.cL, D.pL, D.cI, D.pI]) a.copyWithin(m * K, D.last * K, D.last * K + K);
+  ldPut(D, m, c.spot, hi, lo, rows);
+  const from = Math.min(m, D.last + 1); D.last = m;
+  for (let t = m + 1; t <= N; t++) { D.spot[t] = D.hi[t] = D.lo[t] = c.spot; for (const a of [D.cO, D.pO, D.cV, D.pV, D.cL, D.pL, D.cI, D.pI]) a.copyWithin(t * K, m * K, m * K + K); }
+  ldDerive(D, from);
+  LC = {};
+}
+
+function ldOnChain(c) {
+  if (!CFG[c.sym] || LD.replay) return;
+  const D = DATA[c.sym];
+  if (D && D.live) ldApply(D, c); else ldFetch(c.sym);
+}
+
+/* replay a stored day on every page */
+function ldReplay(day) {
+  LD.replay = day || null;
+  for (const sym of Object.keys(CFG)) { delete DATA[sym]; if (LD.sim[sym]) DATA[sym] = LD.sim[sym]; LD.loading[sym] = 0; ldFetch(sym, day || undefined); }
+  if (day) { app.mode = 'replay'; app.edge = N; app.tf = 0; app.playing = true; } else { app.mode = 'live'; }
+  setTimeout(() => render(true), 50);
+}
+function ldDays(cb) { fetch('/api/days', {cache: 'no-store'}).then(r => r.json()).then(d => { LD.days = d; cb && cb(d); }).catch(() => {}); }
+
+/* where the page's numbers come from, shown on the page */
+const STOCK_PAGES = new Set(['mflow', 'grid', 'scanner', 'backtest']);
+function ldMark(v) {
+  if (!LIVE.on || !isLiveD('NIFTY')) return;
+  const demoCard = el => { const c = el && (el.closest('.card') || el); if (!c || c.querySelector('.dm-tag')) return; const h = c.querySelector('.card-h'); if (h) h.insertAdjacentHTML('beforeend', `<span class="pill warn dm-tag" title="${L('Still simulated: live stocks and futures come in the next update', 'Abhi simulated: live stocks aur futures agle update mein')}">DEMO</span>`); };
+  ['#ocCycle', '#ovBreadth', '#ovBu'].forEach(sel => demoCard(v.querySelector(sel)));
+  v.querySelectorAll('.card-h h3').forEach(h => { if (/FII \/ DII/.test(h.textContent)) demoCard(h); });
+}
 
 /* ---- Journal + OI ---- */
 const TODAY = [
@@ -3526,7 +3727,7 @@ function render(force) {
 function mount() {
   const v = $('#view'), m = MODS[app.page];
   v.innerHTML = ''; v.onmouseover = v.onmouseout = v.onclick = null; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
-  m.mount(v); liveBan(v); m.dirty = true; m.tiles = null; m.br = 0;
+  m.mount(v); liveBan(v); ldMark(v); m.dirty = true; m.tiles = null; m.br = 0;
   $$('#view .card, #view .cat').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 14)));
   $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
   render(true);
