@@ -24,6 +24,7 @@ class Store:
             self.db.execute('PRAGMA journal_mode=WAL')
             self.db.execute('CREATE TABLE IF NOT EXISTS snap (day TEXT, sym TEXT, m INTEGER, ts INTEGER, spot REAL, hi REAL, lo REAL, rows TEXT, PRIMARY KEY (day, sym, m))')
             self.db.execute('CREATE TABLE IF NOT EXISTS meta (day TEXT, sym TEXT, expiry TEXT, lot INTEGER, prev REAL, broker TEXT, PRIMARY KEY (day, sym))')
+            self.db.execute('CREATE TABLE IF NOT EXISTS stk (day TEXT, m INTEGER, ts INTEGER, rows TEXT, PRIMARY KEY (day, m))')
             self.db.commit()
 
     @staticmethod
@@ -53,6 +54,25 @@ class Store:
             self.db.execute('INSERT OR REPLACE INTO snap VALUES (?,?,?,?,?,?,?,?)', (day, sym, m, c['ts'], S, hl[0], hl[1], json.dumps(self.pack(c), separators=(',', ':'))))
             self.db.execute('INSERT OR REPLACE INTO meta VALUES (?,?,?,?,?,?)', (day, sym, c.get('expiry'), c.get('lot'), c.get('prev'), broker))
             self.db.commit()
+
+    def put_stocks(self, ts, items):
+        """items: [[s, ltp, prev, oi, oic, vol, lot], ...] for the current minute."""
+        t = now_ist()
+        if not market_open(t):
+            return
+        with self.lock:
+            self.db.execute('INSERT OR REPLACE INTO stk VALUES (?,?,?,?)', (t.date().isoformat(), minute_of(t), ts, json.dumps(items, separators=(',', ':'))))
+            self.db.commit()
+
+    def stocks_day(self, day=None):
+        with self.lock:
+            if not day:
+                r = self.db.execute('SELECT MAX(day) FROM stk').fetchone()
+                day = r[0] if r else None
+            if not day:
+                return None
+            rows = self.db.execute('SELECT m, ts, rows FROM stk WHERE day=? ORDER BY m', (day,)).fetchall()
+        return {'day': day, 'minutes': [[m, ts, json.loads(rw)] for m, ts, rw in rows]} if rows else None
 
     def days(self):
         with self.lock:

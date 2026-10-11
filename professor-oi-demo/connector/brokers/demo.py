@@ -37,6 +37,32 @@ class Demo(Adapter):
             raise AuthError('Demo login expects request_token=demo-token')
         self.token, self.user = 'demo', 'DEMO01'
 
+    stocks_supported = True
+    stocks_gap = 5
+    NAMES = tuple(('RELIANCE HDFCBANK ICICIBANK INFY TCS BHARTIARTL ITC LT SBIN AXISBANK KOTAKBANK HINDUNILVR BAJFINANCE MARUTI SUNPHARMA HCLTECH TITAN NTPC '
+             'ULTRACEMCO TATAMOTORS POWERGRID ONGC ADANIPORTS ASIANPAINT TATASTEEL COALINDIA BAJAJFINSV NESTLEIND JSWSTEEL WIPRO GRASIM TECHM HINDALCO CIPLA '
+             'DRREDDY SBILIFE HDFCLIFE INDUSINDBK BANKBARODA PNB CANBK FEDERALBNK IDFCFIRSTB AUBANK DLF VEDL TATAPOWER BEL HAL IRCTC ZOMATO').split())
+
+    def stocks(self):
+        if not self.token:
+            raise AuthError('Not logged in')
+        st = self.st.setdefault('_stk', {})
+        r = random.Random(7 if not st else None)
+        moving = market_open() or self.cfg.get('always_moving')
+        out = []
+        for i, n in enumerate(self.NAMES + ('NIFTY', 'BANKNIFTY')):
+            if n not in st:
+                g = random.Random(n)
+                px = SPEC[n][0] * 1.002 if n in SPEC else round(80 + g.random() * 3500, 1)
+                st[n] = {'px': px, 'prev': px * (1 + g.gauss(0, 0.012)), 'oi': g.randint(20, 400) * 1e5, 'vol': 0.0, 'd': g.gauss(0, 0.0006), 'o': g.gauss(0, 0.002)}
+            x = st[n]
+            if moving:
+                x['px'] *= 1 + x['d'] + r.gauss(0, 0.0012)
+                x['oi'] *= 1 + x['o'] + r.gauss(0, 0.0015)
+                x['vol'] += x['oi'] * abs(r.gauss(0.004, 0.003))
+            out.append({'s': n, 'ltp': round(x['px'], 2), 'prev': round(x['prev'], 2), 'oi': round(x['oi']), 'vol': round(x['vol']), 'lot': SPEC[n][2] if n in SPEC else 500})
+        return out
+
     def chain(self, sym, n):
         if not self.token:
             raise AuthError('Not logged in')

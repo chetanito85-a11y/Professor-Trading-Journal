@@ -1,7 +1,7 @@
 """Zerodha Kite Connect (REST). Login: kite.zerodha.com redirect with request_token."""
 import csv, io, urllib.parse
 from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_json, sha256, today_ist
-from . import Adapter, F
+from . import Adapter, F, nearest_futs
 
 ROOT = 'https://api.kite.trade'
 SPOT = {'NIFTY': 'NSE:NIFTY 50', 'BANKNIFTY': 'NSE:NIFTY BANK', 'FINNIFTY': 'NSE:NIFTY FIN SERVICE', 'MIDCPNIFTY': 'NSE:NIFTY MID SELECT'}
@@ -43,18 +43,36 @@ class Kite(Adapter):
         day = today_ist().isoformat()
         if self.ins_day == day:
             return
-        path = cache_path(f'kite-nfo-{day}.json')
+        path = cache_path(f'kite-nfo2-{day}.json')
         data = load_json(path)
         if not data:
             txt = http('GET', ROOT + '/instruments/NFO', headers=self.h(), raw=True, timeout=90)
-            data = {}
+            data = {'_FUT': []}
             for row in csv.DictReader(io.StringIO(txt)):
                 if row.get('segment') == 'NFO-OPT' and row.get('name') in SPOT:
                     data.setdefault(row['name'], []).append([row['expiry'], float(row['strike']), row['instrument_type'], row['tradingsymbol'], int(float(row['lot_size'] or 0))])
+                elif row.get('segment') == 'NFO-FUT':
+                    data['_FUT'].append([row['name'], row['expiry'], row['tradingsymbol'], int(float(row['lot_size'] or 0))])
             if not data:
                 raise BrokerError('Kite instrument list came back empty.')
             save_json(path, data)
         self.ins, self.ins_day = data, day
+
+    stocks_supported = True
+
+    def stocks(self):
+        self.instruments()
+        futs = nearest_futs(self.ins.get('_FUT') or [], today_ist().isoformat())
+        names = sorted(futs)
+        out = []
+        for i in range(0, len(names), 450):                   # quote API: up to 500 instruments a call
+            part = names[i:i + 450]
+            q = self.quote(['NFO:' + futs[n][0] for n in part])
+            for n in part:
+                x = q.get('NFO:' + futs[n][0])
+                if x and x.get('last_price'):
+                    out.append({'s': n, 'ltp': x['last_price'], 'prev': (x.get('ohlc') or {}).get('close'), 'oi': x.get('oi'), 'vol': x.get('volume'), 'lot': futs[n][1]})
+        return out
 
     def quote(self, keys):
         r = http('GET', ROOT + '/quote', params={'i': keys}, headers=self.h())

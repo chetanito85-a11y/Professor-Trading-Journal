@@ -88,6 +88,28 @@ ICICI Direct Breeze
 - NIFTY aur BANKNIFTY aate hain.
 
 
+Telegram alerts (phone par)
+---------------------------
+1. Telegram mein @BotFather kholo, /newbot bhejo, koi naam do -> token milega.
+2. Professor OI -> Alerts page -> token paste karo -> Save.
+3. Telegram mein apna naya bot kholo, Start dabao. Phir "Find my chat" dabao.
+4. "Send a test alert" dabao. Phone par message aana chahiye.
+Alerts connector bhejta hai, isliye browser band ho tab bhi aate hain
+(bas Start-Live-Broker ki kaali window chalti rahe). Sirf market time mein.
+Kya bhejna hai (support/resistance shift, PCR, wall test, stock buildup) wahin chuno.
+
+Live F&O stocks
+---------------
+Scanner, Market Flow, Buildup Grid aur breadth ke ~200 stocks ka price, OI
+aur volume Kite, Dhan, Upstox aur Angel se live aata hai (har 20-30 second).
+Fyers aur ICICI ke saath ye pages abhi demo par rehte hain.
+Stock ka IV aur PCR abhi "-" dikhta hai (uske liye stock option chain chahiye).
+
+History aur replay
+------------------
+Connector har minute ka data connector\cache\history.db mein rakhta hai.
+Kisi bhi page ke upar "Replay a day..." se purana din dobara chala sakte ho.
+
 Roz subah
 ---------
 Start-Live-Broker chalao. Dhan/Angel khud connect ho jaate hain (Dhan ka

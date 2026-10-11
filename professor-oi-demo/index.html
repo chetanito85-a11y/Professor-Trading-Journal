@@ -809,6 +809,22 @@ main{padding:16px 22px 120px}
 .ldrep{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ldrep select{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:5px 8px;font:500 12px var(--f-mono)}
 .lvban.rp{border-left-color:var(--accent)}
+.tgw{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}
+.tgsteps{display:flex;flex-direction:column;gap:12px}
+.tgs{display:grid;grid-template-columns:26px 1fr;gap:10px}
+.tgs>i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f-mono);font-style:normal;border:1px solid var(--line-2)}
+.tgs.ok>i{background:var(--put);border-color:var(--put);color:var(--on-solid)}
+.tgs b{font-size:13px}
+.tgs p{margin:3px 0 7px;font-size:12px;color:var(--muted)}
+.tgs code{font:600 11px var(--f-mono);padding:1px 5px;border:1px solid var(--line);border-radius:4px;background:var(--panel-2);color:var(--fg)}
+.tgs .lvrow{max-width:460px}
+.tgok{margin:0;font-size:12px;color:var(--put)}
+.tgk{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;cursor:pointer}
+.tgk input{accent-color:var(--put);width:15px;height:15px}
+.tgl{list-style:none;margin:0;padding:0;font-size:12px;max-height:220px;overflow:auto}
+.tgl li{display:grid;grid-template-columns:44px 1fr 16px;gap:8px;padding:5px 0;border-bottom:1px dotted var(--line)}
+.tgl .tt{font:600 11px var(--f-mono);color:var(--faint)}
+@media (max-width:900px){.tgw{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 </head>
@@ -926,7 +942,7 @@ const isStock = sym => !!U[sym];
 function niceLot(p) { const q = 650000 / p, m = q > 1000 ? 50 : q > 200 ? 25 : q > 50 ? 5 : 1; return Math.max(1, Math.round(q / m) * m); }
 function stockCfg(sym) {
   const u = U[sym], p = u.prev, st = p < 60 ? 1 : p < 150 ? 2 : p < 300 ? 5 : p < 800 ? 10 : p < 1600 ? 20 : p < 3500 ? 50 : p < 8000 ? 100 : 250;
-  return {sym, name: sym, kind: 'stock', sec: u.sec, spot0: u.px[0], prev: p, step: st, lot: u.lot, half: Math.max(4, Math.min(10, Math.floor(u.px[0] / st) - 2)), iv0: u.iv[0] / 100, dte: 18, exp: '28 Oct', seed: hashS(sym) % 9973 + 3, vol: 0, bias: 0, base: u.cb, smile: [2, 30], px: u.px};
+  return {sym, name: sym, kind: 'stock', sec: u.sec, spot0: u.px[0], prev: p, step: st, lot: u.lot, half: Math.max(4, Math.min(10, Math.floor(u.px[0] / st) - 2)), iv0: (isFinite(u.iv[0]) ? u.iv[0] : 28) / 100, dte: 18, exp: '28 Oct', seed: hashS(sym) % 9973 + 3, vol: 0, bias: 0, base: u.cb, smile: [2, 30], px: u.px};
 }
 const DATA = {};
 const getData = sym => DATA[sym] || (DATA[sym] = gen(sym));
@@ -1428,9 +1444,9 @@ const BU_COL = {LB: 'var(--put)', SB: 'var(--call)', SC: 'color-mix(in srgb,var(
 function scanRows(tf) {
   const t0 = Math.min(N, Math.floor(tf)), a = Math.min(tf, N) - t0, t1 = Math.min(N, t0 + 1);
   return UL.map(u => {
-    const p = lerp(u.pct[t0], u.pct[t1], a), px = lerp(u.px[t0], u.px[t1], a), oi = u.oi[t0], oc = (oi / u.oi[0] - 1) * 100;
+    const p = lerp(u.pct[t0], u.pct[t1], a), px = lerp(u.px[t0], u.px[t1], a), oi = u.oi[t0], oc = (oi / (u.oiBase || u.oi[0]) - 1) * 100;
     const bu = Math.abs(p) < 0.1 && Math.abs(oc) < 0.4 ? 'NT' : p >= 0 ? (oc >= 0 ? 'LB' : 'SC') : (oc >= 0 ? 'SB' : 'LU');
-    return {s: u.s, sec: u.sec, px, p, oi, oc, bu, iv: u.iv[t0], ivc: u.iv[t0] - u.iv[0], pcr: u.pcr[t0], vx: u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
+    return {s: u.s, sec: u.sec, px, p, oi, oc, bu, iv: u.iv[t0], ivc: u.iv[t0] - u.iv[0], pcr: u.pcr[t0], vx: u.vxLive != null ? u.vxLive : u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
   });
 }
 const symOptions = () => `<optgroup label="Indices"><option>NIFTY</option><option>BANKNIFTY</option></optgroup>` + Object.entries(FNO).map(([sec, list]) => `<optgroup label="${sec}">${list.split(' ').map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('')}</optgroup>`).join('');
@@ -2034,7 +2050,7 @@ MODS.scanner = {
       setText($('#scCnt'), `${list.length} of ${rows.length}`);
       const th = (k, l, cls = '') => `<th class="${cls}"><button class="thb" data-k="${k}">${l}${f.sort === k ? (f.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
       const box = $('#scTbl'), sc = box.scrollTop;
-      box.innerHTML = list.length ? `<table class="tbl scan" style="min-width:860px"><thead><tr>${th('s', 'Symbol', 'l')}${th('px', 'LTP')}${th('p', 'Chg %')}${th('oi', 'Fut OI')}${th('oc', 'OI chg %')}<th class="c">Buildup</th>${th('iv', 'IV')}${th('pcr', 'PCR')}${th('vx', 'Volume ×')}</tr></thead><tbody>${list.map(r => `<tr data-s="${esc(r.s)}"><td class="l"><b>${esc(r.s)}</b> <span class="mut" style="font-family:var(--f-body);font-size:11px">${r.sec}</span></td><td><b class="v" data-px></b></td><td data-p></td><td>${inr(r.oi)}</td><td class="${r.oc >= 0 ? 'up' : 'dn'}">${pct(r.oc, 1)}</td><td class="c"><span class="bu ${r.bu}">${BU[r.bu]}</span></td><td>${r.iv.toFixed(1)} <span class="${r.ivc >= 0 ? 'up' : 'dn'}" style="font-size:10.5px">${sgn(r.ivc, x => x.toFixed(1))}</span></td><td>${r.pcr.toFixed(2)}</td><td class="${r.vx >= 2 ? 'amb' : ''}">${r.vx.toFixed(1)}×${r.vx >= 2 ? ' ⚡' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:14px">Is filter mein koi stock nahi. Filter badlo.</p>';
+      box.innerHTML = list.length ? `<table class="tbl scan" style="min-width:860px"><thead><tr>${th('s', 'Symbol', 'l')}${th('px', 'LTP')}${th('p', 'Chg %')}${th('oi', 'Fut OI')}${th('oc', 'OI chg %')}<th class="c">Buildup</th>${th('iv', 'IV')}${th('pcr', 'PCR')}${th('vx', 'Volume ×')}</tr></thead><tbody>${list.map(r => `<tr data-s="${esc(r.s)}"><td class="l"><b>${esc(r.s)}</b> <span class="mut" style="font-family:var(--f-body);font-size:11px">${r.sec}</span></td><td><b class="v" data-px></b></td><td data-p></td><td>${inr(r.oi)}</td><td class="${r.oc >= 0 ? 'up' : 'dn'}">${pct(r.oc, 1)}</td><td class="c"><span class="bu ${r.bu}">${BU[r.bu]}</span></td><td>${isFinite(r.iv) ? `${r.iv.toFixed(1)} <span class="${r.ivc >= 0 ? 'up' : 'dn'}" style="font-size:10.5px">${sgn(r.ivc, x => x.toFixed(1))}</span>` : '<span class="mut">—</span>'}</td><td>${isFinite(r.pcr) ? r.pcr.toFixed(2) : '<span class="mut">—</span>'}</td><td class="${r.vx >= 2 ? 'amb' : ''}">${r.vx.toFixed(1)}×${r.vx >= 2 ? ' ⚡' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:14px">Is filter mein koi stock nahi. Filter badlo.</p>';
       box.scrollTop = sc;
       this.refs = {}; $$('#scTbl tr[data-s]').forEach(tr => this.refs[tr.dataset.s] = {px: tr.querySelector('[data-px]'), p: tr.querySelector('[data-p]')});
       this.drawMap(rows); this.drawFlow(rows);
@@ -2354,12 +2370,12 @@ function stockView(sym, tf) {
   const sup = peaks.filter(p => p < price - bw * 0.25).sort((a, b) => b - a), res = peaks.filter(p => p > price + bw * 0.25).sort((a, b) => a - b);
   while (sup.length < 4) sup.push((sup.length ? sup[sup.length - 1] : price) - bw * 1.4);
   while (res.length < 2) res.push((res.length ? res[res.length - 1] : price) + bw * 1.4);
-  const pct = u.pct[t0], oc = (u.oi[t0] / u.oi[0] - 1) * 100;
+  const pct = u.pct[t0], oc = (u.oi[t0] / (u.oiBase || u.oi[0]) - 1) * 100;
   const bu = Math.abs(pct) < 0.1 && Math.abs(oc) < 0.4 ? 'NT' : pct >= 0 ? (oc >= 0 ? 'LB' : 'SC') : (oc >= 0 ? 'SB' : 'LU');
   let delta = 0; for (let t = Math.max(1, t0 - 30); t <= t0; t++) delta += dv(t) * Math.sign(px[t] - px[t - 1]);
   const bull = pct >= 0, stop = bull ? sup[0] : res[0], tgt = bull ? res[1] : sup[1];
   const z = lo + (poc + 0.5) * bw, ob = [lo + poc * bw, lo + (poc + 1) * bw];
-  return SV[sym] = {sym, u, t0, price, pct, oc, bu, bull, vwap, vw: vwap[t0], lo, hi, bw, up, dn, tot, pb, poc, z, ob, sup, res, delta, rr: Math.abs(tgt - price) / Math.max(price * 1e-4, Math.abs(price - stop)), chg: price - u.prev, vx: u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
+  return SV[sym] = {sym, u, t0, price, pct, oc, bu, bull, vwap, vw: vwap[t0], lo, hi, bw, up, dn, tot, pb, poc, z, ob, sup, res, delta, rr: Math.abs(tgt - price) / Math.max(price * 1e-4, Math.abs(price - stop)), chg: price - u.prev, vx: u.vxLive != null ? u.vxLive : u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
 }
 function rankAll(tf) {
   stockView(UL[0].s, tf); if (RK) return RK;
@@ -2623,7 +2639,7 @@ MODS.vol = {
     const xt = [0, Math.floor(D.K / 4), Math.floor(D.K / 2), Math.floor(3 * D.K / 4), D.K - 1].map(i => [D.strikes[i], inr(D.strikes[i])]);
     svgChart($('#vlSmile'), {h: 220, x0: xs[0], x1: xs[D.K - 1], y0: Math.min(...ys) - 0.4, y1: Math.max(...ys) + 0.4, yf: x => x.toFixed(1) + '%', pl: 48, xt, anim: this.dirty, label: 'IV smile open vs now',
       series: [{v: a1, x: xs, c: 'var(--faint)', dash: 1}, {v: a2, x: xs, c: 'var(--glow3)', w: 2}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/>`});
-    const rows = scanRows(ctx.tf), key = app.volSort;
+    const rows = scanRows(ctx.tf).filter(r => isFinite(r.iv)), key = app.volSort;
     rows.sort((a, b) => key === 'iv' ? b.iv - a.iv : key === 'ivc' ? b.ivc - a.ivc : a.ivc - b.ivc);
     const ivs = rows.map(r => r.iv), mn = Math.min(...ivs), mx = Math.max(...ivs);
     $('#vlGrid').innerHTML = rows.map(r => `<button class="ivt" data-s="${esc(r.s)}" style="background:color-mix(in srgb,var(--glow3) ${Math.round(6 + (r.iv - mn) / (mx - mn || 1) * 46)}%,var(--panel))"><span>${esc(r.s)}</span><b>${r.iv.toFixed(1)}%</b><i class="${r.ivc >= 0 ? 'up' : 'dn'}">${sgn(r.ivc, x => x.toFixed(1))}</i></button>`).join('');
@@ -2635,6 +2651,7 @@ MODS.vol = {
 const FUT = {};
 function futOI(sym) {
   if (FUT[sym]) return FUT[sym];
+  if (LS.fut[sym]) return FUT[sym] = LS.fut[sym];
   if (U[sym]) return FUT[sym] = {px: U[sym].px, oi: U[sym].oi};
   const D = LD.sim[sym] || getData(sym), r = mulberry32(hashS(sym + 'fut')), oi = new Float64Array(N + 1), px = new Float64Array(N + 1); let o = D.c.base * 9, mode = 1;
   for (let t = 0; t <= N; t++) {
@@ -2875,6 +2892,7 @@ function liveSSE() {
     if (app.page === 'broker') MODS.broker.liveTicks(c, p);
   });
   es.addEventListener('stats', e => { const x = lvJ(e); if (!x) return; if (x.now) LIVE.skew = x.now - Date.now(); if (LIVE.st) Object.assign(LIVE.st, x); });
+  es.addEventListener('stocks', e => { const x = lvJ(e); if (x && x.items) { LIVE.stocks = x; lsApply(x); } });
   es.addEventListener('history', e => { const h = lvJ(e); if (h) LIVE.hist[h.sym] = h.rows || []; });
   es.addEventListener('point', e => {
     const p = lvJ(e); if (!p) return; const h = LIVE.hist[p.sym] || (LIVE.hist[p.sym] = []), l = h[h.length - 1];
@@ -2911,7 +2929,7 @@ function liveTape() {
 function liveBan(v) {
   if (!LIVE.on || LIVE_PAGES.has(app.page)) return;
   const s = LIVE.st || {}, ok = s.state === 'live' && !LIVE.down, live = isLiveD('NIFTY');
-  const demoHere = STOCK_PAGES.has(app.page) || (SYM_PAGES.has(app.page) && !CFG[app.sym]);
+  const demoHere = (STOCK_PAGES.has(app.page) && (!LS.live || app.page === 'backtest')) || (SYM_PAGES.has(app.page) && !CFG[app.sym]);
   let cls = '', pill, txt, btn = '';
   if (LD.replay) {
     cls = ' rp'; pill = `<span class="pill acc">REPLAY</span>`;
@@ -2919,7 +2937,7 @@ function liveBan(v) {
     btn = `<button class="ibtn" data-ld="live">${L('Back to live', 'Live par wapas')} →</button>`;
   } else if (live && !demoHere) {
     pill = `<span class="pill up${ok && s.market_open ? ' live' : ''}"><span class="dot"></span>LIVE DATA</span>`;
-    txt = L(`Real NIFTY and BANKNIFTY data from <b>${esc((s.broker || '').toUpperCase())}</b>`, `<b>${esc((s.broker || '').toUpperCase())}</b> se asli NIFTY aur BANKNIFTY data`) + (s.market_open ? '' : L(' · market closed, showing the last session', ' · market band, pichhla session dikh raha hai')) + (DATA.NIFTY.first > 0 && !DATA.NIFTY.synthetic ? L(` · history from ${tl(DATA.NIFTY.first)}`, ` · history ${tl(DATA.NIFTY.first)} se`) : '') + '.';
+    txt = (LS.live ? L(`Real NIFTY, BANKNIFTY and ${UL.length} F&O stocks from <b>${esc((s.broker || '').toUpperCase())}</b>`, `<b>${esc((s.broker || '').toUpperCase())}</b> se asli NIFTY, BANKNIFTY aur ${UL.length} F&O stocks`) : L(`Real NIFTY and BANKNIFTY data from <b>${esc((s.broker || '').toUpperCase())}</b>`, `<b>${esc((s.broker || '').toUpperCase())}</b> se asli NIFTY aur BANKNIFTY data`) + (s.stocks === false ? L(' · F&O stocks need Kite, Dhan, Upstox or Angel', ' · F&O stocks ke liye Kite, Dhan, Upstox ya Angel chahiye') : '')) + (s.market_open ? '' : L(' · market closed, showing the last session', ' · market band, pichhla session dikh raha hai')) + (DATA.NIFTY.first > 0 && !DATA.NIFTY.synthetic ? L(` · history from ${tl(DATA.NIFTY.first)}`, ` · history ${tl(DATA.NIFTY.first)} se`) : '') + '.';
     btn = `<span class="ldrep"><select id="ldDay" aria-label="${L('Replay a stored day', 'Stored din ka replay')}"><option value="">${L('Replay a day…', 'Din ka replay…')}</option></select></span>`;
   } else if (live) {
     pill = `<span class="pill warn">DEMO DATA</span>`;
@@ -3449,8 +3467,74 @@ const STOCK_PAGES = new Set(['mflow', 'grid', 'scanner', 'backtest']);
 function ldMark(v) {
   if (!LIVE.on || !isLiveD('NIFTY')) return;
   const demoCard = el => { const c = el && (el.closest('.card') || el); if (!c || c.querySelector('.dm-tag')) return; const h = c.querySelector('.card-h'); if (h) h.insertAdjacentHTML('beforeend', `<span class="pill warn dm-tag" title="${L('Still simulated: live stocks and futures come in the next update', 'Abhi simulated: live stocks aur futures agle update mein')}">DEMO</span>`); };
-  ['#ocCycle', '#ovBreadth', '#ovBu'].forEach(sel => demoCard(v.querySelector(sel)));
+  if (!LS.fut[app.sym]) demoCard(v.querySelector('#ocCycle'));
+  if (!LS.live) ['#ovBreadth', '#ovBu'].forEach(sel => demoCard(v.querySelector(sel)));
+  if (LS.live) demoCard(v.querySelector('#vlGrid'));
   v.querySelectorAll('.card-h h3').forEach(h => { if (/FII \/ DII/.test(h.textContent)) demoCard(h); });
+}
+
+/* ---- live F&O stocks: the connector's stock-futures history becomes the scanner universe ---- */
+const LS = {live: false, loading: false, day: null, fut: {}, names: new Set(), sim: null};
+const IDX_FUT = new Set(['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY']);
+function lsFetch(day) {
+  if (LS.loading) return; LS.loading = true;
+  fetch('/api/stocks' + (day ? '?day=' + encodeURIComponent(day) : ''), {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(j => {
+    LS.loading = false; if (!j || !j.minutes || !j.minutes.length) return;
+    buildLiveU(j);
+    if (!['broker', 'livechain'].includes(app.page)) mount();
+  }).catch(() => { LS.loading = false; });
+}
+function buildLiveU(j) {
+  if (!LS.sim) LS.sim = {U: {...U}, UL: [...UL]};
+  const names = new Set(); for (const [, , items] of j.minutes) for (const x of items) names.add(x[0]);
+  const mk = () => new Float64Array(N + 1).fill(NaN), out = {};
+  for (const s of names) out[s] = {px: mk(), hi: mk(), lo: mk(), oi: mk(), vol: mk(), prev: NaN, base: NaN, lot: null};
+  for (const [m, , items] of j.minutes) for (const x of items) lsPut(out[x[0]], clamp(Math.round(m), 0, N), x);
+  LS.fut = {}; const live = [];
+  for (const [s, a] of Object.entries(out)) {
+    for (const arr of [a.px, a.hi, a.lo, a.oi, a.vol]) { let v = NaN; for (let t = 0; t <= N; t++) { if (isNaN(arr[t])) arr[t] = v; else v = arr[t]; } v = NaN; for (let t = N; t >= 0; t--) { if (isNaN(arr[t])) arr[t] = v; else v = arr[t]; } }
+    if (!(a.px[N] > 0)) continue;
+    if (IDX_FUT.has(s)) { LS.fut[s] = {px: a.px, oi: a.oi}; continue; }
+    const sim = LS.sim.U[s], prev = a.prev > 0 ? a.prev : a.px[0], pct = new Float32Array(N + 1);
+    for (let t = 0; t <= N; t++) pct[t] = (a.px[t] / prev - 1) * 100;
+    U[s] = {s, sec: sim ? sim.sec : 'Others', prev, lot: a.lot || (sim ? sim.lot : 1), pct, px: a.px, hi: a.hi, lo: a.lo, oi: a.oi, vol: a.vol,
+      iv: new Float32Array(N + 1).fill(NaN), pcr: new Float32Array(N + 1).fill(NaN), avgVol: 1, unusual: false, cb: a.oi[N] * 0.18, oiBase: a.base > 0 ? a.base : a.oi[0], live: true};
+    live.push(U[s]);
+  }
+  if (!live.length) return;
+  live.sort((x, y) => x.s.localeCompare(y.s));
+  UL.length = 0; UL.push(...live); LS.names = new Set(live.map(u => u.s));
+  LS.live = true; LS.day = j.day; LS.last = Math.max(...j.minutes.map(x => x[0]));
+  lsVx(); lsBreadth(); SVt = -1; for (const k of Object.keys(FUT)) delete FUT[k];
+}
+function lsPut(a, m, x) {           // x: [s, ltp, prev, oi, oic, vol, lot]
+  if (!a || !(x[1] > 0)) return;
+  a.px[m] = x[1]; a.hi[m] = isNaN(a.hi[m]) ? x[1] : Math.max(a.hi[m], x[1]); a.lo[m] = isNaN(a.lo[m]) ? x[1] : Math.min(a.lo[m], x[1]);
+  a.oi[m] = x[3]; a.vol[m] = x[5];
+  if (isNaN(a.prev) && x[2] > 0) a.prev = x[2];
+  if (isNaN(a.base) && x[3] > 0) a.base = x[3] - (x[4] || 0);
+  if (x[6]) a.lot = x[6];
+}
+/* "Volume ×": how busy each stock is (volume per unit of OI) against the median stock */
+function lsVx() {
+  const t0 = clamp(Math.floor(app.edge), 0, N), r = UL.map(u => u.oi[t0] > 0 ? u.vol[t0] / u.oi[t0] : 0).filter(x => x > 0).sort((a, b) => a - b), med = r[r.length >> 1] || 1;
+  for (const u of UL) { u.vxLive = u.oi[t0] > 0 ? (u.vol[t0] / u.oi[t0]) / med : 0; u.unusual = u.vxLive >= 2.5; }
+}
+function lsBreadth() {
+  for (const [sym, list] of [['NIFTY', NIFTY50], ['BANKNIFTY', BANK14]]) { const D = DATA[sym]; if (D) D.stocks = list.filter(x => U[x] && U[x].live).map(x => ({s: x, p: U[x].pct})); }
+}
+function lsApply(st) {
+  if (!LS.live || LD.replay) { if (!LS.live && !LD.replay) lsFetch(); return; }
+  const m = clamp(Math.floor(istMin(st.ts)), 0, N);
+  if (st.items.some(x => !IDX_FUT.has(x[0]) && x[1] > 0 && !LS.names.has(x[0]))) { lsFetch(); return; }
+  for (const x of st.items) {
+    const u = IDX_FUT.has(x[0]) ? null : U[x[0]], f = LS.fut[x[0]];
+    if (u && u.live) {
+      lsPut(u, m, x); u.pct[m] = (x[1] / u.prev - 1) * 100;
+      for (let t = m + 1; t <= N; t++) { u.px[t] = u.hi[t] = u.lo[t] = x[1]; u.oi[t] = x[3]; u.vol[t] = x[5]; u.pct[t] = u.pct[m]; }
+    } else if (f) { for (let t = m; t <= N; t++) { f.px[t] = x[1]; f.oi[t] = x[3]; } }
+  }
+  lsVx(); SVt = -1; for (const k of Object.keys(FUT)) delete FUT[k];
 }
 
 /* ---- Journal + OI ---- */
@@ -3711,6 +3795,47 @@ function roll(el, v, txt) {
   if (el._v !== undefined && v !== el._v) { el.classList.remove('fu', 'fd'); void el.offsetWidth; el.classList.add(v > el._v ? 'fu' : 'fd'); }
   el._v = v;
 }
+
+
+/* ---- Alerts page: Telegram alerts from the connector (works even with this page closed) ---- */
+const _alMount = MODS.alerts.mount;
+MODS.alerts.mount = function (v) {
+  _alMount.call(this, v);
+  const chips = v.querySelector('.chips');
+  if (!LIVE.on) { if (chips) chips.insertAdjacentHTML('beforeend', `<span class="pill">${L('Telegram: open the app with Start-Live-Broker', 'Telegram: app Start-Live-Broker se kholo')}</span>`); return; }
+  if (chips) chips.innerHTML = `<span class="pill up">In-app · on</span><span class="pill" id="tgChip">Telegram · …</span>`;
+  const g = v.querySelector('.grid'); if (!g) return;
+  g.insertAdjacentHTML('afterbegin', `<section class="card span3 tgc" id="tgCard"><div class="card-h"><h3>${L('Telegram alerts', 'Telegram alerts')}</h3><span class="sub">${L('Sent by the connector on your PC, even when this page is closed', 'Aapke PC ka connector bhejta hai, ye page band ho tab bhi')}</span></div><div class="card-b" id="tgBody"><p class="note">${L('Loading…', 'Load ho raha hai…')}</p></div></section>`);
+  this.tg(); clearInterval(this.tgIv); this.tgIv = setInterval(() => { if (!$('#tgBody')) { clearInterval(this.tgIv); return; } if (!document.hidden && !document.activeElement.closest('#tgBody')) this.tg(); }, 15000);
+};
+MODS.alerts.tg = function (msg, bad) {
+  fetch('/api/alerts', {cache: 'no-store'}).then(r => r.json()).then(a => this.tgDraw(a, msg, bad)).catch(() => { const b = $('#tgBody'); if (b) b.innerHTML = `<p class="lverr">${L('Connector not reachable.', 'Connector tak nahi pahunch paaye.')}</p>`; });
+};
+MODS.alerts.tgDraw = function (a, msg, bad) {
+  const b = $('#tgBody'); if (!b) return;
+  const on = a.telegram && a.chat, ch = $('#tgChip'); if (ch) { ch.className = 'pill' + (on ? ' up' : ''); ch.textContent = 'Telegram · ' + (on ? 'on' : 'off'); }
+  const step = (n, done, t, body) => `<div class="tgs${done ? ' ok' : ''}"><i>${done ? '✓' : n}</i><div><b>${t}</b>${body}</div></div>`;
+  b.innerHTML = `<div class="tgw">
+    <div class="tgsteps">
+      ${step(1, a.telegram, L('Create a bot', 'Bot banao'), `<p>${L('In Telegram open <b>@BotFather</b>, send <code>/newbot</code>, pick any name. It replies with a token like <code>123456:ABC…</code>.', 'Telegram mein <b>@BotFather</b> kholo, <code>/newbot</code> bhejo, koi bhi naam do. Wo <code>123456:ABC…</code> jaisa token dega.')}</p>
+        <div class="lvrow"><input id="tgTok" type="password" autocomplete="off" spellcheck="false" placeholder="${a.telegram ? L('Saved ✓ · paste a new token to replace', 'Saved ✓ · badalna ho to naya token daalo') : L('Paste the bot token', 'Bot token paste karo')}"><button class="ibtn" id="tgSave">${L('Save', 'Save')}</button></div>`)}
+      ${step(2, a.chat, L('Say hi to your bot', 'Apne bot ko "hi" bhejo'), `<p>${L('Open your new bot in Telegram, press <b>Start</b>, then come back and press the button.', 'Telegram mein naya bot kholo, <b>Start</b> dabao, phir yahan button dabao.')}</p><button class="ibtn" id="tgFind" ${a.telegram ? '' : 'disabled'}>${a.chat ? L('Connected to', 'Connected:') + ' ' + esc(a.chat_name || 'chat') + ' · ' + L('find again', 'dobara dhundo') : L('Find my chat', 'Meri chat dhundo')}</button>`)}
+      ${step(3, false, L('Check it', 'Check karo'), `<button class="ibtn" id="tgTest" ${on ? '' : 'disabled'}>${L('Send a test alert', 'Test alert bhejo')}</button>${a.telegram ? ` <button class="ibtn" id="tgOff">${L('Disconnect', 'Disconnect')}</button>` : ''}`)}
+      ${msg ? `<p class="${bad ? 'lverr' : 'tgok'}">${esc(msg)}</p>` : ''}
+    </div>
+    <div class="tgr"><div class="lvh">${L('WHAT TO SEND', 'KYA BHEJNA HAI')}</div>
+      ${Object.entries(a.labels).map(([k, l]) => `<label class="tgk"><input type="checkbox" data-k="${k}" ${a.kinds[k] ? 'checked' : ''}> ${esc(l)}</label>`).join('')}
+      <div class="lvh">${L("TODAY'S ALERTS", 'AAJ KE ALERTS')} ${on ? '' : `<span class="mut" style="letter-spacing:0;text-transform:none">· ${L('not sent until Telegram is connected', 'Telegram judne tak bheje nahi jaate')}</span>`}</div>
+      <ul class="tgl">${(a.log || []).slice().reverse().slice(0, 12).map(x => `<li><span class="tt">${esc(x.at)}</span><span>${esc(x.text)}</span><i class="${x.sent ? 'up' : x.error ? 'dn' : 'mut'}" title="${esc(x.error || '')}">${x.sent ? '✓' : x.error ? '!' : '·'}</i></li>`).join('') || `<li class="mut">${L('No alerts yet. They appear during market hours.', 'Abhi koi alert nahi. Market khulne par aayenge.')}</li>`}</ul></div>
+  </div>
+  <p class="note" style="margin-top:10px">🔒 ${L('The bot token stays in connector/config.json on this PC. Never paste it in any chat.', 'Bot token is PC par connector/config.json mein rehta hai. Ise kisi chat mein paste mat karo.')}</p>`;
+  const post = (act, body, ok) => lvPost('/api/alerts/' + act, body).then(r => this.tgDraw(r.alerts || a, r.ok ? ok : r.error, !r.ok)).catch(() => this.tgDraw(a, L('Connector not reachable.', 'Connector tak nahi pahunch paaye.'), true));
+  $('#tgSave').onclick = () => { const t = $('#tgTok').value.trim(); if (!t) return this.tgDraw(a, L('Paste the token first.', 'Pehle token paste karo.'), true); post('config', {token: t}, L('Token saved. Now say hi to your bot.', 'Token save ho gaya. Ab bot ko "hi" bhejo.')); };
+  $('#tgFind').onclick = () => post('findchat', {}, L('Chat found. Send a test alert.', 'Chat mil gayi. Test alert bhejo.'));
+  $('#tgTest').onclick = () => post('test', {}, L('Test sent. Check Telegram.', 'Test bhej diya. Telegram dekho.'));
+  const off = $('#tgOff'); if (off) off.onclick = () => post('config', {clear: true}, L('Telegram disconnected.', 'Telegram disconnect ho gaya.'));
+  b.querySelectorAll('[data-k]').forEach(x => x.onchange = () => { const kinds = {}; b.querySelectorAll('[data-k]').forEach(y => kinds[y.dataset.k] = y.checked); post('config', {kinds}, L('Saved.', 'Save ho gaya.')); });
+};
 
 /* ================= routing + loop ================= */
 let lastCtx = null;

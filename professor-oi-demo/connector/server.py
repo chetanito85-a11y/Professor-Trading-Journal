@@ -20,6 +20,7 @@ import core  # noqa: E402
 from core import AuthError, BrokerError, cache_path, load_json, normalise, save_json, today_ist  # noqa: E402
 import brokers  # noqa: E402
 from store import N as MINUTES, Store  # noqa: E402
+from alerts import Alerts  # noqa: E402
 
 VERSION = '1.0'
 APP = os.path.join(os.path.dirname(HERE), 'index.html')
@@ -61,6 +62,8 @@ class Hub:
         self.wake = threading.Event()
         self.a = None
         self.store = Store()
+        self.stocks, self.stk_base = None, None
+        self.alerts = Alerts(cfg, self.save_config, log)
 
     def use(self, bid):
         """Make `bid` the active broker (reads its section from config) and log in if possible."""
@@ -73,6 +76,8 @@ class Hub:
             for s in self.syms:
                 self.hist[s] = load_json(self.hist_path(s, day), []) or []
             self.base = core.OIBase(A.id)
+            self.stk_base = core.OIBase(A.id + '-stk')
+            self.stocks = None
             self.calls = self.errors = 0
         self.boot()
         self.wake.set()
@@ -145,7 +150,7 @@ class Hub:
                 'login_kind': a.login_kind, 'state': self.state, 'msg': self.msg, 'user': a.user,
                 'missing': a.missing(), 'fields': a.direct_fields() if a.login_kind == 'direct' else [],
                 'symbols': self.syms, 'redirect_url': a.redirect_url, 'market_open': core.market_open(),
-                'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000), 'now': int(core.now_ts() * 1000),
+                'stocks': a.stocks_supported, 'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000), 'now': int(core.now_ts() * 1000),
                 'last': {s: c['ts'] for s, c in self.chains.items()}}
 
     def set(self, state, msg=''):
@@ -173,9 +178,33 @@ class Hub:
             del h[:-450]
             if len(h) % 5 == 0:
                 save_json(self.hist_path(s, today_ist().isoformat()), h)
+        try:
+            self.alerts.on_chain(c)
+        except Exception as e:
+            log(f'Alert check failed: {e}')
         self.broadcast('chain', c)
         self.broadcast('point', {'sym': s, 'pt': pt})
         self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open(), 'now': int(core.now_ts() * 1000)})
+
+    def publish_stocks(self, raw):
+        """raw: adapter list -> compact rows with OI change (vs the first reading today) for the app, history and alerts."""
+        rows = []
+        for x in raw:
+            oi = core.num(x.get('oi'))
+            rows.append([x['s'], round(core.num(x.get('ltp')), 2), round(core.num(x.get('prev')), 2) or None, int(oi),
+                         int(oi - self.stk_base.get('stk|' + x['s'], oi)), int(core.num(x.get('vol'))), x.get('lot')])
+        self.stk_base.flush()
+        ts = int(core.now_ts() * 1000)
+        self.stocks = {'ts': ts, 'items': rows}
+        try:
+            self.store.put_stocks(ts, rows)
+        except Exception as e:
+            log(f'Stock history not saved: {e}')
+        try:
+            self.alerts.on_stocks(rows)
+        except Exception as e:
+            log(f'Stock alert check failed: {e}')
+        self.broadcast('stocks', self.stocks)
 
     def broadcast(self, ev, data):
         msg = f'event: {ev}\ndata: {json.dumps(data, separators=(",", ":"))}\n\n'.encode('utf-8')
@@ -228,6 +257,7 @@ class Poller(threading.Thread):
     def __init__(self, hub, n, slow):
         super().__init__()
         self.hub, self.n, self.slow = hub, n, slow
+        self.last_stk, self.stk_err = 0.0, ''
 
     def run(self):
         h = self.hub
@@ -267,6 +297,31 @@ class Poller(threading.Thread):
                         traceback.print_exc()
                     time.sleep(backoff)
                 time.sleep(a.gap if core.market_open() else max(a.gap, self.slow))
+            self.poll_stocks(a)
+
+    def poll_stocks(self, a):
+        h = self.hub
+        due = a.stocks_gap if core.market_open() else 300
+        if not (a.stocks_supported and a.logged_in and h.a is a) or time.time() - self.last_stk < due:
+            return
+        self.last_stk = time.time()
+        try:
+            with h.alock:
+                if h.a is not a:
+                    return
+                raw = a.stocks()
+            if h.a is a:
+                h.publish_stocks(raw)
+            self.stk_err = ''
+        except AuthError as e:
+            if h.a is a:
+                h.logout(f'Login expired or rejected: {e}. Log in again.')
+        except Exception as e:
+            msg = str(e) if isinstance(e, BrokerError) else f'{type(e).__name__}: {e}'
+            if msg != self.stk_err:
+                log(f'F&O stocks not updated: {msg}')
+                self.stk_err = msg
+        time.sleep(a.gap)
 
 
 PAGE = '''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -366,6 +421,13 @@ def make_handler(hub, port):
                 return self.out(200, hub.catalog())
             if p == '/api/days':
                 return self.out(200, hub.store.days())
+            if p == '/api/stocks':
+                d = hub.store.stocks_day(q.get('day') or None)
+                if not d and hub.stocks:
+                    d = {'day': core.last_close().date().isoformat(), 'synthetic': True, 'minutes': [[MINUTES, hub.stocks['ts'], hub.stocks['items']]]}
+                return self.out(200, d) if d else self.out(404, {'error': 'no stock data yet'})
+            if p == '/api/alerts':
+                return self.out(200, hub.alerts.public())
             if p == '/api/day':
                 sym = q.get('sym', 'NIFTY')
                 d = hub.store.day(sym, q.get('day') or None)
@@ -447,6 +509,20 @@ def make_handler(hub, port):
                     return self.out(400, {'ok': False, 'error': 'Paste the full address from the browser bar after login.'})
                 ok, msg = self.finish_login(params)
                 return self.out(200 if ok else 400, {'ok': ok, 'error': None if ok else msg})
+            if p.startswith('/api/alerts/'):
+                try:
+                    act = p.rsplit('/', 1)[1]
+                    if act == 'config':
+                        hub.alerts.configure(d)
+                    elif act == 'findchat':
+                        hub.alerts.find_chat()
+                    elif act == 'test':
+                        hub.alerts.test()
+                    else:
+                        return self.out(404, {'error': 'not found'})
+                    return self.out(200, {'ok': True, 'alerts': hub.alerts.public()})
+                except (ValueError, BrokerError, AuthError) as e:
+                    return self.out(400, {'ok': False, 'error': str(e), 'alerts': hub.alerts.public()})
             if p == '/api/logout':
                 hub.logout('Logged out.')
                 return self.out(200, {'ok': True})
@@ -460,7 +536,7 @@ def make_handler(hub, port):
             self.end_headers()
             q = hub.subscribe()
             try:
-                first = [('status', hub.status())] + [('history', {'sym': s, 'rows': h}) for s, h in hub.hist.items()] + [('chain', c) for c in hub.chains.values()]
+                first = [('status', hub.status())] + [('history', {'sym': s, 'rows': h}) for s, h in hub.hist.items()] + [('chain', c) for c in hub.chains.values()] + ([('stocks', hub.stocks)] if hub.stocks else [])
                 for ev, data in first:
                     self.wfile.write(f'event: {ev}\ndata: {json.dumps(data, separators=(",", ":"))}\n\n'.encode('utf-8'))
                 self.wfile.flush()

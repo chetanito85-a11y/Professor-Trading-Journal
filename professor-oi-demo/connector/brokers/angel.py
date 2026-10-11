@@ -4,7 +4,7 @@ you type the 6-digit code on the Broker page."""
 import json, re, socket, time, uuid
 from datetime import datetime
 from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_json, today_ist, totp
-from . import Adapter, F
+from . import Adapter, F, nearest_futs
 
 ROOT = 'https://apiconnect.angelone.in'
 MASTER = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
@@ -66,17 +66,26 @@ class Angel(Adapter):
         day = today_ist().isoformat()
         if self.master_day == day:
             return
-        path = cache_path(f'angel-optidx-{day}.json')
+        path = cache_path(f'angel-fno-{day}.json')
         data = load_json(path)
         if not data:
             txt = http('GET', MASTER, raw=True, timeout=180)
-            data = {}
+            data = {'_FUT': []}
             for m in re.finditer(r'\{[^{}]*\}', txt):
                 s = m.group(0)
-                if 'OPTIDX' not in s:
+                if 'OPTIDX' not in s and 'FUTSTK' not in s and 'FUTIDX' not in s:
                     continue
                 o = json.loads(s)
-                if o.get('exch_seg') != 'NFO' or o.get('name') not in INDEX:
+                if o.get('exch_seg') != 'NFO':
+                    continue
+                if o.get('instrumenttype') in ('FUTSTK', 'FUTIDX'):
+                    try:
+                        fexp = datetime.strptime(o['expiry'], '%d%b%Y').date().isoformat()
+                    except (KeyError, ValueError):
+                        continue
+                    data['_FUT'].append([o.get('name'), fexp, o['token'], int(float(o.get('lotsize') or 0))])
+                    continue
+                if o.get('instrumenttype') != 'OPTIDX' or o.get('name') not in INDEX:
                     continue
                 try:
                     exp = datetime.strptime(o['expiry'], '%d%b%Y').date().isoformat()
@@ -88,6 +97,25 @@ class Angel(Adapter):
                 raise BrokerError('Angel scrip master had no index options.')
             save_json(path, data)
         self.master, self.master_day = data, day
+
+    stocks_supported = True
+    stocks_gap = 30
+
+    def stocks(self):
+        self.load_master()
+        futs = nearest_futs(self.master.get('_FUT') or [], today_ist().isoformat())
+        by_tok = {v[0]: (n, v[1]) for n, v in futs.items()}
+        toks, out = list(by_tok), []
+        for j in range(0, len(toks), 50):                     # quote API: 50 tokens a call
+            q = self.quote(toks[j:j + 50])
+            for tok, x in q.items():
+                n, lot = by_tok.get(tok, (None, None))
+                if n and x.get('ltp'):
+                    ltp, nc = x.get('ltp'), x.get('netChange')
+                    out.append({'s': n, 'ltp': ltp, 'prev': ltp - nc if nc is not None else x.get('close'), 'oi': x.get('opnInterest'), 'vol': x.get('tradeVolume'), 'lot': lot})
+            if j + 50 < len(toks):
+                time.sleep(self.gap)
+        return out
 
     def quote(self, nfo, nse=()):
         h = dict(self.base_h, Authorization='Bearer ' + self.token)

@@ -54,6 +54,22 @@ class Adapter:
     def chain(self, sym, n):
         raise NotImplementedError
 
+    # F&O stock futures (and index futures): [{'s', 'ltp', 'prev', 'oi', 'vol', 'lot'}]
+    stocks_supported = False
+    stocks_gap = 20            # seconds between stock refreshes while the market is open
+
+    def stocks(self):
+        raise NotImplementedError
+
+
+def nearest_futs(rows, today):
+    """rows: (name, expiry 'YYYY-MM-DD', key, lot) -> {name: (key, lot, expiry)} for the nearest live expiry."""
+    out = {}
+    for name, exp, key, lot in rows:
+        if exp and exp >= today and (name not in out or exp < out[name][2]):
+            out[name] = (key, lot, exp)
+    return out
+
 
 class NoBroker(Adapter):
     id = 'none'

@@ -1,11 +1,12 @@
 """DhanHQ v2 (REST). Two ways in:
  - access_token from web.dhan.co pasted in config.json (simplest), or
  - app_id + app_secret: consent login on auth.dhan.co, redirect with ?tokenId=."""
-import urllib.parse
-from core import AuthError, BrokerError, http, leg, today_ist
-from . import Adapter, F
+import csv, io, urllib.parse
+from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_json, today_ist
+from . import Adapter, F, nearest_futs
 
 API = 'https://api.dhan.co/v2'
+MASTER = 'https://images.dhan.co/api-data/api-scrip-master.csv'
 AUTH = 'https://auth.dhan.co'
 IDS = {'NIFTY': 13, 'BANKNIFTY': 25, 'FINNIFTY': 27, 'MIDCPNIFTY': 442}
 
@@ -81,6 +82,44 @@ class Dhan(Adapter):
                 raise BrokerError(f'Dhan returned no {sym} expiries.')
             self.exp[sym] = (day, ex[0])
         return self.exp[sym][1]
+
+    stocks_supported = True
+
+    def load_futs(self):
+        day = today_ist().isoformat()
+        if getattr(self, 'futs_day', None) == day:
+            return self.futs
+        path = cache_path(f'dhan-fut-{day}.json')
+        rows = load_json(path)
+        if not rows:
+            rd = csv.reader(io.StringIO(http('GET', MASTER, raw=True, timeout=180)))
+            head = [h.strip().upper() for h in next(rd)]
+            col = lambda name: head.index(name) if name in head else None
+            ex, sid, ins, ts, lot, exp = (col(c) for c in ('SEM_EXM_EXCH_ID', 'SEM_SMST_SECURITY_ID', 'SEM_INSTRUMENT_NAME', 'SEM_TRADING_SYMBOL', 'SEM_LOT_UNITS', 'SEM_EXPIRY_DATE'))
+            if None in (ex, sid, ins, ts, exp):
+                raise BrokerError('Dhan instrument list has an unexpected format.')
+            rows = []
+            for r in rd:
+                if len(r) > max(ex, sid, ins, ts, exp) and r[ins] in ('FUTSTK', 'FUTIDX') and r[ex] == 'NSE':
+                    rows.append([r[ts].split('-')[0], r[exp][:10], int(float(r[sid])), int(float(r[lot] or 0)) if lot is not None else None])
+            if not rows:
+                raise BrokerError('No futures found in the Dhan instrument list.')
+            save_json(path, rows)
+        self.futs, self.futs_day = nearest_futs(rows, day), day
+        return self.futs
+
+    def stocks(self):
+        futs = self.load_futs()
+        by_id = {v[0]: (n, v[1]) for n, v in futs.items()}
+        ids, out = list(by_id), []
+        for j in range(0, len(ids), 900):                     # quote API: up to 1000 instruments a call
+            d = (self.post('/marketfeed/quote', {'NSE_FNO': ids[j:j + 900]}) or {}).get('NSE_FNO') or {}
+            for k, x in d.items():
+                n, lot = by_id.get(int(k), (None, None))
+                if n and x.get('last_price'):
+                    ltp, nc = x['last_price'], x.get('net_change')
+                    out.append({'s': n, 'ltp': ltp, 'prev': ltp - nc if nc is not None else (x.get('ohlc') or {}).get('close'), 'oi': x.get('oi'), 'vol': x.get('volume'), 'lot': lot})
+        return out
 
     def chain(self, sym, n):
         exp = self.expiry(sym)
