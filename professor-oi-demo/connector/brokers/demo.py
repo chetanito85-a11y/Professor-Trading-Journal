@@ -2,7 +2,7 @@
 can be tried without any API keys."""
 import math, random, time
 from datetime import timedelta
-from core import AuthError, bs_price, leg, today_ist
+from core import AuthError, bs_price, leg, market_open, today_ist
 from . import Adapter
 
 SPEC = {'NIFTY': (25150.0, 50, 65), 'BANKNIFTY': (56300.0, 100, 30), 'FINNIFTY': (26700.0, 50, 60), 'MIDCPNIFTY': (13100.0, 25, 120)}
@@ -43,7 +43,9 @@ class Demo(Adapter):
         s0, step, lot = SPEC.get(sym, SPEC['NIFTY'])
         st = self.st.setdefault(sym, {'S': s0, 'oi': {}, 'r': random.Random(sym)})
         r = st['r']
-        st['S'] *= 1 + r.gauss(0, 0.00035)
+        moving = market_open() or self.cfg.get('always_moving')   # like a real broker: frozen after the close
+        if moving:
+            st['S'] *= 1 + r.gauss(0, 0.00035)
         S = st['S']
         exp = today_ist() + timedelta((1 - today_ist().weekday()) % 7)
         T = max(1, (exp - today_ist()).days + 0.4) / 365
@@ -57,7 +59,8 @@ class Demo(Adapter):
                     far = abs(k - s0) / step
                     st['oi'][key] = [max(5e4, 9e6 * math.exp(-far / 7) * (0.6 + r.random())) * (1.1 if (side == 'ce') == (k > s0) else 0.8)] * 2
                 o = st['oi'][key]
-                o[0] = max(0.0, o[0] * (1 + r.gauss(0.0004, 0.004)))
+                if moving:
+                    o[0] = max(0.0, o[0] * (1 + r.gauss(0.0004, 0.004)))
             iv = 0.12 + 0.0009 * abs(k - S) / step
             c, p = bs_price(S, k, T, iv, True), bs_price(S, k, T, iv, False)
             rows.append({'k': k,

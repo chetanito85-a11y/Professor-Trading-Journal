@@ -183,14 +183,27 @@ def implied_vol(price, S, K, T, call):
     return round(v, 2) if 0.6 < v < 290 else None
 
 
+def last_close(t=None):
+    """15:30 IST of the latest trading day at or before t (weekends skipped)."""
+    t = t or now_ist()
+    c = t.replace(hour=15, minute=30, second=0, microsecond=0)
+    if t < c:
+        c -= timedelta(days=1)
+    while c.weekday() >= 5:
+        c -= timedelta(days=1)
+    return c
+
+
 def years_to_expiry(expiry):
-    """expiry 'YYYY-MM-DD' -> years until 15:30 IST that day (at least one hour)."""
+    """expiry 'YYYY-MM-DD' -> years until 15:30 IST that day (at least one hour).
+    While the market is shut the clock is held at the last close, so IV does not drift."""
     try:
         d = date.fromisoformat(expiry)
     except (TypeError, ValueError):
         return 7 / 365
     end = datetime(d.year, d.month, d.day, 15, 30, tzinfo=IST)
-    return max(3600.0, (end - now_ist()).total_seconds()) / (365 * 86400)
+    ref = now_ist() if market_open() else last_close()
+    return max(3600.0, (end - ref).total_seconds()) / (365 * 86400)
 
 
 # ---- normaliser ----

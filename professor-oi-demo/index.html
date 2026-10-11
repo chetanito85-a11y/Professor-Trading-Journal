@@ -792,6 +792,17 @@ main{padding:16px 22px 120px}
 .su .lverr:empty{display:none}
 .su-go{width:100%;text-align:center;padding:11px}
 .su-go:disabled{opacity:.6;cursor:wait}
+/* "is the connector running?" box on the demo copy */
+.lvprobe{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);margin:12px 0 4px}
+.lvprobe:empty{display:none}
+.lvprobe.up{border-color:color-mix(in srgb,var(--put) 50%,transparent)}
+.lvprobe.dn{border-color:color-mix(in srgb,var(--amber) 45%,transparent)}
+.lvprobe p{flex-basis:100%;margin:0;font-size:12.5px;color:var(--muted)}
+.lvprobe p b{color:var(--fg)}
+.lvprobe .lvgo{margin-left:auto}
+.lvprobe a.ibtn{text-decoration:none}
+/* market closed: no "live" pulses on charts */
+.mkt-closed .chart .pl{display:none}
 </style>
 
 </head>
@@ -2029,7 +2040,7 @@ MODS.scanner = {
     const bez = (c, u) => { const v = 1 - u, a = v * v * v, b = 3 * v * v * u, d = 3 * v * u * u, e = u * u * u; return [a * c.x0 + b * c.cx1 + d * c.cx2 + e * c.x3, a * c.y0 + b * c.cy1 + d * c.cy2 + e * c.y3]; };
     const step = now => {
       const el = $('#scFlow'); if (!el) return; requestAnimationFrame(step); const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      const cv = el.querySelector('canvas.flfx'); if (document.hidden || !cv || !this.fgeo || !this.bands) return; T += dt;
+      const cv = el.querySelector('canvas.flfx'); if (document.hidden || !cv || !this.fgeo || !this.bands) return; if (app.edge >= N) { cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); return; } T += dt;
       const G = this.fgeo, dpr = window.devicePixelRatio || 1;
       if (cv.width !== Math.round(G.W * dpr)) { cv.width = Math.round(G.W * dpr); cv.height = Math.round(G.H * dpr); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
       const g = cv.getContext('2d'), col = {LB: tok('--put'), SC: tok('--put'), NT: tok('--faint'), LU: tok('--call'), SB: tok('--call')}, al = {LB: 1, SC: 0.6, NT: 0.5, LU: 0.6, SB: 1};
@@ -2546,7 +2557,7 @@ MODS.mflow = {
     const cv = $('#mfFx'); if (!cv || REDUCE) return; let last = performance.now(), T = 0;
     const bez = (c, u) => { const v = 1 - u, a = v * v * v, b = 3 * v * v * u, d = 3 * v * u * u, e = u * u * u; return [a * c.x0 + b * c.cx1 + d * c.cx2 + e * c.x3, a * c.y0 + b * c.cy1 + d * c.cy2 + e * c.y3]; };
     const step = now => {
-      if (!cv.isConnected) return; requestAnimationFrame(step); const dt = Math.min(0.05, (now - last) / 1000); last = now; if (document.hidden || !this.geo) return; T += dt;
+      if (!cv.isConnected) return; requestAnimationFrame(step); const dt = Math.min(0.05, (now - last) / 1000); last = now; if (document.hidden || !this.geo) return; if (app.edge >= N) { cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); return; } T += dt;
       const G = this.geo, dpr = window.devicePixelRatio || 1;
       if (cv.width !== Math.round(G.W * dpr) || cv.height !== Math.round(G.H * dpr)) { cv.width = Math.round(G.W * dpr); cv.height = Math.round(G.H * dpr); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
       const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, G.W, G.H);
@@ -2809,12 +2820,37 @@ const lvPost = (url, body) => fetch(url, {method: 'POST', headers: {'Content-Typ
 const LBU = {lb: ['LB', 'Long buildup'], sb: ['SB', 'Short buildup'], sc: ['SC', 'Short covering'], lu: ['LU', 'Long unwinding']};
 const buKey = x => x.chg == null || !x.oic || !x.chg ? '' : x.chg > 0 ? (x.oic > 0 ? 'lb' : 'sc') : (x.oic > 0 ? 'sb' : 'lu');
 
+const LIVE_URL = 'http://127.0.0.1:8765';
+function liveProbe(el, bid) {
+  if (!el) return;
+  const url = LIVE_URL + '/#broker' + (bid ? ':' + bid : '');
+  const draw = up => {
+    el.className = 'lvprobe ' + (up ? 'up' : up === false ? 'dn' : '');
+    el.innerHTML = up ? `<span class="pill up live"><span class="dot"></span>${L('Connector is running', 'Connector chal raha hai')}</span><a class="lvgo" href="${url}">${L('Open live app', 'Live app kholo')}${bid ? ' · ' + L('connect', 'connect') + ' ' + esc((BROKERS().find(x => x[0] === bid) || [0, bid])[1]) : ''} →</a>`
+      : up === false ? `<span class="pill dn"><span class="dot"></span>${L('Connector is not running', 'Connector band hai')}</span><p>${L('Double-click <b>Start-Live-Broker</b> in the Professor OI folder. A black window opens and the live app opens in your browser by itself.', 'Professor OI folder mein <b>Start-Live-Broker</b> par double-click karo. Ek kaali window khulegi aur live app browser mein apne aap khul jayega.')}</p><div class="lvrow"><button class="ibtn" data-re>${L('Check again', 'Dobara check karo')}</button><a class="ibtn" href="${url}">${L('Already started? Open live app', 'Chala diya? Live app kholo')} →</a></div>`
+      : `<span class="pill"><span class="dot"></span>${L('Checking for the connector…', 'Connector check ho raha hai…')}</span>`;
+    const re = el.querySelector('[data-re]'); if (re) re.onclick = () => liveProbe(el, bid);
+  };
+  draw(null);
+  const t = setTimeout(() => draw(false), 2500);
+  fetch(LIVE_URL + '/api/status', {mode: 'no-cors', cache: 'no-store'}).then(() => { clearTimeout(t); draw(true); }).catch(() => { clearTimeout(t); draw(false); });
+}
+/* while the connector runs, the demo pages follow the real clock: paused at the close when the market is shut */
+function liveEdge(e) {
+  if (!LIVE.st) return e;
+  if (!LIVE.st.market_open) return N;
+  const d = new Date(Date.now() + 330 * 60000), m = d.getUTCHours() * 60 + d.getUTCMinutes() + d.getUTCSeconds() / 60 - 555;
+  return clamp(m, 0, N);
+}
 function liveInit() {
   if (!/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
+  const want = (location.hash.split(':')[1] || '').toLowerCase();   // #broker:dhan opens Dhan's form
   fetch('/api/status', {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(s => {
     if (!s || s.app !== 'professor-oi-connector') return;
     LIVE.on = true; LIVE.st = s; if (s.symbols && s.symbols.length) LIVE.sym = s.symbols[0];
+    app.edge = liveEdge(app.edge); if (app.mode === 'live') app.tf = app.edge;
     liveSSE(); liveChrome(); mount();
+    if (want) { try { history.replaceState(null, '', '#broker'); } catch (e) {} if (app.page !== 'broker') go('broker'); setTimeout(() => MODS.broker.open(want), 350); }
   }).catch(() => {});
 }
 function liveSSE() {
@@ -2849,16 +2885,16 @@ function liveChrome() {
   setText($('#rfVer'), (s.state === 'live' && !LIVE.down ? 'LIVE' : 'CONNECTOR') + ' · v7');
 }
 function liveFeedTick() {
+  const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
+  setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
   const c = LIVE.chains[LIVE.sym], age = c ? Math.max(0, Math.round((Date.now() - c.ts) / 1000)) : null;
   setText($('#feedTps'), age == null ? '—' : age + 's');
   if (app.page === 'livechain') MODS.livechain.age();
   if (app.page === 'broker') MODS.broker.liveStats();
 }
 function liveTape() {
-  if (LIVE_PAGES.has(app.page)) {
-    const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
-    setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
-  }
+  const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
+  setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
   for (const sym of ['NIFTY', 'BANKNIFTY']) {
     const c = LIVE.chains[sym]; if (!c) continue;
     $$(`#tape .ti[data-tk="${sym}"]`).forEach(el => { el.classList.add('lvt'); setText(el.children[1], inr2(c.spot)); const b = el.children[2]; setText(b, 'LIVE'); b.className = 'b up'; });
@@ -2868,7 +2904,7 @@ function liveTape() {
 function liveBan(v) {
   if (!LIVE.on || LIVE_PAGES.has(app.page)) return;
   const s = LIVE.st || {}, ok = s.state === 'live' && !LIVE.down;
-  v.insertAdjacentHTML('afterbegin', `<div class="lvban" id="lvBan"><span class="pill ${ok ? 'up live' : 'warn'}"><span class="dot"></span>${ok ? 'LIVE' : 'CONNECTOR'}</span><span>${ok ? L('Your broker is connected. <b>Live Chain</b> shows real data; this page still runs on demo data.', 'Broker connected hai. <b>Live Chain</b> asli data dikhata hai; ye page abhi demo data par hai.') : L('The connector is running but not logged in yet.', 'Connector chal raha hai par login abhi nahi hua.')}</span><button class="ibtn">${ok ? L('Open Live Chain', 'Live Chain kholo') : L('Log in', 'Login karo')} →</button></div>`);
+  v.insertAdjacentHTML('afterbegin', `<div class="lvban" id="lvBan"><span class="pill ${ok ? 'up live' : 'warn'}"><span class="dot"></span>${ok ? 'LIVE' : 'CONNECTOR'}</span><span>${ok ? ((LIVE.st || {}).market_open ? L('Your broker is connected. <b>Live Chain</b> shows real data; this page still runs on demo data, timed to the real market clock.', 'Broker connected hai. <b>Live Chain</b> asli data dikhata hai; ye page abhi demo data par hai, asli market time ke saath.') : L('Market is closed. <b>Live Chain</b> shows your broker’s last prices; this demo page is paused at the close.', 'Market band hai. <b>Live Chain</b> broker ke aakhri bhaav dikhata hai; ye demo page close par ruka hua hai.')) : L('The connector is running but not logged in yet.', 'Connector chal raha hai par login abhi nahi hua.')}</span><button class="ibtn">${ok ? L('Open Live Chain', 'Live Chain kholo') : L('Log in', 'Login karo')} →</button></div>`);
   $('#lvBan button').onclick = () => go(ok ? 'livechain' : 'broker');
 }
 
@@ -2908,8 +2944,9 @@ MODS.livechain = {
           <div><b>3 · Save &amp; connect</b><p class="note" style="margin-top:4px">${L('Log in on the broker’s page if it asks. This page fills with live OI within seconds.', 'Broker ka page login maange to login karo. Kuch second mein ye page live OI se bhar jayega.')}</p></div>
         </div></section>
         <p class="note">${L('You are on the offline copy (opened as a file or online preview), so there is nothing to connect to here. Every other page runs on demo data.', 'Aap offline copy par hain (file ya online preview), isliye yahan connect karne ko kuch nahi hai. Baaki sab pages demo data par chalte hain.')}</p>
+        <div class="lvprobe" id="lcProbe" style="margin:10px 0"></div>
         <button class="place" id="lvHow" style="margin-top:6px">${L('Broker setup guide', 'Broker setup guide')} →</button>`;
-      $('#lvHow').onclick = () => go('broker');
+      $('#lvHow').onclick = () => go('broker'); liveProbe($('#lcProbe'));
       return;
     }
     const c = LIVE.chains[LIVE.sym];
@@ -3079,7 +3116,9 @@ MODS.broker.mount = function (v) {
       <div><b>1 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('In the Professor OI folder on your PC, double-click Start-Live-Broker. The app opens at 127.0.0.1:8765.', 'Apne PC par Professor OI folder mein Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par khulega.')}</p></div>
       <div><b>2 · ${L('Click your broker', 'Broker par click')}</b><p class="note" style="margin-top:4px">${L('On its Broker page, click Connect on your broker and fill the details it asks for.', 'Wahan Broker page par apne broker ke Connect par click karo aur jo details maange wo bharo.')}</p></div>
       <div><b>3 · Save &amp; connect</b><p class="note" style="margin-top:4px">${L('Log in on the broker’s page if it asks. Live Chain then shows your real option chain.', 'Broker ka page login maange to login karo. Phir Live Chain asli option chain dikhayega.')}</p></div>
+      <div class="span3 lvprobe" id="bkProbe"></div>
     </div></section>`;
+    liveProbe($('#bkProbe'));
     const p = v.querySelector('.phead p'); if (p) p.textContent = L('This copy runs without the connector, so it shows a simulated feed. Open the app with Start-Live-Broker to connect your broker.', 'Ye copy bina connector ke chal rahi hai, isliye simulated feed dikhata hai. Broker connect karne ke liye app ko Start-Live-Broker se kholo.');
   }
 };
@@ -3154,13 +3193,14 @@ MODS.broker.steps = function (id) {
   const B = BROKERS().find(x => x[0] === id), G = BKG()[id], M = $('#bkModal');
   let n = 0; const st = (t, body) => `<div class="stp"><i>${++n}</i><b>${t}</b>${body}</div>`;
   M.innerHTML = `<div class="modal-b" role="dialog" aria-label="Connect ${esc(B[1])}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${esc(B[1])}</b><small>${L('How to connect', 'Connect kaise karein')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
-    <div style="margin-top:12px"></div>
-    ${st(L('Create an app on the broker’s developer site', 'Broker ki developer site par app banao'), `<p>${esc(G.portal)}</p>`)}
-    ${G.redirect ? st(L('Set its Redirect URL to', 'Uska Redirect URL ye rakho'), `<p><code>http://127.0.0.1:8765/callback</code></p>`) : ''}
-    ${st(L('Open Professor OI with Start-Live-Broker', 'Professor OI ko Start-Live-Broker se kholo'), `<p>${L('In the Professor OI folder on your PC, double-click Start-Live-Broker (Mac: Start-Live-Broker.command). This online or file copy cannot reach your broker.', 'Apne PC par Professor OI folder mein Start-Live-Broker par double-click karo (Mac: Start-Live-Broker.command). Ye online ya file wali copy broker tak nahi pahunch sakti.')}</p>`)}
-    ${st(L('Click Connect on', 'Connect dabao:') + ' ' + esc(B[1]), `<p>${L('The app asks for these details, saves them on your PC and connects:', 'App ye details maangega, aapke PC par save karega aur connect karega:')} <b>${esc(G.keys.join(', '))}</b>. ${G.note}</p><span class="lock2">🔒 ${L('Never paste keys into any chat.', 'Keys kabhi kisi chat mein paste mat karo.')}</span>`)}
-    <button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Got it', 'Samajh gaya')}</button></div>`;
+    <p class="su-p">${L('This is the demo copy, so it cannot log in to your broker. The login form opens in the live app, at', 'Ye demo copy hai, isliye yahan se broker login nahi hota. Login form live app mein khulta hai, address')} <b>127.0.0.1:8765</b>.</p>
+    <div class="lvprobe" id="suProbe"></div>
+    ${st(L('Start the live app', 'Live app chalao'), `<p>${L('In the Professor OI folder on your PC, double-click <b>Start-Live-Broker</b> (Mac: Start-Live-Broker.command). Not index.html, not Start-Professor-OI.', 'Apne PC par Professor OI folder mein <b>Start-Live-Broker</b> par double-click karo (Mac: Start-Live-Broker.command). index.html ya Start-Professor-OI nahi.')}</p>`)}
+    ${st(L('In the live app, click Connect on', 'Live app mein Connect dabao:') + ' ' + esc(B[1]), `<p>${L('A form asks for', 'Form ye maangega')}: <b>${esc(G.keys.join(', '))}</b>. ${L('Fill it and press Save & connect.', 'Bharo aur Save & connect dabao.')}</p>`)}
+    ${st(L('Where to get the details', 'Details kahan milengi'), `<p>${esc(G.portal)}. ${G.note}</p>${G.redirect ? `<p>${L('Redirect URL for the broker app', 'Broker app ka Redirect URL')}: <code>http://127.0.0.1:8765/callback</code></p>` : ''}<span class="lock2">🔒 ${L('Never paste keys into any chat.', 'Keys kabhi kisi chat mein paste mat karo.')}</span>`)}
+    <button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Close', 'Band karo')}</button></div>`;
   M.hidden = false;
+  liveProbe($('#suProbe'), id);
   const close = () => { M.hidden = true; };
   $('#bkClose').onclick = close; $('#bkSim').onclick = close; M.onclick = e => { if (e.target === M) close(); };
 };
@@ -3394,6 +3434,7 @@ function updateChrome(ctx) {
     const nbF = $('#nb-mflow'); if (nbF) { setText(nbF, '▲' + UL.filter(u => u.pct[ctx.t0] >= 0).length); nbF.className = 'nb up'; }
   }
   updateTape(ctx); if (LIVE.on) liveTape();
+  document.documentElement.classList.toggle('mkt-closed', app.edge >= N);
 }
 $('#playBtn').onclick = () => {
   if (app.mode === 'live') { app.mode = 'replay'; app.playing = false; }
@@ -3500,19 +3541,19 @@ const TICK = 400, MIN_MS = 2000;
 setInterval(() => {
   if (document.hidden) return;
   const prev = app.edge;
-  app.edge = Math.min(N, app.edge + TICK / MIN_MS);
+  app.edge = LIVE.on ? liveEdge(app.edge) : Math.min(N, app.edge + TICK / MIN_MS);
   if (app.mode === 'live') app.tf = app.edge;
   else if (app.playing) { app.tf = Math.min(app.edge, app.tf + TICK / MIN_MS * app.speed); if (app.tf >= app.edge - 1e-6) { app.mode = 'live'; app.tf = app.edge; } }
   paperTick(); feedTick();
   fireToasts(prev, app.edge);
-  if (app.mode === 'live' && prev >= N && app.edge >= N) return;
+  if (app.mode === 'live' && prev >= N && app.edge >= N && !(LIVE.on && LIVE_PAGES.has(app.page))) return;
   render();
 }, TICK);
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
 getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
 syncSym(); setLang(app.lang); liveInit();
-const h0 = (location.hash || '').slice(1);
+const h0 = (location.hash || '').slice(1).split(':')[0];
 go(MODS[h0] ? h0 : 'overview');
 })();
 </script>
