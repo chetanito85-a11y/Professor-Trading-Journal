@@ -857,6 +857,83 @@ main{padding:16px 22px 120px}
 .aiv .ai{font-size:13px;line-height:1.65}
 #aiTxt{line-height:1.65}
 @media (max-width:900px){.aiw,.aig{grid-template-columns:minmax(0,1fr)}}
+/* ---- v11: live motion (only on new data; nothing moves when the market is closed) ---- */
+.mo-d{display:inline-block;height:1.15em;line-height:1.15em;overflow:hidden;vertical-align:bottom}
+.mo-ds{display:block;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.mo-ds i{display:block;height:1.15em;line-height:1.15em;font-style:normal;text-align:center}
+.mo-c{display:inline-block;line-height:1.15em;vertical-align:bottom;white-space:pre}
+.mo-odo{font-variant-numeric:tabular-nums}
+.fchip .dot,.pill.live .dot{animation:none}
+.fchip .dot.mo-beat,.pill.live .dot.mo-beat{animation:pulse .9s ease-out}
+.chart .pl{animation:none;opacity:0}
+.chart .pl.mo-go{animation:plr 1.1s ease-out}
+.mo-fresh{position:absolute;left:0;top:0;width:100%;height:2px;background:var(--accent);transform-origin:left;transform:scaleX(0);pointer-events:none;opacity:.85;z-index:2}
+.mo-fresh.mo-stale{background:var(--amber)}
+.mkt-closed .mo-fresh{opacity:0}
+#feedChip .mo-dly{color:var(--amber)}
+#feedChip .mo-dly:empty{display:none}
+#feedChip.mo-stale{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 60%,transparent)}
+.ti{border-radius:4px}
+.ti.mo-fu{animation:mofu 1s ease-out}.ti.mo-fd{animation:mofd 1s ease-out}
+@keyframes mofu{from{background:color-mix(in srgb,var(--put) 28%,transparent)}to{background:transparent}}
+@keyframes mofd{from{background:color-mix(in srgb,var(--call) 28%,transparent)}to{background:transparent}}
+.anim-in .card,.anim-in .cat{animation-name:mocard;animation-delay:calc(var(--i,0) * 45ms)}
+.anim-in .phead{animation:mocard .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes mocard{from{opacity:.15;transform:translate(var(--mo-dx,0px),8px)}to{opacity:1;transform:none}}
+.tbl.chain td.bc .bar{transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.mo-atm{position:absolute;left:0;top:0;pointer-events:none;z-index:1;border-block:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 6%,transparent);transition:transform .6s cubic-bezier(.2,.8,.2,1),height .3s}
+.mo-pop{position:absolute;z-index:4;transform:translate(-50%,-100%);font:700 10px var(--f-mono);padding:2px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;border:1px solid currentColor;background:color-mix(in srgb,currentColor 14%,var(--panel));animation:mopop 1.9s ease-out forwards}
+@keyframes mopop{0%{opacity:0;transform:translate(-50%,-70%) scale(.9)}12%{opacity:1;transform:translate(-50%,-100%)}100%{opacity:0;transform:translate(-50%,-100%) translateY(-22px)}}
+.mo-rip{position:absolute;z-index:3;width:14px;height:14px;border-radius:50%;border:1.5px solid currentColor;pointer-events:none;animation:morip 1s ease-out forwards}
+@keyframes morip{from{transform:translate(-50%,-50%) scale(.4);opacity:.9}to{transform:translate(-50%,-50%) scale(3.4);opacity:0}}
+.mo-shift{margin:0 14px 12px;padding:7px 10px;border:1px dashed var(--line-2);border-radius:8px;font:600 12px var(--f-mono);color:var(--muted)}
+.mo-shift:empty{display:none}
+.mo-shift .mut{font-weight:500;margin-left:4px}
+.mo-shift.mo-show{animation:moshift 3.4s ease-out both}
+@keyframes moshift{0%{opacity:0;transform:translateY(6px)}8%{opacity:1;transform:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}70%{border-color:var(--accent)}100%{box-shadow:0 0 0 2px transparent}}
+.lvls .mo-test{animation:motest 1.1s ease-in-out infinite;border-radius:6px}
+@keyframes motest{50%{background:color-mix(in srgb,var(--amber) 18%,transparent)}}
+.mkt-closed .lvls .mo-test{animation:none}
+.mo-spot{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed var(--accent);transition:top .7s cubic-bezier(.2,.8,.2,1);pointer-events:none;z-index:2}
+.mo-spot span{position:absolute;left:50%;transform:translateX(-50%);top:-9px;font:700 9.5px var(--f-mono);background:var(--accent);color:var(--on-solid);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.tl.mo-sweep::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,transparent 30%,color-mix(in srgb,var(--accent) 32%,transparent) 50%,transparent 70%);animation:mosweep 1.1s ease-out forwards}
+@keyframes mosweep{from{transform:translateX(-110%)}to{transform:translateX(110%)}}
+.dots i{font-style:normal}
+.tl.mo-dots .dots b i{display:inline-block;animation:modot .45s ease-out both}
+.tl.mo-dots .dots b i:nth-child(2){animation-delay:.08s}.tl.mo-dots .dots b i:nth-child(3){animation-delay:.16s}.tl.mo-dots .dots b i:nth-child(4){animation-delay:.24s}.tl.mo-dots .dots b i:nth-child(5){animation-delay:.32s}
+@keyframes modot{from{opacity:.15;transform:scale(.3)}to{opacity:1;transform:none}}
+tr.mo-hot td{animation:mohot 1.2s ease-in-out 2}
+@keyframes mohot{50%{background:color-mix(in srgb,var(--amber) 16%,transparent)}}
+.kpi.mo-gu{animation:mogu 1s ease-out}.kpi.mo-gd{animation:mogd 1s ease-out}
+@keyframes mogu{from{box-shadow:0 0 0 2px color-mix(in srgb,var(--put) 55%,transparent),inset 0 0 0 999px color-mix(in srgb,var(--put) 7%,transparent)}to{box-shadow:0 0 0 2px transparent}}
+@keyframes mogd{from{box-shadow:0 0 0 2px color-mix(in srgb,var(--call) 55%,transparent),inset 0 0 0 999px color-mix(in srgb,var(--call) 7%,transparent)}to{box-shadow:0 0 0 2px transparent}}
+.mo-sl{display:block;height:4px;min-width:60px;margin-top:4px;border-radius:2px;overflow:hidden;background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.mo-sl i{display:block;height:100%;border-radius:2px;background:var(--put);transition:width .6s cubic-bezier(.2,.8,.2,1),background .4s}
+.mo-sl.near i{background:var(--amber)}
+.mo-in{animation:moin .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 55ms)}
+@keyframes moin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.feed li.mo-in{animation:moin .55s cubic-bezier(.2,.8,.2,1) both,mostripe 2.4s ease-out}
+@keyframes mostripe{from{box-shadow:inset 3px 0 0 var(--accent)}to{box-shadow:inset 3px 0 0 transparent}}
+#jTbl tr.mo-new{animation:moin .55s cubic-bezier(.2,.8,.2,1) both,monew 2.4s ease-out}
+@keyframes monew{from{background:color-mix(in srgb,var(--accent) 14%,transparent)}to{background:transparent}}
+.tgl li.mo-in i.up{display:inline-block;animation:mock .5s cubic-bezier(.3,1.6,.5,1) .45s both}
+@keyframes mock{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+.nb.mo-bump{animation:mobump .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes mobump{40%{transform:scale(1.4)}}
+.mo-pk circle{fill:var(--accent)}
+#bkPipe rect.mo-ping{animation:moping .5s ease-out}
+@keyframes moping{from{stroke:var(--put);stroke-width:2.4}}
+.wl .mk,.wl .mt{transition:left .6s cubic-bezier(.2,.8,.2,1)}
+#brRing,#stRingSvg .fg{transition:stroke-dasharray .7s cubic-bezier(.2,.8,.2,1),stroke .4s}
+#ovBreadth .adbar i{transition:width .6s cubic-bezier(.2,.8,.2,1)}
+#mapPts circle{transition:transform .8s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.mo-cone{margin-top:8px}
+.mo-cone svg{display:block;width:100%;height:auto;overflow:visible}
+.mo-cone .cn{fill:color-mix(in srgb,var(--amber) 14%,transparent);stroke:color-mix(in srgb,var(--amber) 70%,transparent);stroke-width:1.2}
+.mo-cone .md{stroke:var(--faint);stroke-dasharray:3 4}
+.mo-cone .nw{fill:var(--accent)}
+.mo-cone .axl{font-size:8.5px}
+@media (prefers-reduced-motion: reduce){.mo-ds,.mo-atm,.mo-spot,.mo-sl i{transition:none}.mo-in,.mo-pop,.mo-rip,.mo-shift.mo-show,.tl.mo-sweep::after,.tl.mo-dots .dots b i,tr.mo-hot td,.kpi.mo-gu,.kpi.mo-gd,.nb.mo-bump,.ti.mo-fu,.ti.mo-fd,.lvls .mo-test{animation:none}}
 </style>
 
 </head>
@@ -1728,14 +1805,14 @@ MODS.heatmap = {
     const cv = $('#hmCv');
     cv.onmousemove = e => this.hover(e); cv.onmouseleave = () => { $('#hmTip').hidden = true; };
   },
-  update(ctx) { if (ctx.minuteChanged || this.dirty) { this.draw(ctx); this.dirty = false; } },
+  update(ctx) { if (ctx.minuteChanged || this.dirty) { if (ctx.minuteChanged && !this.dirty) MO.trig('hm'); this.draw(ctx); this.dirty = false; } },
   draw(ctx) {
     const D = this.D, cv = $('#hmCv'), wrap = $('#hmWrap'), dpr = window.devicePixelRatio || 1;
     const W = wrap.clientWidth, K = D.K, ch = W < 600 ? 13 : 16, lw = 54, top = 4, H = K * ch + 30, cols = 75, cw = (W - lw - 6) / cols;
     cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
     const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
     const cPut = tok('--put'), cCall = tok('--call'), cFg = tok('--fg'), cFaint = tok('--faint'), cLine = tok('--line'), cAcc = tok('--accent');
-    const t0 = ctx.t0, mode = app.heatMode, vals = [];
+    const t0 = ctx.t0, mode = app.heatMode, vals = [], moB = Math.floor(Math.max(t0 - 1, 0) / 5), moP = MO.prog('hm');
     let mx = 1;
     for (let b = 0; b < cols; b++) {
       const a = b * 5, z = Math.min((b + 1) * 5, t0); if (a >= t0 && b > 0) { vals.push(null); continue; }
@@ -1760,7 +1837,7 @@ MODS.heatmap = {
         if (!col) { g.fillStyle = rgba(cLine, 0.35); g.fillRect(x + 0.5, y(k) + 0.5, cw - 1, ch - 1); continue; }
         const v = col[k].v, a = 0.07 + 0.88 * Math.sqrt(Math.abs(v) / mx);
         const base = mode === 'net' ? (v >= 0 ? cPut : cCall) : mode === 'calls' ? (v >= 0 ? cCall : cFaint) : mode === 'puts' ? (v >= 0 ? cPut : cFaint) : cAcc;
-        g.fillStyle = rgba(base, mode === 'oi' ? 0.06 + 0.9 * (v / mx) ** 1.5 : a); g.fillRect(x + 0.5, y(k) + 0.5, cw - 1, ch - 1);
+        g.fillStyle = rgba(base, (mode === 'oi' ? 0.06 + 0.9 * (v / mx) ** 1.5 : a) * (b === moB ? 0.25 + 0.75 * moP : 1)); g.fillRect(x + 0.5, y(k) + 0.5, cw - 1, ch - 1);
       }
       if (col) {
         const z = Math.min((b + 1) * 5, t0), sk = wallK(D, 'S', z), rk = wallK(D, 'R', z);
@@ -1772,11 +1849,12 @@ MODS.heatmap = {
     g.beginPath(); g.lineWidth = 2; g.strokeStyle = cFg;
     for (let t = 0; t <= t0; t++) { const x = lw + t / 5 * cw; t ? g.lineTo(x, ys(D.spot[t])) : g.moveTo(x, ys(D.spot[t])); }
     g.stroke();
-    const lx = lw + t0 / 5 * cw; g.fillStyle = cFg; g.beginPath(); g.arc(lx, ys(D.spot[t0]), 3.5, 0, 7); g.fill();
+    const lx = lw + t0 / 5 * cw; g.fillStyle = cFg; g.beginPath(); g.arc(lx, ys(D.spot[t0]), 3.5, 0, 7); g.fill(); MO.ring(g, lx, ys(D.spot[t0]), cFg, 'hm');
     g.fillStyle = cFaint; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
     for (const [t, l] of TT) g.fillText(l, clamp(lw + t / 5 * cw, lw + 16, W - 20), H - 8);
     const lg = mode === 'net' ? `<span><i style="background:var(--put)"></i>Put writing zyada</span><span><i style="background:var(--call)"></i>Call writing zyada</span>` : mode === 'oi' ? `<span><i style="background:var(--accent)"></i>Total OI (gehra = zyada)</span>` : `<span><i style="background:var(--${mode === 'calls' ? 'call' : 'put'})"></i>Nayi writing</span><span><i style="background:var(--faint)"></i>Unwinding</span>`;
     $('#hmLeg').innerHTML = lg + `<span><i style="background:var(--fg)"></i>Spot</span><span>Max 5-min value ${compact(mx)}</span>`;
+    MO.loop('hm', () => { if (app.page === 'heatmap' && lastCtx) this.draw(lastCtx); });
   },
   hover(e) {
     const L = this.L, D = this.D; if (!L) return; const r = e.target.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -1859,7 +1937,7 @@ MODS.chart = {
     cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
     const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
     const C = {put: tok('--put'), call: tok('--call'), fg: tok('--fg'), faint: tok('--faint'), line: tok('--line'), amb: tok('--amber'), acc: tok('--accent'), panel: tok('--panel'), mono: tok('--f-mono')};
-    const t0 = ctx.t0, S = ctx.st(app.sym).S, pl = 6, pr = 70, pt = 12, hH = app.layers.writing ? H * 0.17 : 0, pb = 24, mainH = H - pt - pb - hH - (hH ? 10 : 0), slot = (W - pl - pr) / 75;
+    const t0 = ctx.t0, S = MO.ez('ch.S', ctx.st(app.sym).S), pl = 6, pr = 70, pt = 12, hH = app.layers.writing ? H * 0.17 : 0, pb = 24, mainH = H - pt - pb - hH - (hH ? 10 : 0), slot = (W - pl - pr) / 75;
     const candles = [];
     for (let b = 0; b * 5 < Math.max(t0, 1); b++) {
       const m0 = b * 5, m1 = Math.min(b * 5 + 5, t0), o = D.spot[m0]; let h = o, l = o;
@@ -1869,7 +1947,7 @@ MODS.chart = {
     }
     let mn = Math.min(...candles.map(c => c.l)), mx = Math.max(...candles.map(c => c.h));
     if (app.layers.walls) { mn = Math.min(mn, wallLv(D, 'S', t0)); mx = Math.max(mx, wallLv(D, 'R', t0)); }
-    const padv = (mx - mn) * 0.08; mn -= padv; mx += padv;
+    const padv = (mx - mn) * 0.08; mn -= padv; mx += padv; mn = MO.ez('ch.mn', mn); mx = MO.ez('ch.mx', mx);
     const Y = v => pt + (1 - (v - mn) / (mx - mn)) * mainH, X = t => pl + t / 5 * slot;
     g.font = `500 10.5px ${C.mono}`; g.textBaseline = 'middle';
     for (const v of niceTicks(mn, mx, 6)) { g.strokeStyle = C.line; g.lineWidth = 1; g.beginPath(); g.moveTo(pl, Y(v)); g.lineTo(W - pr, Y(v)); g.stroke(); g.fillStyle = C.faint; g.textAlign = 'left'; g.fillText(inr(v), W - pr + 8, Y(v)); }
@@ -1891,9 +1969,9 @@ MODS.chart = {
       g.fillStyle = C.faint; g.textAlign = 'left'; g.fillText('Net writing', W - pr + 8, base);
     }
     const tag = (v, col, txt) => { const y = clamp(Y(v), pt + 8, pt + mainH - 8); g.fillStyle = col; g.fillRect(W - pr + 2, y - 9, pr - 4, 18); g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = `700 10.5px ${C.mono}`; g.fillText(txt, W - pr + 6, y); g.font = `500 10.5px ${C.mono}`; };
-    if (app.layers.walls) { tag(wallLv(D, 'R', t0), C.call, 'R ' + wallLv(D, 'R', t0)); tag(wallLv(D, 'S', t0), C.put, 'S ' + wallLv(D, 'S', t0)); }
+    if (app.layers.walls) { tag(MO.ez('ch.R', wallLv(D, 'R', t0)), C.call, 'R ' + wallLv(D, 'R', t0)); tag(MO.ez('ch.Sw', wallLv(D, 'S', t0)), C.put, 'S ' + wallLv(D, 'S', t0)); }
     g.setLineDash([2, 3]); g.strokeStyle = C.acc; g.beginPath(); g.moveTo(pl, Y(S)); g.lineTo(W - pr, Y(S)); g.stroke(); g.setLineDash([]);
-    tag(S, C.acc, inr2(S));
+    tag(S, C.acc, inr2(S)); if (candles.length) MO.ring(g, pl + (candles.length - 1) * slot + slot / 2, Y(S), C.acc, 'ch');
     const tip = $('#chTip');
     if (this.mx != null && this.mx < W - pr) {
       const i = clamp(Math.floor((this.mx - pl) / slot), 0, candles.length - 1), c = candles[i], x = pl + i * slot + slot / 2;
@@ -1901,6 +1979,7 @@ MODS.chart = {
       tip.innerHTML = `<b>${tl(c.m0)}–${tl(c.m0 + 5)}</b><br>O ${inr2(c.o)}  H ${inr2(c.h)}<br>L ${inr2(c.l)}  C ${inr2(c.c)}<br><span class="up">Support ${wallLv(D, 'S', c.m1)}</span> · <span class="dn">Res ${wallLv(D, 'R', c.m1)}</span><br><span class="amb">Max pain ${D.ser.mp[c.m1]}</span>`;
       tip.hidden = false; tip.style.left = clamp(x + 12, 0, W - 200) + 'px'; tip.style.top = '12px';
     } else tip.hidden = true;
+    MO.loop('ch', () => { if (app.page === 'chart' && lastCtx) this.draw(lastCtx); });
   },
 };
 
@@ -1934,7 +2013,7 @@ MODS.gex = {
     const xs = [...D.strikes], ivC = [...s.cIV], ivP = [...s.pIV], all = [...ivC, ...ivP];
     const xt = [0, Math.floor(K / 4), Math.floor(K / 2), Math.floor(3 * K / 4), K - 1].map(k => [D.strikes[k], inr(D.strikes[k])]);
     svgChart($('#gxIv'), {h: 220, x0: xs[0], x1: xs[K - 1], y0: Math.min(...all) - 0.5, y1: Math.max(...all) + 0.5, yf: v => v.toFixed(1) + '%', pl: 48, xt, label: 'IV smile',
-      series: [{v: ivC, x: xs, c: 'var(--call)'}, {v: ivP, x: xs, c: 'var(--put)'}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/>`});
+      series: [{v: ivC, x: xs, c: 'var(--call)'}, {v: ivP, x: xs, c: 'var(--put)'}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/><circle cx="${X(s.S)}" cy="${Y(s.cIV[s.atmK])}" r="4" style="fill:var(--accent);stroke:var(--panel);stroke-width:2"/>`});
     const mpEl = $('#gxMp'), mw = Math.max(240, mpEl.clientWidth), mh = 200, lo2 = Math.max(0, s.atmK - 8), hi2 = Math.min(K - 1, s.atmK + 8), n = hi2 - lo2 + 1, bw = (mw - 10) / n, pm = Math.max(...Array.from({length: n}, (_, i) => s.pain[lo2 + i]));
     let ms = '';
     for (let i = 0; i < n; i++) { const k = lo2 + i, v = s.pain[k], bh = v / pm * (mh - 40), isMp = D.strikes[k] === s.maxPain; ms += `<rect x="${5 + i * bw + 1}" y="${mh - 22 - bh}" width="${bw - 2}" height="${bh}" rx="2" style="fill:var(${isMp ? '--amber' : '--line-2'})"/>`; if (i % 4 === 0 || isMp) ms += `<text class="axl" x="${5 + i * bw + bw / 2}" y="${mh - 8}" text-anchor="middle" style="${isMp ? 'fill:var(--amber);font-weight:700' : ''}">${D.strikes[k]}</text>`; }
@@ -2027,7 +2106,7 @@ MODS.strategy = {
         const area = f => path(ex, f) + `L${X(x1)},${Y(0)}L${X(x0)},${Y(0)}Z`;
         let o = `<path d="${area(v => Math.max(v, 0))}" style="fill:var(--put);fill-opacity:.16"/><path d="${area(v => Math.min(v, 0))}" style="fill:var(--call);fill-opacity:.16"/>`;
         o += `<path d="${path(t0v, v => v)}" style="fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:5 4"/><path d="${path(ex, v => v)}" style="fill:none;stroke:var(--fg);stroke-width:2"/>`;
-        o += `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent)"/><text class="axl" x="${X(s.S) + 4}" y="20" style="fill:var(--accent)">Spot ${inr2(s.S)}</text>`;
+        o += `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent)"/><text class="axl" x="${X(s.S) + 4}" y="20" style="fill:var(--accent)">Spot ${inr2(s.S)}</text><circle cx="${X(s.S)}" cy="${Y(now(s.S))}" r="4.5" style="fill:var(--accent);stroke:var(--panel);stroke-width:2"/>`;
         for (const b of bes) o += `<circle cx="${X(b)}" cy="${Y(0)}" r="4" style="fill:var(--amber);stroke:var(--panel);stroke-width:2"/>`;
         return o;
       }});
@@ -2037,7 +2116,7 @@ MODS.strategy = {
     const sig = s.cIV[s.atmK] / 100 * Math.sqrt(s.T); let pop = 0, tot = 0;
     for (let i = 0; i <= 400; i++) { const z = -4 + 8 * i / 400, x = s.S * Math.exp(z * sig - sig * sig / 2), w = npdf(z); tot += w; if (atExp(x) > 0) pop += w; }
     const G = f => priced.reduce((a, L) => a + L.sg * (L.type === 'CE' ? s['c' + f][L.k] : s['p' + f][L.k]), 0);
-    const it = (l, v, c = '') => `<div><span>${l}</span><b class="${c}">${v}</b></div>`;
+    const it = (l, v, c = '') => `<div><span>${l}</span><b class="${c}" data-mo-odo>${v}</b></div>`;
     $('#sgStat').innerHTML = it(net >= 0 ? 'Net credit' : 'Net debit', '₹' + inr(Math.abs(net)), net >= 0 ? 'up' : 'dn') + it('Max profit', maxP, 'up') + it('Max loss', maxL, 'dn') + it('Breakevens', bes.length ? bes.map(b => inr(b)).join(' · ') : '—') + it('Chance of profit', (pop / tot * 100).toFixed(0) + '%', 'acc') + it('Net Δ', G('D').toFixed(1)) + it('Net Γ', G('G').toFixed(3)) + it('Θ per day', '₹' + inr(G('Th')), G('Th') >= 0 ? 'up' : 'dn') + it('Vega per 1%', '₹' + inr(G('Ve')));
   },
 };
@@ -2421,7 +2500,7 @@ function rankAll(tf) {
   for (const [list] of [[bulls], [bears]]) { list.forEach(V => { V.score = score(V, list); }); list.sort((a, b) => b.score - a.score || Math.abs(b.pct) - Math.abs(a.pct)); list.forEach((V, i) => { V.rank = i + 1; V.of = list.length; V.pctl = list.length > 1 ? 100 - i / (list.length - 1) * 100 : 100; }); }
   return RK = {bulls, bears};
 }
-const dotsHTML = sc => { const n = clamp(Math.round(sc / 20), 1, 5); return `<span class="dots"><b>${'●'.repeat(n)}</b><u>${'●'.repeat(5 - n)}</u></span>`; };
+const dotsHTML = sc => { const n = clamp(Math.round(sc / 20), 1, 5); return `<span class="dots"><b>${'<i>●</i>'.repeat(n)}</b><u>${'<i>●</i>'.repeat(5 - n)}</u></span>`; };
 const f2 = x => x >= 1000 ? inr2(x) : x.toFixed(2);
 function stockChart(cv, V) {
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 440, H = 210; cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
@@ -2670,7 +2749,7 @@ MODS.vol = {
     const S0 = D.snaps[0], xs = [...D.strikes], a1 = [...S0.cIV], a2 = [...s.cIV], ys = [...a1, ...a2];
     const xt = [0, Math.floor(D.K / 4), Math.floor(D.K / 2), Math.floor(3 * D.K / 4), D.K - 1].map(i => [D.strikes[i], inr(D.strikes[i])]);
     svgChart($('#vlSmile'), {h: 220, x0: xs[0], x1: xs[D.K - 1], y0: Math.min(...ys) - 0.4, y1: Math.max(...ys) + 0.4, yf: x => x.toFixed(1) + '%', pl: 48, xt, anim: this.dirty, label: 'IV smile open vs now',
-      series: [{v: a1, x: xs, c: 'var(--faint)', dash: 1}, {v: a2, x: xs, c: 'var(--glow3)', w: 2}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/>`});
+      series: [{v: a1, x: xs, c: 'var(--faint)', dash: 1}, {v: a2, x: xs, c: 'var(--glow3)', w: 2}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/><circle cx="${X(s.S)}" cy="${Y(s.cIV[s.atmK])}" r="4" style="fill:var(--accent);stroke:var(--panel);stroke-width:2"/>`});
     const rows = scanRows(ctx.tf).filter(r => isFinite(r.iv)), key = app.volSort;
     rows.sort((a, b) => key === 'iv' ? b.iv - a.iv : key === 'ivc' ? b.ivc - a.ivc : a.ivc - b.ivc);
     const ivs = rows.map(r => r.iv), mn = Math.min(...ivs), mx = Math.max(...ivs);
@@ -2955,9 +3034,9 @@ function liveTape() {
   setText($('#clock'), rp ? tls(Math.min(app.tf, N)) + ' IST' : hmIST(lvNow()) + ' IST'); setText($('#statusTxt'), rp ? 'Replay' : open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (rp ? 'warn' : open ? 'up live' : '');
   for (const sym of ['NIFTY', 'BANKNIFTY']) {
     const c = LIVE.chains[sym]; if (!c) continue;
-    $$(`#tape .ti[data-tk="${sym}"]`).forEach(el => { el.classList.add('lvt'); setText(el.children[1], inr2(c.spot)); const b = el.children[2]; setText(b, 'LIVE'); b.className = 'b up'; });
+    $$(`#tape .ti[data-tk="${sym}"]`).forEach(el => { el.classList.add('lvt'); MO.tapeV(el, inr2(c.spot)); const b = el.children[2]; setText(b, 'LIVE'); b.className = 'b up'; });
   }
-  const c = LIVE.chains.NIFTY; if (c && c.sum.pcr != null) $$('#tape .ti[data-tk="PCR"]').forEach(el => { el.classList.add('lvt'); setText(el.children[1], c.sum.pcr.toFixed(2)); });
+  const c = LIVE.chains.NIFTY; if (c && c.sum.pcr != null) $$('#tape .ti[data-tk="PCR"]').forEach(el => { el.classList.add('lvt'); MO.tapeV(el, c.sum.pcr.toFixed(2)); });
 }
 function liveBan(v) {
   if (!LIVE.on || LIVE_PAGES.has(app.page)) return;
@@ -3740,7 +3819,7 @@ function updateTape(ctx) {
   const sN = ctx.st('NIFTY'), sB = ctx.st('BANKNIFTY'), DN = getData('NIFTY'), a = ctx.tf - ctx.t0, t1 = Math.min(N, ctx.t0 + 1);
   const vals = {NIFTY: [inr2(sN.S), (sN.S / DN.c.prev - 1) * 100], BANKNIFTY: [inr2(sB.S), (sB.S / getData('BANKNIFTY').c.prev - 1) * 100], VIX: [(sN.cIV[sN.atmK] * 1.08 + 0.4).toFixed(2), null], PCR: [sN.pcr.toFixed(2), null]};
   for (const x of DN.stocks) if (TAPE.includes(x.s)) vals[x.s] = ['', lerp(x.p[ctx.t0], x.p[t1], a)];
-  $$('#tape .ti').forEach(el => { const v = vals[el.dataset.tk]; if (!v) return; setText(el.children[1], v[0]); const b = el.children[2]; if (v[1] != null) { setText(b, pct(v[1])); b.className = 'b ' + (v[1] >= 0 ? 'up' : 'dn'); } });
+  $$('#tape .ti').forEach(el => { const v = vals[el.dataset.tk]; if (!v) return; MO.tapeV(el, v[0], v[1]); const b = el.children[2]; if (v[1] != null) { setText(b, pct(v[1])); b.className = 'b ' + (v[1] >= 0 ? 'up' : 'dn'); } });
 }
 const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l12 7-12 7z"/></svg>', PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 function updateChrome(ctx) {
@@ -4078,6 +4157,457 @@ MODS.backtest.mount = function (v) {
   $$('#btSrc button').forEach(b => b.onclick = () => set(b.dataset.src));
   set(app.btSrc);
 };
+
+/* ---- v11: live motion. Things move only when new data arrives (a broker tick, or a new minute in the
+   demo), and nothing moves while the market is closed or when the OS asks for reduced motion. ---- */
+const MO = {svgReg: new Map(), txt: new Map(), barW: new Map(), ezs: {}, mv: {}, lp: {}, trg: {}, grid: {}, walls: {}, hot: new Set(), nb: {}, midIdx: {},
+  sig: null, sigInit: false, lastBeat: performance.now(), gap: 2000, flipPre: null, pk: [], pkRaf: 0, pipe: null, jn: null};
+MO.motion = () => !REDUCE;
+MO.closed = () => app.mode !== 'replay' && (document.documentElement.classList.contains('mkt-closed') || !!(LIVE.on && LIVE.st && LIVE.st.market_open === false && !LD.replay));
+MO.ok = () => MO.motion() && !MO.closed() && !document.hidden;
+MO.restart = (el, cls) => { if (!el) return; el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls); };
+MO.dur = () => Math.round(clamp(MO.gap * 0.55, 320, 650));
+MO.reset = () => { MO.svgReg.clear(); MO.txt.clear(); MO.barW.clear(); MO.ezs = {}; MO.mv = {}; MO.grid = {}; MO.walls = {}; MO.hot = new Set(); MO.hotInit = false; MO.midIdx = {}; MO.lv = null; MO.spotY = null; MO.lcTs = 0; MO.cone = null; MO.pday = null; MO.tgSeen = null; MO.pk = []; MO.pipe = null; };
+
+/* odometer: every digit is a little strip of 0-9 that rolls to its new value */
+const MO_DIG = '<span class="mo-ds" aria-hidden="true">' + [...'0123456789'].map(d => `<i>${d}</i>`).join('') + '</span>';
+const moShape = s => String(s).replace(/\d/g, '0');
+const moDigit = c => c >= '0' && c <= '9';
+MO.odo = (el, txt, from) => {
+  if (!el) return;
+  const cur = el._ot, has = el.firstElementChild && el.firstElementChild.classList.contains('mo-d') || el.firstElementChild && el.firstElementChild.classList.contains('mo-c');
+  if (has && cur !== undefined && moShape(cur) === moShape(txt)) {
+    if (cur !== txt) [...txt].forEach((c, i) => { if (moDigit(c)) el.children[i].firstChild.style.transform = `translateY(${-c * 10}%)`; });
+  } else {
+    const start = from != null && moShape(from) === moShape(txt) ? String(from) : txt;
+    el.innerHTML = [...txt].map(c => moDigit(c) ? `<span class="mo-d">${MO_DIG}</span>` : `<span class="mo-c" aria-hidden="true">${esc(c)}</span>`).join('');
+    const kids = el.children;
+    [...txt].forEach((c, i) => { if (moDigit(c)) { const s = kids[i].firstChild; s.style.transition = 'none'; s.style.transform = `translateY(${-start[i] * 10}%)`; } });
+    if (start !== txt) { void el.offsetWidth; [...txt].forEach((c, i) => { if (moDigit(c)) { const s = kids[i].firstChild; s.style.transition = ''; s.style.transform = `translateY(${-c * 10}%)`; } }); }
+    else [...txt].forEach((c, i) => { if (moDigit(c)) kids[i].firstChild.style.transition = ''; });
+  }
+  el._ot = txt; el.setAttribute('aria-label', txt); el.classList.add('mo-odo');
+};
+// the app's KPI helper now rolls digits like an odometer
+roll = function (el, v, txt) {
+  if (!el) return; el._roll = 1;
+  if (el._ot !== txt) { if (el._ot === undefined || !MO.ok()) { el.textContent = txt; el._ot = txt; } else MO.odo(el, txt, el._ot); }
+  if (el._v !== undefined && v !== el._v) { el.classList.remove('fu', 'fd'); void el.offsetWidth; el.classList.add(v > el._v ? 'fu' : 'fd'); }
+  el._v = v;
+};
+// big numbers that pages rebuild with innerHTML: roll from the last value we saw at the same place
+MO.scan = () => {
+  const seen = {};
+  for (const el of $$('#view .bigv, #view .kpi .val, #view [data-mo-odo]')) {
+    if (el._roll) continue;
+    const fe = el.firstElementChild, ours = fe && (fe.classList.contains('mo-d') || fe.classList.contains('mo-c'));
+    if (fe && !ours) continue;
+    const host = el.id ? el : el.parentElement.closest('[id]'), base = el.id || ((host ? host.id : 'v') + ':' + el.className.replace(/\s*mo-odo/, ''));
+    const n = seen[base] = (seen[base] || 0) + 1, key = base + ':' + n, txt = ours ? el._ot : el.textContent;
+    const prev = MO.txt.get(key); MO.txt.set(key, txt);
+    if (!ours && prev != null && prev !== txt && txt.length < 26 && moShape(prev) === moShape(txt) && MO.ok()) MO.odo(el, txt, prev);
+  }
+};
+
+/* SVG charts: when a chart is redrawn, glide every line, bar, dot and label from where it was */
+const MO_ATTR = {path: ['d'], rect: ['x', 'y', 'width', 'height'], circle: ['cx', 'cy', 'r'], line: ['x1', 'y1', 'x2', 'y2'], text: ['x', 'y']};
+const MO_NUM = /-?\d*\.?\d+(?:e[-+]?\d+)?/gi;
+function moPath(d) { const nums = [], sk = []; let last = 0; d.replace(MO_NUM, (m, off) => { sk.push(d.slice(last, off)); nums.push(+m); last = off + m.length; return m; }); sk.push(d.slice(last)); return {nums, sk}; }
+function moPad(a, b, closed) {
+  const k = b.length - a.length; if (k <= 0 || k % 2) return null;
+  const out = a.slice(), ins = [];
+  if (closed) { if (a.length < 6) return null; for (let i = 0; i < k / 2; i++) ins.push(a[a.length - 6], a[a.length - 5]); out.splice(a.length - 4, 0, ...ins); }
+  else { if (a.length < 2) return null; for (let i = 0; i < k / 2; i++) out.push(a[a.length - 2], a[a.length - 1]); }
+  return out;
+}
+MO.morph = (old, neu) => {
+  if (!MO.ok() || !old || !neu || neu._noMorph) return;
+  if ((old.getAttribute('width') || '') !== (neu.getAttribute('width') || '') || (old.getAttribute('height') || '') !== (neu.getAttribute('height') || '') || (old.getAttribute('viewBox') || '') !== (neu.getAttribute('viewBox') || '')) return;
+  const jobs = [], pj = [];
+  for (const tag in MO_ATTR) {
+    const A = old.getElementsByTagName(tag), B = neu.getElementsByTagName(tag);
+    if (!B.length || A.length !== B.length) continue;
+    for (let i = 0; i < B.length; i++) {
+      const a = A[i], b = B[i];
+      if (tag === 'path') {
+        const da = a.getAttribute('d'), db = b.getAttribute('d'); if (!da || !db || da === db) continue;
+        const pa = moPath(da), pb = moPath(db); let from = pa.nums;
+        if (pa.nums.length !== pb.nums.length) { from = moPad(pa.nums, pb.nums, /z\s*$/i.test(db)); if (!from) continue; }
+        else if (pa.sk.join('') !== pb.sk.join('')) continue;
+        pj.push({el: b, sk: pb.sk, a: from, b: pb.nums});
+      } else for (const at of MO_ATTR[tag]) {
+        const va = parseFloat(a.getAttribute(at)), vb = parseFloat(b.getAttribute(at));
+        if (isFinite(va) && isFinite(vb) && Math.abs(va - vb) > 0.05) jobs.push({el: b, at, a: va, b: vb});
+      }
+    }
+  }
+  if (!jobs.length && !pj.length) return;
+  const tok = neu._mo = {}, set = p => {
+    for (const j of jobs) j.el.setAttribute(j.at, (j.a + (j.b - j.a) * p).toFixed(2));
+    for (const j of pj) { let s = j.sk[0]; for (let i = 0; i < j.b.length; i++) s += (j.a[i] + (j.b[i] - j.a[i]) * p).toFixed(1) + j.sk[i + 1]; j.el.setAttribute('d', s); }
+  };
+  set(0);
+  const t0 = performance.now(), dur = MO.dur();
+  const f = now => { if (neu._mo !== tok || !neu.isConnected) return; const p = clamp((now - t0) / dur, 0, 1); set(1 - Math.pow(1 - p, 3)); if (p < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+};
+MO.svgs = () => {
+  const seen = {};
+  for (const c of $$('#view .chart, #view .kpi .sp, #view #ptSp, #view .mo-svg')) {
+    const svg = c.querySelector(':scope > svg'); if (!svg) continue;
+    const host = c.id ? c : c.parentElement.closest('[id]'), base = c.id || ((host ? host.id : 'v') + ':sv'), n = seen[base] = (seen[base] || 0) + 1, key = base + ':' + n;
+    const prev = MO.svgReg.get(key);
+    if (prev && prev !== svg) MO.morph(prev, svg);
+    MO.svgReg.set(key, svg);
+  }
+};
+
+/* lists that get rebuilt and re-sorted: rows slide to their new place, new rows drop in from the top */
+const MO_FLIP = {
+  scanner: [['#scTbl', 'tr[data-s]'], ['#scSecs', '[data-sec]']],
+  structure: [['#stTiles', '.tile[data-s]']],
+  vol: [['#vlGrid', '.ivt[data-s]']],
+  mflow: [['#mfBull', '.mfi[data-s]'], ['#mfBear', '.mfi[data-s]']],
+  overview: [['#ovBu', '.bul[data-s]'], ['#ovFeed', '.feed li', 1]],
+  alerts: [['#alFeed', '.feed li', 1]],
+  oi: [['#oiLad', 'tbody tr']],
+};
+const moKey = el => el.dataset.s || el.dataset.sec || (el.tagName === 'TR' && el.cells[0] ? (el.cells[0].colSpan > 1 ? 'spot' : el.cells[0].textContent.trim()) : el.textContent.trim().slice(0, 90));
+MO.pre = () => {
+  MO.flipPre = null; const L = MO_FLIP[app.page], m = MODS[app.page];
+  if (!L || !m || !MO.ok()) return;
+  if (Math.min(N, Math.floor(Math.min(app.tf, N))) === app.lastMin && !m.dirty) return;   // nothing gets rebuilt this time
+  const vh = innerHeight;
+  MO.flipPre = L.map(([sel, item]) => { const map = new Map(), box = $(sel); if (box) for (const el of box.querySelectorAll(item)) { const r = el.getBoundingClientRect(); map.set(moKey(el), r.bottom < -40 || r.top > vh + 40 ? null : r); } return map; });
+};
+MO.postFlip = () => {
+  const L = MO_FLIP[app.page], pre = MO.flipPre; MO.flipPre = null; if (!L || !pre || !MO.ok()) return;
+  const vh = innerHeight;
+  L.forEach(([sel, item, newIn], i) => {
+    const box = $(sel), old = pre[i]; if (!box || !old.size) return; let n = 0;
+    for (const el of box.querySelectorAll(item)) {
+      const k = moKey(el);
+      if (!old.has(k)) { if (newIn) { el.style.setProperty('--i', n++); el.classList.add('mo-in'); } continue; }
+      const a = old.get(k); if (!a) continue;
+      const b = el.getBoundingClientRect(); if (b.bottom < -40 || b.top > vh + 40) continue;
+      const dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) el.animate([{transform: `translate(${dx}px,${dy}px)`}, {transform: 'none'}], {duration: 600, easing: 'cubic-bezier(.2,.8,.2,1)'});
+    }
+  });
+};
+
+/* bars inside rebuilt lists grow or shrink from their last width */
+const MO_BARS = {overview: [['#ovWrite', '.wr', '.b i']], structure: [['#stHb', '.hb', '.c i', '.p i']], scanner: [['#scCats', '.cat', '.sh i']], mflow: [['#mfBull', '.mfi', 'i'], ['#mfBear', '.mfi', 'i']]};
+MO.bars = () => {
+  const L = MO_BARS[app.page]; if (!L) return;
+  for (const [sel, row, ...bars] of L) {
+    const box = $(sel); if (!box) continue;
+    box.querySelectorAll(row).forEach(r => {
+      const grp = r.parentElement === box ? '' : [...box.children].indexOf(r.parentElement), k = sel + '|' + grp + '|' + (r.dataset.s || r.dataset.c || (r.querySelector('.k') || r.firstElementChild || r).textContent.trim());
+      bars.forEach((bs, j) => {
+        const b = r.querySelector(bs); if (!b) return;
+        const key = k + '|' + j, w = b.style.width, prev = MO.barW.get(key); MO.barW.set(key, w);
+        if (prev != null && prev !== w && MO.ok()) { b.style.transition = 'none'; b.style.width = prev; void b.offsetWidth; b.style.transition = 'width .6s cubic-bezier(.2,.8,.2,1)'; b.style.width = w; }
+      });
+    });
+  }
+};
+
+/* canvas charts: values ease toward their new level, and a ring pulses at the latest point */
+MO.ez = (key, v, ms = 560) => {
+  const e = MO.ezs[key], now = performance.now();
+  if (!e || !MO.ok() || !isFinite(v)) { MO.ezs[key] = {a: v, b: v, t: now, cur: v}; return v; }
+  if (e.b !== v) { e.a = e.cur; e.b = v; e.t = now; }
+  const p = Math.min(1, (now - e.t) / ms); e.cur = e.a + (e.b - e.a) * (1 - Math.pow(1 - p, 3));
+  if (p < 1) MO.mv[key.split('.')[0]] = true;
+  return e.cur;
+};
+MO.trig = k => { MO.trg[k] = performance.now(); };
+MO.prog = (k, ms = 650) => { const t = MO.trg[k]; if (t == null || !MO.ok()) return 1; const p = Math.min(1, (performance.now() - t) / ms); if (p < 1) MO.mv[k] = true; return 1 - Math.pow(1 - p, 3); };
+MO.ring = (g, x, y, col, grp) => {
+  const p = (performance.now() - MO.lastBeat) / 950; if (p >= 1 || p < 0 || !MO.ok()) return;
+  MO.mv[grp] = true; g.save(); g.strokeStyle = rgba(col, 0.8 * (1 - p)); g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 4 + p * 13, 0, 7); g.stroke(); g.restore();
+};
+MO.loop = (grp, fn) => { if (!MO.mv[grp]) return; MO.mv[grp] = false; if (MO.lp[grp]) return; MO.lp[grp] = requestAnimationFrame(() => { MO.lp[grp] = 0; fn(); }); };
+
+/* header: the feed dot beats on every update, and a thin bar fills until the next one is due */
+MO.beatSig = () => LIVE.on && !LD.replay && app.mode !== 'replay' ? ((LIVE.chains[LIVE.sym] || LIVE.chains.NIFTY || {}).ts || 0) : Math.floor(Math.min(app.tf, N));
+MO.gapMs = () => {
+  if (LIVE.on && !LD.replay && app.mode !== 'replay') { const s = LIVE.st || {}, f = s.fast; return f && f.state === 'live' && f.rate > 0 ? 1000 : Math.max(1, s.gap || 3) * 1000; }
+  return MIN_MS / (app.mode === 'replay' && app.playing ? app.speed : 1);
+};
+MO.beat = () => {
+  MO.lastBeat = performance.now();
+  if (!MO.ok()) return;
+  $$('#feedChip .dot, #status .dot, #lvPill .dot').forEach(d => MO.restart(d, 'mo-beat'));
+  $$('#view .chart .pl').forEach(c => MO.restart(c, 'mo-go'));
+  MO.pkSpawn();
+};
+(() => {
+  const tape = $('.tape'), chip = $('#feedChip');
+  if (tape) { MO.fbar = document.createElement('i'); MO.fbar.className = 'mo-fresh'; MO.fbar.setAttribute('aria-hidden', 'true'); tape.appendChild(MO.fbar); }
+  if (chip) { MO.dly = document.createElement('span'); MO.dly.className = 'mo-dly'; chip.querySelector('b').after(MO.dly); }
+  const loop = now => {
+    requestAnimationFrame(loop);
+    if (!MO.fbar) return;
+    const age = now - MO.lastBeat, f = MO.closed() || document.hidden ? 0 : Math.min(1, age / MO.gap);
+    if (Math.abs(f - (MO._f ?? -1)) > 0.003) { MO.fbar.style.transform = `scaleX(${f.toFixed(3)})`; MO._f = f; }
+    const s = LIVE.st || {}, live = LIVE.on && !LIVE.down && s.state === 'live' && s.market_open && !LD.replay && app.mode !== 'replay';
+    const stale = live && age > Math.max(3 * MO.gap, 5000), txt = stale ? `DELAY ${Math.round(age / 1000)}s` : '';
+    if (txt !== MO._dly) { MO._dly = txt; if (MO.dly) MO.dly.textContent = txt; chip && chip.classList.toggle('mo-stale', stale); MO.fbar.classList.toggle('mo-stale', stale); }
+  };
+  requestAnimationFrame(loop);
+})();
+
+/* ticker tape: values roll like an odometer and the item flashes green or red when it changes */
+MO.tapeV = (el, txt, p) => { el._want = txt; if (p != null) el._wp = p; };
+MO.tapeCommit = beat => {
+  const ok = MO.ok();
+  for (const el of $$('#tape .ti')) {
+    const t = el._want;
+    if (t != null) {
+      el._want = null; const a = el.children[1];
+      if (t !== a._ot) { if (t === '' || !ok) { a.textContent = t; a._ot = t; } else MO.odo(a, t); }
+      const nv = parseFloat(t.replace(/,/g, '')); el._num = isFinite(nv) ? nv : el._wp;
+    }
+    if (!beat) continue;
+    const cur = el._num; if (cur == null) continue;
+    if (el._wb != null && cur !== el._wb && ok) { el.classList.remove('mo-fu', 'mo-fd'); void el.offsetWidth; el.classList.add(cur > el._wb ? 'mo-fu' : 'mo-fd'); }
+    el._wb = cur;
+  }
+};
+MO.bump = () => {
+  for (const b of $$('.nav-i .nb')) {
+    const k = b.id || (b.closest('.nav-i') || {}).dataset?.p || '', t = b.textContent, p = MO.nb[k]; MO.nb[k] = t;
+    if (p != null && p !== t && t && MO.ok()) MO.restart(b, 'mo-bump');
+  }
+};
+
+/* option chains: the ATM band slides to the new strike, the spot row glides, fresh writing pops up */
+MO.atm = tb => {
+  if (!tb) return; const tw = tb.closest('.tw'); if (!tw) return;
+  const tr = tb.querySelector('tr.atm:not([hidden])'); let band = tw.querySelector(':scope > .mo-atm');
+  if (!tr) { if (band) band.hidden = true; return; }
+  if (getComputedStyle(tw).position === 'static') tw.style.position = 'relative';
+  if (!band) { band = document.createElement('div'); band.className = 'mo-atm'; band.setAttribute('aria-hidden', 'true'); tw.appendChild(band); }
+  const a = tr.getBoundingClientRect(), b = tw.getBoundingClientRect(), y = Math.round(a.top - b.top + tw.scrollTop);
+  band.hidden = false; band.style.height = a.height + 'px'; band.style.width = tw.scrollWidth + 'px';
+  if (band._y !== y) {
+    if (band._y == null || !MO.ok()) { band.style.transition = 'none'; band.style.transform = `translateY(${y}px)`; void band.offsetWidth; band.style.transition = ''; }
+    else band.style.transform = `translateY(${y}px)`;
+    band._y = y;
+  }
+};
+MO.midGlide = sel => {
+  const tb = $(sel); if (!tb) return; const mid = tb.querySelector('tr.mid'); if (!mid) return;
+  const idx = [...tb.children].indexOf(mid), prev = MO.midIdx[sel]; MO.midIdx[sel] = idx;
+  if (prev == null || prev === idx || !MO.ok()) return;
+  const nb = idx > prev ? mid.previousElementSibling : mid.nextElementSibling, h = nb ? nb.getBoundingClientRect().height : 30;
+  mid.animate([{transform: `translateY(${idx > prev ? -h : h}px)`}, {transform: 'none'}], {duration: 560, easing: 'cubic-bezier(.2,.8,.2,1)'});
+};
+MO.pop = (cell, text, cls) => {
+  if (!cell || !MO.ok()) return;
+  const box = cell.closest('.tw') || cell.closest('.card'); if (!box) return;
+  if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+  const a = cell.getBoundingClientRect(), b = box.getBoundingClientRect();
+  if (a.bottom < 0 || a.top > innerHeight) return;
+  const x = a.left - b.left + box.scrollLeft + a.width / 2, y = a.top - b.top + box.scrollTop + a.height / 2;
+  const rp = document.createElement('span'); rp.className = 'mo-rip ' + cls; rp.style.left = x + 'px'; rp.style.top = y + 'px';
+  const t = document.createElement('span'); t.className = 'mo-pop ' + cls; t.textContent = text; t.style.left = x + 'px'; t.style.top = Math.max(14, y - 6) + 'px';
+  box.append(rp, t); setTimeout(() => { rp.remove(); t.remove(); }, 2000);
+};
+
+/* broker page: packets travel broker → connector → screen, as many as the feed is sending */
+MO.pkSpawn = () => {
+  const P = MO.pipe; if (app.page !== 'broker' || !P || !P.svg.isConnected || !P.segs.length || !MO.ok()) return;
+  const f = LIVE.on && LIVE.st && LIVE.st.fast, rate = LIVE.on ? (f && f.state === 'live' ? f.rate : 2) : FEED.tps;
+  const n = clamp(Math.round(rate / 40) + 1, 1, 6), now = performance.now();
+  for (let i = 0; i < n; i++) { const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); c.setAttribute('r', '3'); c.setAttribute('cx', '-20'); c.setAttribute('cy', '-20'); P.g.appendChild(c); MO.pk.push({c, t0: now + i * MO.gap / n * 0.8}); }
+  if (!MO.pkRaf) MO.pkRaf = requestAnimationFrame(MO.pkLoop);
+};
+MO.pkLoop = now => {
+  MO.pkRaf = 0; const P = MO.pipe; if (!P || !P.svg.isConnected) { MO.pk = []; return; }
+  const segs = P.segs, tot = 380 * segs.length;
+  for (let i = MO.pk.length - 1; i >= 0; i--) {
+    const q = MO.pk[i], u = (now - q.t0) / tot; if (u < 0) continue;
+    if (u >= 1) { q.c.remove(); MO.pk.splice(i, 1); MO.restart(P.nodes[P.nodes.length - 1], 'mo-ping'); continue; }
+    const si = Math.min(segs.length - 1, Math.floor(u * segs.length)), w = u * segs.length - si, [x1, y1, x2, y2] = segs[si];
+    q.c.setAttribute('cx', (x1 + (x2 - x1) * w).toFixed(1)); q.c.setAttribute('cy', (y1 + (y2 - y1) * w).toFixed(1));
+  }
+  if (MO.pk.length) MO.pkRaf = requestAnimationFrame(MO.pkLoop);
+};
+{
+  const _pipe = MODS.broker.pipe;
+  MODS.broker.pipe = function () {
+    _pipe.apply(this, arguments);
+    const svg = $('#bkPipe svg'); if (!svg) return;
+    svg.querySelectorAll('animateMotion').forEach(a => a.parentNode.remove());
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'mo-pk'); svg.insertBefore(g, svg.querySelector('rect'));
+    MO.pipe = {svg, g, nodes: [...svg.querySelectorAll('rect')], segs: [...svg.querySelectorAll('path')].map(p => (p.getAttribute('d').match(MO_NUM) || []).map(Number)).filter(a => a.length === 4)};
+    MO.pk = [];
+  };
+}
+
+/* per-page touches */
+MO.page = {
+  chain(ctx) {
+    const m = MODS.chain; MO.atm($('#cb')); MO.midGlide('#cb');
+    if (!ctx.minuteChanged || !MO.ok() || ctx.t0 < 1 || !m.D) return;
+    const D = m.D, a = D.snaps[ctx.t0], b = D.snaps[ctx.t0 - 1], s = ctx.st(app.sym); let best = null, mx = 1;
+    for (let k = 0; k < D.K; k++) {
+      if (Math.abs(k - s.atmK) > Math.min(app.chainRange, 8)) continue; mx = Math.max(mx, a.cOI[k], a.pOI[k]);
+      for (const [side, d] of [['c', a.cOI[k] - b.cOI[k]], ['p', a.pOI[k] - b.pOI[k]]]) if (d > 0 && (!best || d > best.d)) best = {k, side, d};
+    }
+    if (best && best.d > mx * 0.001) { const r = m.rows[best.k]; if (r && !r.tr.hidden) MO.pop(r.td[best.side === 'c' ? 1 : 11], `+${compact(best.d)} ${best.side === 'c' ? 'CE' : 'PE'} writing`, best.side === 'c' ? 'dn' : 'up'); }
+  },
+  livechain() {
+    const m = MODS.livechain; if (!m.ready) return;
+    MO.atm($('#lvB')); MO.midGlide('#lvB');
+    const c = LIVE.chains[LIVE.sym], p = LIVE.prev[LIVE.sym]; if (!c || !p || c.ts === MO.lcTs) return; MO.lcTs = c.ts;
+    if (!MO.ok() || !m.rows || p.rows.length !== c.rows.length) return;
+    let best = null, mx = 1;
+    c.rows.forEach((r, i) => { const q = p.rows[i]; if (!q || q.k !== r.k) return; mx = Math.max(mx, r.ce.oi, r.pe.oi); for (const [side, d] of [['ce', r.ce.oi - q.ce.oi], ['pe', r.pe.oi - q.pe.oi]]) if (d > 0 && (!best || d > best.d)) best = {i, side, d}; });
+    if (best && best.d > mx * 0.002) { const row = m.rows[best.i]; if (row) MO.pop(row.td[best.side === 'ce' ? 1 : 9], `+${compact(best.d)} ${best.side.toUpperCase()} writing`, best.side === 'ce' ? 'dn' : 'up'); }
+  },
+  oi(ctx) {
+    const D = MODS.oi.D; if (!D) return;
+    const s = wallLv(D, 'S', ctx.t0), r = wallLv(D, 'R', ctx.t0), pw = MO.walls[app.sym]; MO.walls[app.sym] = {s, r};
+    const card = $('#oiSnap') && $('#oiSnap').closest('.card'); if (!card) return;
+    let t = card.querySelector('.mo-shift'); if (!t) { t = document.createElement('div'); t.className = 'mo-shift'; t.setAttribute('role', 'status'); card.appendChild(t); }
+    if (!pw) return;
+    for (const [side, a, b] of [['Support', pw.s, s], ['Resistance', pw.r, r]]) if (a !== b) {
+      t.innerHTML = `<b class="${side === 'Support' ? 'up' : 'dn'}">${side}</b> ${inr(a)} → ${inr(b)} ${b > a ? '▲' : '▼'} <span class="mut">${tl(ctx.t0)}</span>`;
+      if (MO.ok()) MO.restart(t, 'mo-show');
+    }
+  },
+  structure(ctx) {
+    const D = MODS.structure.D, lv = $('#stLv .lvls'); if (!D || !lv) return;
+    const s = ctx.st(D.sym), st = D.c.step, rows = [...lv.children].filter(x => !x.classList.contains('mo-spot'));
+    const vals = rows.map(r => (r.querySelector('b') || {}).textContent || ''), pv = MO.lv; MO.lv = vals;
+    if (pv && MO.ok()) vals.forEach((v, i) => { if (pv[i] && pv[i] !== v) { const b = rows[i].querySelector('b'), nv = +v.replace(/,/g, ''), ov = +pv[i].replace(/,/g, ''); b.classList.remove('fu', 'fd'); void b.offsetWidth; b.classList.add(nv > ov ? 'fu' : 'fd'); } });
+    const sup = wallLv(D, 'S', ctx.t0), res = wallLv(D, 'R', ctx.t0);
+    if (rows[3]) rows[3].classList.toggle('mo-test', Math.abs(s.S - sup) <= 0.3 * st);
+    if (rows[1]) rows[1].classList.toggle('mo-test', Math.abs(res - s.S) <= 0.3 * st);
+    if (getComputedStyle(lv).position === 'static') lv.style.position = 'relative';
+    const P = vals.map(v => +v.replace(/,/g, '')), cy = rows.map(r => r.offsetTop + r.offsetHeight / 2);
+    let y = null; for (let i = 0; i < P.length - 1; i++) { const hi = Math.max(P[i], P[i + 1]), lo = Math.min(P[i], P[i + 1]); if (s.S <= hi && s.S >= lo) { y = cy[i] + (cy[i + 1] - cy[i]) * (P[i] - s.S) / ((P[i] - P[i + 1]) || 1); break; } }
+    if (y == null) y = s.S > Math.max(...P) ? cy[0] - 10 : cy[cy.length - 1] + 10;
+    let mk = lv.querySelector('.mo-spot'); const fresh = !mk;
+    if (!mk) { mk = document.createElement('div'); mk.className = 'mo-spot'; mk.innerHTML = '<span></span>'; lv.appendChild(mk); }
+    setText(mk.firstChild, 'Spot ' + inr2(s.S));
+    if (fresh && MO.spotY != null && MO.ok()) { mk.style.transition = 'none'; mk.style.top = MO.spotY + 'px'; void mk.offsetWidth; mk.style.transition = ''; }
+    mk.style.top = y.toFixed(1) + 'px'; MO.spotY = y;
+  },
+  grid() {
+    for (const el of $$('#view .tl[data-s]')) {
+      if (el._mo) continue; el._mo = 1;
+      const s = el.dataset.s, bu = (el.querySelector('.tl-tag span') || {}).textContent, dots = el.querySelectorAll('.dots b i').length, p = MO.grid[s];
+      MO.grid[s] = {bu, dots};
+      if (!p || !MO.ok()) continue;
+      if (p.bu !== bu) el.classList.add('mo-sweep');
+      if (p.dots !== dots) el.classList.add('mo-dots');
+    }
+  },
+  scanner() {
+    for (const tr of $$('#scTbl tr[data-s]')) {
+      if (tr._mo) continue; tr._mo = 1;
+      const s = tr.dataset.s, hot = !!(tr.cells[8] && tr.cells[8].classList.contains('amb'));
+      if (hot && !MO.hot.has(s) && MO.ok() && MO.hotInit) tr.classList.add('mo-hot');
+      if (hot) MO.hot.add(s); else MO.hot.delete(s);
+    }
+    MO.hotInit = true;
+  },
+  straddle(ctx) {
+    const D = MODS.straddle.D, b = $('#stdB'); if (!D || !b || b.querySelector('#moCone')) return;
+    const s = ctx.st(app.sym), atmS = s.cP[s.atmK] + s.pP[s.atmK], days = Math.max(0, D.c.dte - 0.26 * ctx.t0 / N), secs = Math.round(days * 86400);
+    const cd = `${Math.floor(secs / 86400)}d ${pad(Math.floor(secs % 86400 / 3600))}:${pad(Math.floor(secs % 3600 / 60))}:${pad(secs % 60)}`;
+    if (!MO.cone) { const r = Math.max(D.c.prev * 0.022, atmS * 1.6); MO.cone = [D.c.prev - r, D.c.prev + r]; }
+    const [lo, hi] = MO.cone, w = 300, h = 96, Y = v => 6 + clamp((hi - v) / (hi - lo), 0, 1) * (h - 12), x0 = 36;
+    let up = '', dn = '';
+    for (let i = 0; i <= 12; i++) { const t = i / 12, x = (x0 + (w - x0 - 52) * t).toFixed(1); up += (i ? 'L' : 'M') + x + ',' + Y(s.S + atmS * Math.sqrt(t)).toFixed(1); dn = 'L' + x + ',' + Y(s.S - atmS * Math.sqrt(t)).toFixed(1) + dn; }
+    const xe = w - 52;
+    b.insertAdjacentHTML('beforeend', `<div class="kv"><span>${L('Expiry in', 'Expiry mein')}</span><b data-mo-odo id="moCd">${cd}</b></div>
+      <div class="mo-svg mo-cone" id="moCone"><svg width="100%" viewBox="0 0 ${w} ${h}" role="img" aria-label="${L('Expected range to expiry', 'Expiry tak expected range')}"><path class="cn" d="${up}${dn}Z"/><line class="md" x1="${x0}" x2="${xe}" y1="${Y(s.S).toFixed(1)}" y2="${Y(s.S).toFixed(1)}"/><circle class="nw" cx="${x0}" cy="${Y(s.S).toFixed(1)}" r="3.5"/><text class="axl" x="${xe + 4}" y="${(Y(s.S + atmS) + 3).toFixed(1)}">${inr(s.S + atmS)}</text><text class="axl" x="${xe + 4}" y="${(Y(s.S - atmS) + 3).toFixed(1)}">${inr(s.S - atmS)}</text><text class="axl" x="2" y="${(Y(s.S) + 3).toFixed(1)}">${L('now', 'abhi')}</text></svg></div>`);
+  },
+  paper() {
+    const el = $('#ptk5');
+    if (el) { const v = Math.round(paperStats().day), pv = MO.pday; MO.pday = v; if (pv != null && Math.abs(v - pv) >= 150 && MO.ok()) MO.restart(el.closest('.kpi'), v > pv ? 'mo-gu' : 'mo-gd'); }
+    for (const p of paper.pos) {
+      if (!p.sl) continue; const tr = $(`#ptPos tr[data-id="${p.id}"]`); if (!tr || !tr.children[6]) continue;
+      const td = tr.children[6]; let bar = td.querySelector('.mo-sl');
+      if (!bar) { td.insertAdjacentHTML('beforeend', `<span class="mo-sl" title="${L('Distance to stop-loss', 'Stop-loss se doori')}"><i></i></span>`); bar = td.querySelector('.mo-sl'); }
+      const ltp = posLtp(p), raw = p.side === 'B' ? (ltp - p.sl) / ((p.avg - p.sl) || 1) : (p.sl - ltp) / ((p.sl - p.avg) || 1);
+      bar.firstChild.style.width = (clamp(raw, 0, 1.5) / 1.5 * 100).toFixed(1) + '%'; bar.classList.toggle('near', raw < 0.35);
+    }
+  },
+  alerts() {
+    const ul = $('.tgl'); if (!ul) return;
+    const first = !MO.tgSeen; if (first) MO.tgSeen = new Set();
+    for (const li of ul.children) { const k = li.textContent; if (MO.tgSeen.has(k)) continue; MO.tgSeen.add(k); if (!first && MO.motion()) li.classList.add('mo-in'); }
+  },
+};
+
+/* wrap the app's own loop: page change, mount and every render */
+{
+  const _go = go;
+  go = function (p, anchor) {
+    const ids = PAGES.map(x => x.id), a = ids.indexOf(app.page), b = ids.indexOf(p), v = $('#view');
+    if (v) v.style.setProperty('--mo-dx', (b >= a ? 22 : -22) + 'px');
+    return _go(p, anchor);
+  };
+  const _mount = mount;
+  mount = function () { MO.reset(); _mount(); };
+  const _render = render;
+  render = function (force) {
+    MO.pre(); _render(force);
+    const ctx = lastCtx; MO.gap = MO.gapMs();
+    const sig = MO.beatSig(), beat = sig !== MO.sig; MO.sig = sig;
+    MO.tapeCommit(beat && MO.sigInit);
+    if (beat && MO.sigInit) MO.beat(); MO.sigInit = true;
+    MO.bump();
+    if (!ctx || !$('#view')) return;
+    const P = MO.page[app.page]; if (P) P(ctx);
+    MO.svgs(); if (app.page !== 'backtest') MO.scan(); MO.bars(); MO.postFlip();
+  };
+}
+/* backtest: the scoreboard fills up and counts from zero when the page opens */
+{
+  const _draw = MODS.backtest.draw;
+  MODS.backtest.draw = function () {
+    _draw.apply(this, arguments);
+    if (!MO.motion()) return;
+    $$('#btBoard .wr .b i').forEach((b, i) => { const w = b.style.width; b.style.transition = 'none'; b.style.width = '0'; void b.offsetWidth; b.style.transition = `width .8s cubic-bezier(.2,.8,.2,1) ${i * 70}ms`; b.style.width = w; });
+    $$('#btBoard .wr span:last-child, #btDetail .bigv').forEach((el, i) => {
+      const m = el.textContent.match(/^(\D*)(\d+)(\D*)$/); if (!m) return; const v = +m[2], d0 = performance.now() + i * 70;
+      const f = now => { const p = clamp((now - d0) / 800, 0, 1); el.textContent = m[1] + Math.round(v * (1 - Math.pow(1 - p, 3))) + m[3]; if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f);
+    });
+    const svg = $('#btHist svg');
+    if (svg) {
+      svg._noMorph = true; const rs = [...svg.querySelectorAll('rect')]; if (!rs.length) return;
+      const base = Math.max(...rs.map(r => +r.getAttribute('y') + +r.getAttribute('height')));
+      rs.forEach((r, i) => {
+        const y = +r.getAttribute('y'), h = +r.getAttribute('height'), d0 = performance.now() + i * 35; r.setAttribute('y', base); r.setAttribute('height', 0);
+        const f = now => { const p = clamp((now - d0) / 650, 0, 1), e = 1 - Math.pow(1 - p, 3); r.setAttribute('y', (base - h * e).toFixed(1)); r.setAttribute('height', (h * e).toFixed(1)); if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f);
+      });
+    }
+  };
+}
+/* journal: rows drop in when the page opens, the OI snapshot bars grow, a newly closed paper trade appears live */
+{
+  const J = MODS.journal, _mount = J.mount, _snap = J.snap;
+  J.mount = function (v) {
+    const had = MO.jHad || new Set(); MO.jHad = null;
+    _mount.call(this, v); MO.jn = paper.closed.length;
+    if (!MO.motion()) return;
+    $$('#jTbl tbody tr').forEach((r, i) => { if (had.size && had.has(r.textContent)) return; r.style.setProperty('--i', had.size ? 0 : i); r.classList.add('mo-in'); if (had.size) r.classList.add('mo-new'); });
+  };
+  J.snap = function () {
+    _snap.apply(this, arguments);
+    if (!MO.motion()) return;
+    $$('#jSnap .hb i').forEach((b, i) => { const w = b.style.width; b.style.transition = 'none'; b.style.width = '0'; void b.offsetWidth; b.style.transition = `width .6s cubic-bezier(.2,.8,.2,1) ${i * 40}ms`; b.style.width = w; });
+  };
+  J.update = function () { if (MO.jn != null && paper.closed.length !== MO.jn) { MO.jHad = new Set($$('#jTbl tbody tr').map(r => r.textContent)); MO.jn = paper.closed.length; mount(); } };
+}
 
 /* ================= routing + loop ================= */
 let lastCtx = null;
