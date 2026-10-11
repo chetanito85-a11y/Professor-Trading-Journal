@@ -4,6 +4,7 @@ from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_
 from . import Adapter, F, nearest_futs
 
 ROOT = 'https://api.kite.trade'
+IDX_TOKEN = {'NIFTY': 256265, 'BANKNIFTY': 260105, 'FINNIFTY': 257801, 'MIDCPNIFTY': 288009}
 SPOT = {'NIFTY': 'NSE:NIFTY 50', 'BANKNIFTY': 'NSE:NIFTY BANK', 'FINNIFTY': 'NSE:NIFTY FIN SERVICE', 'MIDCPNIFTY': 'NSE:NIFTY MID SELECT'}
 
 
@@ -43,14 +44,14 @@ class Kite(Adapter):
         day = today_ist().isoformat()
         if self.ins_day == day:
             return
-        path = cache_path(f'kite-nfo2-{day}.json')
+        path = cache_path(f'kite-nfo3-{day}.json')
         data = load_json(path)
         if not data:
             txt = http('GET', ROOT + '/instruments/NFO', headers=self.h(), raw=True, timeout=90)
             data = {'_FUT': []}
             for row in csv.DictReader(io.StringIO(txt)):
                 if row.get('segment') == 'NFO-OPT' and row.get('name') in SPOT:
-                    data.setdefault(row['name'], []).append([row['expiry'], float(row['strike']), row['instrument_type'], row['tradingsymbol'], int(float(row['lot_size'] or 0))])
+                    data.setdefault(row['name'], []).append([row['expiry'], float(row['strike']), row['instrument_type'], row['tradingsymbol'], int(float(row['lot_size'] or 0)), int(row['instrument_token'] or 0)])
                 elif row.get('segment') == 'NFO-FUT':
                     data['_FUT'].append([row['name'], row['expiry'], row['tradingsymbol'], int(float(row['lot_size'] or 0))])
             if not data:
@@ -59,6 +60,12 @@ class Kite(Adapter):
         self.ins, self.ins_day = data, day
 
     stocks_supported = True
+    stream_supported = True
+    gap_fast = 5.0
+
+    def stream_make(self):
+        from stream import KiteStream
+        return KiteStream(self.cfg['api_key'].strip(), self.token, self.cfg.get('ws_url') or 'wss://ws.kite.trade')
 
     def stocks(self):
         self.instruments()
@@ -90,9 +97,9 @@ class Kite(Adapter):
         today = today_ist().isoformat()
         exp = self.cfg.get('expiry_' + sym) or min(c[0] for c in lst if c[0] >= today)
         con = {}
-        for e, k, typ, ts, lot in lst:
+        for e, k, typ, ts, lot, *tok in lst:
             if e == exp:
-                con[(k, typ)] = (ts, lot)
+                con[(k, typ)] = (ts, lot, tok[0] if tok else 0)
         strikes = sorted({k for k, _ in con})
         if sym not in self.spot:
             q = self.quote([SPOT[sym]])
@@ -105,6 +112,7 @@ class Kite(Adapter):
         ix = q.get(SPOT[sym]) or {}
         S = ix.get('last_price') or S
         self.spot[sym] = S
+        self.keymap[sym] = {'spot': str(IDX_TOKEN.get(sym, '')), 'legs': {(k, t.lower()): str(con[(k, t)][2]) for k in pick for t in ('CE', 'PE') if (k, t) in con and con[(k, t)][2]}}
         rows, lot = [], None
         for k in pick:
             r = {'k': k}

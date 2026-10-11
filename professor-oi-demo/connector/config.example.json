@@ -1,6 +1,7 @@
 {
   "_read_me": "Easiest: run Start-Live-Broker, then on the Broker page click Connect on your broker and fill the form. It saves here for you. Never share this file or paste it in any chat.",
   "broker": "",
+  "fast_feed": true,
   "_broker_choices": "demo | kite | upstox | fyers | dhan | angel | breeze",
 
   "symbols": ["NIFTY", "BANKNIFTY"],

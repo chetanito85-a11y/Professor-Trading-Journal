@@ -110,6 +110,42 @@ History aur replay
 Connector har minute ka data connector\cache\history.db mein rakhta hai.
 Kisi bhi page ke upar "Replay a day..." se purana din dobara chala sakte ho.
 
+Fast feed (WebSocket) - Kite aur Dhan
+-------------------------------------
+Login ke baad connector broker ka WebSocket bhi khol deta hai. Isse LTP, OI
+aur volume har second update hote hain (REST chain sirf strikes, IV aur
+pichhla close laata hai). Broker page par "Fast feed (WebSocket)" line mein
+ticks/s dikhta hai; wahin se band/chalu kar sakte ho.
+- Kuch extra install nahi; koi nayi key nahi (wahi login use hota hai).
+- WebSocket toote to REST apne aap chalta rehta hai aur feed dobara judta hai.
+- Upstox, Angel, Fyers, ICICI abhi sirf REST par (har kuch second).
+
+AI market read (Claude) - optional, paid
+----------------------------------------
+Broker page par "AI market read" card:
+1. "Install" dabao (ek baar, Anthropic ki official library install hoti hai).
+2. https://console.anthropic.com par API key banao (sk-ant-...), card mein
+   paste karke Save. Key sirf connector\config.json mein rehti hai.
+3. Model, bhasha (English/Hinglish) aur har kitne minute chuno, phir
+   "Market time mein apne aap read likho" par tick lagao.
+Market time mein har N minute connector Claude ko sirf numbers ka chhota
+summary bhejta hai (koi personal detail nahi) aur 5-7 line ka read Overview
+page par aata hai. Card par rough kharcha per din dikhta hai.
+
+Auto strategy (Strategy Builder)
+--------------------------------
+Strategy Builder page ke upar "Auto pick · best for this market" card apne
+aap aata hai aur har minute update hota hai. Ye live walls, PCR, IV aur
+expected move dekh kar top strategies banata hai, har ek ke saath "kyun"
+(reason) aur max profit / max loss. "Builder mein load karo" dabao to legs
+neeche builder mein aa jaate hain. Ye analysis hai, trade ki salah nahi.
+
+Backtest apne data par
+----------------------
+Signal Backtest page par "My stored days" chuno. Jitne din connector chala,
+utne din ke asli minute data par signals test hote hain. 5-10 din ke baad
+numbers bharose layak hote hain.
+
 Roz subah
 ---------
 Start-Live-Broker chalao. Dhan/Angel khud connect ho jaate hain (Dhan ka
@@ -135,8 +171,9 @@ Dikkat aaye to
 - "SSL certificate" error (Mac): Python folder mein "Install Certificates.command".
 - Galat keys: card par Connect dabao, sahi keys daalo, Save & connect.
 
-Abhi kya live hai: "Live Chain" page (NIFTY, BANKNIFTY ki asli chain: OI,
-OI change, IV, buildup, max pain, PCR, din bhar ka chart), header ka ticker
-aur Broker page ke live ticks. Baaki pages abhi demo data par hain.
+Abhi kya live hai: saare index pages (Overview, Option Chain, Live Chain, OI
+Analysis/Charts/Heatmap, Structure, GEX, Volatility, Straddle, Strategy,
+Paper Trading) NIFTY/BANKNIFTY ke asli data par. F&O stock pages Kite, Dhan,
+Upstox, Angel ke saath live. Har page ke upar "LIVE DATA" ya "DEMO" likha aata hai.
 
 Ye tool sirf analysis ke liye hai, trading advice nahi.

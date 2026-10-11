@@ -22,6 +22,7 @@ import brokers  # noqa: E402
 from store import N as MINUTES, Store  # noqa: E402
 from alerts import Alerts  # noqa: E402
 from ai import AIRead  # noqa: E402
+from stream import overlay  # noqa: E402
 
 VERSION = '1.0'
 APP = os.path.join(os.path.dirname(HERE), 'index.html')
@@ -64,14 +65,17 @@ class Hub:
         self.a = None
         self.store = Store()
         self.stocks, self.stk_base = None, None
+        self.stream, self.raw, self.plock = None, {}, threading.Lock()
         self.alerts = Alerts(cfg, self.save_config, log)
         self.ai = AIRead(cfg, self.save_config, log, self.ai_snapshot, self.broadcast)
 
     def use(self, bid):
         """Make `bid` the active broker (reads its section from config) and log in if possible."""
         A = brokers.load(bid)
+        self.stop_stream()
         with self.alock:
             self.a = A(self.cfg.get(A.id) or {}, self.redirect)
+            self.raw = {}
             self.syms = [s for s in (self.cfg.get('symbols') or ['NIFTY', 'BANKNIFTY']) if s in A.symbols] or ['NIFTY']
             self.chains, self.hist = {}, {}
             day = today_ist().isoformat()
@@ -152,7 +156,7 @@ class Hub:
                 'login_kind': a.login_kind, 'state': self.state, 'msg': self.msg, 'user': a.user,
                 'missing': a.missing(), 'fields': a.direct_fields() if a.login_kind == 'direct' else [],
                 'symbols': self.syms, 'redirect_url': a.redirect_url, 'market_open': core.market_open(),
-                'stocks': a.stocks_supported, 'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000), 'now': int(core.now_ts() * 1000),
+                'stocks': a.stocks_supported, 'fast': self.fast_status(), 'calls': self.calls, 'errors': self.errors, 'gap': a.gap, 'started': int(self.started * 1000), 'now': int(core.now_ts() * 1000),
                 'last': {s: c['ts'] for s, c in self.chains.items()}}
 
     def set(self, state, msg=''):
@@ -163,6 +167,10 @@ class Hub:
             self.broadcast('status', self.status())
 
     def publish(self, c):
+        with self.plock:                          # the REST poller and the fast feed both publish
+            self._publish(c)
+
+    def _publish(self, c):
         s = c['sym']
         self.chains[s] = c
         try:
@@ -186,7 +194,50 @@ class Hub:
             log(f'Alert check failed: {e}')
         self.broadcast('chain', c)
         self.broadcast('point', {'sym': s, 'pt': pt})
-        self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open(), 'now': int(core.now_ts() * 1000)})
+        self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open(), 'now': int(core.now_ts() * 1000), 'fast': self.fast_status()})
+
+    # ---- fast feed (broker WebSocket) ----
+    @property
+    def fast_on(self):
+        return self.cfg.get('fast_feed', True) is not False
+
+    def ensure_stream(self, a):
+        if not (self.fast_on and a.stream_supported and a.logged_in and self.a is a):
+            return
+        if self.stream is None or self.stream.owner is not a:
+            self.stop_stream()
+            try:
+                st = a.stream_make()
+            except Exception as e:
+                log(f'Fast feed not started: {e}')
+                return
+            st.owner = a
+            st.start()
+            self.stream = st
+            log('Fast feed (WebSocket) starting.')
+        for km in list(a.keymap.values()):
+            keys = [k for k in [km.get('spot')] + list((km.get('legs') or {}).values()) if k]
+            self.stream.subscribe(keys)
+
+    def stop_stream(self):
+        if self.stream:
+            self.stream.stop()
+            self.stream = None
+
+    def fast_status(self):
+        st = self.stream
+        sup = bool(self.a and self.a.stream_supported)
+        return {'on': self.fast_on, 'supported': sup, 'state': st.state if st else ('off' if not self.fast_on or not sup else 'waiting'),
+                'msg': st.msg if st else '', 'rate': round(st.rate, 1) if st else 0, 'subs': len(st.sent) if st else 0}
+
+    def set_fast(self, on):
+        self.cfg['fast_feed'] = bool(on)
+        self.save_config()
+        if not on:
+            self.stop_stream()
+        else:
+            self.ensure_stream(self.a)
+        self.broadcast('status', self.status())
 
     def ai_snapshot(self):
         """Compact live picture for the AI read: index chains, intraday drift, alerts, stock buildups."""
@@ -271,6 +322,7 @@ class Hub:
         self.wake.set()
 
     def logout(self, why=''):
+        self.stop_stream()
         self.a.token = None
         try:
             os.remove(SESSION)
@@ -314,6 +366,8 @@ class Poller(threading.Thread):
                             break
                         raw = a.chain(sym, self.n)
                     h.calls += 1
+                    h.raw[sym] = (raw, time.time())
+                    h.ensure_stream(a)
                     c = normalise(sym, raw, self.n, base, a.id)
                     if h.a is a:
                         h.publish(c)
@@ -333,7 +387,8 @@ class Poller(threading.Thread):
                     if not isinstance(e, BrokerError):
                         traceback.print_exc()
                     time.sleep(backoff)
-                time.sleep(a.gap if core.market_open() else max(a.gap, self.slow))
+                fast = h.stream and h.stream.state == 'live' and a.gap_fast
+                time.sleep((max(a.gap, a.gap_fast) if fast else a.gap) if core.market_open() else max(a.gap, self.slow))
             self.poll_stocks(a)
 
     def poll_stocks(self, a):
@@ -359,6 +414,35 @@ class Poller(threading.Thread):
                 log(f'F&O stocks not updated: {msg}')
                 self.stk_err = msg
         time.sleep(a.gap)
+
+
+class FastPublisher(threading.Thread):
+    """Once a second, re-publish each chain with the newest ticks from the broker WebSocket."""
+    daemon = True
+
+    def __init__(self, hub, n):
+        super().__init__()
+        self.hub, self.n, self.last = hub, n, {}
+
+    def run(self):
+        h = self.hub
+        while True:
+            time.sleep(1.0)
+            st, a = h.stream, h.a
+            if not st or st.state != 'live' or not a or not a.logged_in or not (core.market_open() or a.cfg.get('always_moving')):
+                continue
+            for sym, (raw, since) in list(h.raw.items()):
+                try:
+                    newest = max([t['ts'] for t in st.ticks.values()] or [0])
+                    if newest <= max(since, self.last.get(sym, 0)):
+                        continue
+                    ov, n = overlay(raw, a.keymap.get(sym), st.ticks, since)
+                    if not n or h.a is not a:
+                        continue
+                    self.last[sym] = time.time()
+                    h.publish(normalise(sym, ov, self.n, h.base, a.id))
+                except Exception as e:
+                    log(f'Fast feed update skipped: {e}')
 
 
 PAGE = '''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -576,6 +660,9 @@ def make_handler(hub, port):
                     return self.out(200, {'ok': True, 'alerts': hub.alerts.public()})
                 except (ValueError, BrokerError, AuthError) as e:
                     return self.out(400, {'ok': False, 'error': str(e), 'alerts': hub.alerts.public()})
+            if p == '/api/fast':
+                hub.set_fast(bool(d.get('on')))
+                return self.out(200, {'ok': True, 'fast': hub.fast_status()})
             if p == '/api/logout':
                 hub.logout('Logged out.')
                 return self.out(200, {'ok': True})
@@ -643,6 +730,7 @@ def main():
         return
     srv.daemon_threads = True
     Poller(hub, n, float(cfg.get('closed_poll_seconds') or 15)).start()
+    FastPublisher(hub, n).start()
     url = f'http://127.0.0.1:{port}/#' + ('livechain' if hub.a.logged_in else 'broker')
     print('\n  Professor OI Connector ' + VERSION)
     print(f'  Broker   : {hub.a.name}   (change it on the Broker page)')

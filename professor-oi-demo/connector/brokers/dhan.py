@@ -85,28 +85,49 @@ class Dhan(Adapter):
 
     stocks_supported = True
 
-    def load_futs(self):
+    def load_master(self):
+        """Futures (all F&O stocks + indices) and index options from Dhan's scrip master, cached per day."""
         day = today_ist().isoformat()
-        if getattr(self, 'futs_day', None) == day:
-            return self.futs
-        path = cache_path(f'dhan-fut-{day}.json')
-        rows = load_json(path)
-        if not rows:
+        if getattr(self, 'master_day', None) == day:
+            return
+        path = cache_path(f'dhan-master-{day}.json')
+        data = load_json(path)
+        if not data:
             rd = csv.reader(io.StringIO(http('GET', MASTER, raw=True, timeout=180)))
             head = [h.strip().upper() for h in next(rd)]
             col = lambda name: head.index(name) if name in head else None
-            ex, sid, ins, ts, lot, exp = (col(c) for c in ('SEM_EXM_EXCH_ID', 'SEM_SMST_SECURITY_ID', 'SEM_INSTRUMENT_NAME', 'SEM_TRADING_SYMBOL', 'SEM_LOT_UNITS', 'SEM_EXPIRY_DATE'))
+            ex, sid, ins, ts, lot, exp, stk, opt = (col(c) for c in ('SEM_EXM_EXCH_ID', 'SEM_SMST_SECURITY_ID', 'SEM_INSTRUMENT_NAME', 'SEM_TRADING_SYMBOL', 'SEM_LOT_UNITS', 'SEM_EXPIRY_DATE', 'SEM_STRIKE_PRICE', 'SEM_OPTION_TYPE'))
             if None in (ex, sid, ins, ts, exp):
                 raise BrokerError('Dhan instrument list has an unexpected format.')
-            rows = []
+            data = {'fut': [], 'opt': []}
             for r in rd:
-                if len(r) > max(ex, sid, ins, ts, exp) and r[ins] in ('FUTSTK', 'FUTIDX') and r[ex] == 'NSE':
-                    rows.append([r[ts].split('-')[0], r[exp][:10], int(float(r[sid])), int(float(r[lot] or 0)) if lot is not None else None])
-            if not rows:
+                if len(r) <= max(ex, sid, ins, ts, exp) or r[ex] != 'NSE':
+                    continue
+                if r[ins] in ('FUTSTK', 'FUTIDX'):
+                    data['fut'].append([r[ts].split('-')[0], r[exp][:10], int(float(r[sid])), int(float(r[lot] or 0)) if lot is not None else None])
+                elif r[ins] == 'OPTIDX' and stk is not None and opt is not None and r[ts].split('-')[0] in IDS and r[exp][:10] >= day:
+                    data['opt'].append([r[ts].split('-')[0], r[exp][:10], float(r[stk]), r[opt].strip().lower(), int(float(r[sid]))])
+            if not data['fut']:
                 raise BrokerError('No futures found in the Dhan instrument list.')
-            save_json(path, rows)
-        self.futs, self.futs_day = nearest_futs(rows, day), day
+            save_json(path, data)
+        self.futs = nearest_futs(data['fut'], day)
+        self.optid = {(n, e, k, t): i for n, e, k, t, i in data.get('opt', [])}
+        self.master_day = day
+
+    def load_futs(self):
+        self.load_master()
         return self.futs
+
+    stream_supported = True
+
+    def stream_make(self):
+        from stream import DhanStream
+        if not getattr(self, 'master_day', None):
+            try:
+                self.load_master()
+            except Exception:
+                self.optid = {}
+        return DhanStream(self.cfg['client_id'].strip(), self.token, self.cfg.get('ws_url') or 'wss://api-feed.dhan.co')
 
     def stocks(self):
         futs = self.load_futs()
@@ -131,4 +152,6 @@ class Dhan(Adapter):
                 o = (v or {}).get(side) or {}
                 row[side] = leg(o.get('last_price'), o.get('previous_close_price'), o.get('oi'), o.get('previous_oi'), None, o.get('volume'), o.get('implied_volatility'))
             rows.append(row)
+        oid = getattr(self, 'optid', None) or {}
+        self.keymap[sym] = {'spot': f'IDX_I:{IDS[sym]}', 'legs': {(r['k'], s): f'NSE_FNO:{oid[(sym, exp, r["k"], s)]}' for r in rows for s in ('ce', 'pe') if (sym, exp, r['k'], s) in oid}}
         return {'spot': d.get('last_price'), 'expiry': exp, 'rows': rows}

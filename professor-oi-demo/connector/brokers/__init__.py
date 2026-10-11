@@ -61,6 +61,20 @@ class Adapter:
     def stocks(self):
         raise NotImplementedError
 
+    # fast feed: a WebSocket that streams ticks between REST calls
+    stream_supported = False
+    gap_fast = None            # REST gap to use while the stream is live (None = unchanged)
+
+    def stream_make(self):
+        raise NotImplementedError
+
+    @property
+    def keymap(self):
+        """sym -> {'spot': key, 'legs': {(strike, 'ce'|'pe'): key}}, filled by chain()."""
+        if not hasattr(self, '_keymap'):
+            self._keymap = {}
+        return self._keymap
+
 
 def nearest_futs(rows, today):
     """rows: (name, expiry 'YYYY-MM-DD', key, lot) -> {name: (key, lot, expiry)} for the nearest live expiry."""

@@ -18,6 +18,7 @@ class Demo(Adapter):
     def __init__(self, cfg, redirect_url):
         super().__init__(cfg, redirect_url)
         self.st = {}
+        self.stream_base = {'_always': self.cfg.get('always_moving')}   # key -> (ltp, oi) for the demo fast feed
         if self.cfg.get('mode') == 'direct':      # lets you try the TOTP-style login form too
             self.login_kind = 'direct'
 
@@ -39,6 +40,11 @@ class Demo(Adapter):
 
     stocks_supported = True
     stocks_gap = 5
+    stream_supported = True
+
+    def stream_make(self):
+        from stream import DemoStream
+        return DemoStream(self.stream_base)
     NAMES = tuple(('RELIANCE HDFCBANK ICICIBANK INFY TCS BHARTIARTL ITC LT SBIN AXISBANK KOTAKBANK HINDUNILVR BAJFINANCE MARUTI SUNPHARMA HCLTECH TITAN NTPC '
              'ULTRACEMCO TATAMOTORS POWERGRID ONGC ADANIPORTS ASIANPAINT TATASTEEL COALINDIA BAJAJFINSV NESTLEIND JSWSTEEL WIPRO GRASIM TECHM HINDALCO CIPLA '
              'DRREDDY SBILIFE HDFCLIFE INDUSINDBK BANKBARODA PNB CANBK FEDERALBNK IDFCFIRSTB AUBANK DLF VEDL TATAPOWER BEL HAL IRCTC ZOMATO').split())
@@ -92,5 +98,12 @@ class Demo(Adapter):
             rows.append({'k': k,
                          'ce': leg(round(c, 2), round(c * 1.04 + 1, 2), round(st['oi'][(k, 'ce')][0] / lot) * lot, st['oi'][(k, 'ce')][1], None, int(st['oi'][(k, 'ce')][0] * 3.1)),
                          'pe': leg(round(p, 2), round(p * 0.97 + 1, 2), round(st['oi'][(k, 'pe')][0] / lot) * lot, st['oi'][(k, 'pe')][1], None, int(st['oi'][(k, 'pe')][0] * 2.8))})
+        legs = {}
+        for row in rows:
+            for side in ('ce', 'pe'):
+                key = f'demo:{sym}:{row["k"]}:{side}'
+                legs[(row['k'], side)] = key
+                self.stream_base[key] = (row[side]['ltp'], row[side]['oi'])
+        self.keymap[sym] = {'spot': None, 'legs': legs}
         time.sleep(0.05)
         return {'spot': S, 'prev': round(s0 * 0.9968, 2), 'expiry': exp.isoformat(), 'lot': lot, 'rows': rows}

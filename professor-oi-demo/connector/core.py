@@ -28,6 +28,10 @@ if _FAKE:
     _OFF = _tg.timestamp() - _T0
 
 
+def log_safe(*a):
+    print(time.strftime('%H:%M:%S'), *a, flush=True)
+
+
 def now_ts():
     t = time.time()
     return t if _OFF is None else _T0 + _OFF + (t - _T0) * _SPEED

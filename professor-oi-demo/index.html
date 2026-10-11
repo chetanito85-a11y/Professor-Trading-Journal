@@ -733,6 +733,9 @@ main{padding:16px 22px 120px}
 .lvpaste{margin-top:12px;font-size:12px;color:var(--muted)}
 .lvpaste summary{cursor:pointer}
 .lvpaste p{margin:6px 0}
+.lvfast{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px}
+.lvfast .lvf-n{color:var(--muted)}.lvfast b{font:600 12px var(--f-mono)}.lvfast .ibtn{margin-left:auto}
+.lvf-up{color:var(--put)}.lvf-warn{color:var(--amber)}.lvf-off{color:var(--muted)}
 .lvred{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px;font-size:11.5px;color:var(--muted)}
 .lvred code,.stp code{font:600 11.5px var(--f-mono);color:var(--fg);padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel-2);overflow-wrap:anywhere}
 .lvcfg{grid-column:2;margin:4px 0;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2);font:500 11.5px/1.5 var(--f-mono);white-space:pre-wrap;overflow-wrap:anywhere}
@@ -3233,6 +3236,7 @@ MODS.broker.livePanel = function () {
       <div class="lvc-l"><div class="bk-h">${lg}<div><b>${nm}</b><small>${s.user ? 'ID ' + esc(s.user) : L('Not logged in', 'Login nahi hua')}</small></div></div>
         ${s.msg && !['need_setup', 'need_config'].includes(s.state) ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}<div class="lvact">${act}</div></div>
       <div class="lvc-r"><div class="bk-m"><div><span>LAST UPDATE</span><b id="lvS1">—</b></div><div><span>API CALLS</span><b id="lvS2">—</b></div><div><span>ERRORS</span><b id="lvS3">—</b></div><div><span>SYMBOLS</span><b style="font-size:12px">${(s.symbols || []).map(esc).join(' · ')}</b></div><div><span>MARKET</span><b id="lvS4">—</b></div><div><span>UPTIME</span><b id="lvS5">—</b></div></div>
+        ${s.fast ? `<div class="lvfast"><span class="lvf-n">${L('Fast feed (WebSocket)', 'Fast feed (WebSocket)')}</span><b id="lvF1">—</b><button class="ibtn" id="lvF2" hidden></button></div>` : ''}
         ${s.login_kind === 'redirect' && s.broker !== 'demo' ? `<div class="lvred"><span>${L('Redirect URL for your broker app', 'Broker app ka Redirect URL')}</span><code>${esc(s.redirect_url || '')}</code><button class="ibtn" id="lvCopy">${L('Copy', 'Copy')}</button></div>` : ''}
         <div class="lvh">${L('LIVE TICKS FROM YOUR BROKER', 'BROKER SE LIVE TICKS')}</div><ul class="ts" id="lvTs"><li><span class="tt">—</span><b>${s.market_open ? L('Waiting for data…', 'Data ka intezaar…') : L('Market closed · no new ticks', 'Market band · naye ticks nahi')}</b><span></span><span></span></li></ul></div>
     </div>`;
@@ -3243,6 +3247,7 @@ MODS.broker.livePanel = function () {
   const op = $('#lvOpen'); if (op) op.onclick = () => go('livechain');
   const pk = $('#lvPick'); if (pk) pk.onclick = () => { const g = $('#bkPick') || $('.bk-g'); if (g) g.scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'start'}); };
   const lo = $('#lvOut'); if (lo) lo.onclick = () => lvPost('/api/logout');
+  const fb = $('#lvF2'); if (fb) fb.onclick = () => { fb.disabled = true; lvPost('/api/fast', {on: !(LIVE.st.fast || {}).on}).then(r => { if (r.fast) LIVE.st.fast = r.fast; }).finally(() => { fb.disabled = false; this.liveStats(); }); };
   const cp = $('#lvCopy'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(s.redirect_url); cp.textContent = L('Copied', 'Copy ho gaya'); } catch (e) {} };
   el.querySelectorAll('[data-bkg]').forEach(b => b.onclick = () => this.open(b.dataset.bkg));
   this.liveStats(); this.liveCards();
@@ -3253,6 +3258,16 @@ MODS.broker.liveStats = function () {
   setText($('#lvS1'), last ? Math.max(0, Math.round((lvNow() - last) / 1000)) + 's ago' : '—');
   setText($('#lvS2'), inr(s.calls || 0)); setText($('#lvS3'), String(s.errors || 0));
   setText($('#lvS4'), s.market_open ? L('Open', 'Khula') : L('Closed', 'Band'));
+  const fs = s.fast, f1 = $('#lvF1'), f2 = $('#lvF2');
+  if (fs && f1) {
+    const [t, c] = !fs.supported ? [L(`Not offered for this broker · REST every ${s.gap || 3}s`, `Is broker ke liye nahi · REST har ${s.gap || 3}s`), 'off']
+      : !fs.on ? [L('Off · REST only', 'Band · sirf REST'), 'off']
+      : fs.state === 'live' ? [s.market_open || fs.rate ? `${L('Live', 'Live')} · ${fs.rate} ticks/s · ${fs.subs} ${L('contracts', 'contracts')}` : L('Connected · market closed', 'Connected · market band'), 'up']
+      : fs.state === 'error' ? [L('Reconnecting… REST keeps working', 'Dobara jud raha hai… REST chalta rahega'), 'warn']
+      : [s.state === 'live' ? L('Connecting…', 'Jud raha hai…') : L('Starts after login', 'Login ke baad chalega'), 'off'];
+    setText(f1, t); f1.className = 'lvf-' + c; f1.title = fs.msg || '';
+    if (f2) { f2.hidden = !fs.supported; setText(f2, fs.on ? L('Turn off', 'Band karo') : L('Turn on', 'Chalu karo')); }
+  }
   const up = Math.floor((Date.now() - (s.started || Date.now())) / 1000); setText($('#lvS5'), up >= 3600 ? `${Math.floor(up / 3600)}h ${Math.floor(up % 3600 / 60)}m` : `${Math.floor(up / 60)}m ${up % 60}s`);
 };
 MODS.broker.liveTicks = function (c, p) {

@@ -38,7 +38,7 @@ Dhyan rahe
 ----------
 - Paper trading ke trades page reload karne par reset ho jaate hain (demo).
 - Demo mein saara data SIMULATED hai. Asli numbers ke liye Live (B) chalao;
-  abhi Live Chain page, ticker aur Broker page live hote hain, baaki pages demo.
+  Live mein saare index pages asli data par chalte hain (har page par LIVE DATA likha aata hai).
 - Internet ho to sundar fonts load honge. Bina internet ke bhi chalega,
   bas fonts normal dikhenge.
 - Port 8764 busy ho to .bat / .command file mein PORT ki value badal do.
