@@ -1,12 +1,15 @@
 // ⚙️ SETUP (ek baar):
-// Apps Script editor → ⚙️ Project Settings → Script Properties → ye 2 add karo:
+// Apps Script editor → ⚙️ Project Settings → Script Properties → ye add karo:
 //   DHAN_TOKEN      = Dhan access token
 //   DHAN_CLIENT_ID  = Dhan client id
+//   SR_API_URL      = S&R web app ka /exec URL (SRFetch.gs ke liye)
 // Token expire ho jaye to sirf wahan value badlo, code chhedne ki zarurat nahi.
 //
-// Ye functions doosri .gs file me hone chahiye (is file me nahi hain):
-// updateHistory, getHistory, getMovementTrend, getDirectionBy100, updateDirection,
-// prepareFinalViewRow_Z2H, runEntryExitEngine_Z2H, writeSRSnapshotToFinalView_Z2H
+// Files:
+//   OptionChain.gs → loadOptionChain (trigger), UI table, FINAL_VIEW A:N + P:Y
+//   History.gs     → strike history, direction, top panel
+//   EntryExit.gs   → Z2H entry/exit engine, FINAL_VIEW Z:AI
+//   SRFetch.gs     → fetchSRToUI_Z2H (S&R → UI S:V)
 
 var ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -23,24 +26,6 @@ var RUN_STATE_KEYS_Z2H = [
   "PREV_DIFF_MARKET", "DIFF_MARKET_HISTORY",
   "MARKET_LAST", "MARKET_START",
   "CE_RESULT_LAST", "CE_RESULT_START"
-];
-
-var FINAL_VIEW_HEADERS_AN_Z2H = [
-  "MARKET", "DURATION", "TIME",
-  "CE OI ", "CE OI RES",
-  "CE VOL ", "CE VOL RES",
-  "CE FINAL",
-  "PE OI ", "PE OI RES",
-  "PE VOL ", "PE VOL RES",
-  "PE FINAL",
-  "RESULT TIME"
-];
-
-var FINAL_VIEW_HEADERS_PY_Z2H = [
-  "TIME", "MARKET", "SHIFT", "CLUSTER",
-  "ΔCE (S)", "ΔPE (D)",
-  "CE POWER (S)", "PE POWER (D)",
-  "DIFF", "FINAL"
 ];
 
 
@@ -334,6 +319,9 @@ function loadOptionChainCore_() {
   table.setValues(values);
   table.setBackgrounds(backgrounds);
 
+  // ✅ poori history ek hi baar save (History.gs)
+  saveHistory_Z2H();
+
   // 🔥 TOP PANEL
   sheet.getRange("I1").setValue("CE OI");
   sheet.getRange("K1").setValue("PE OI");
@@ -382,8 +370,7 @@ function loadOptionChainCore_() {
 
   var diffMarket = getMarketByDiffVoting(totalCallOI - totalPutOI);
 
-  // ✅ headers pakke, phir FINAL_VIEW ki row
-  getFinalViewSheet_Z2H();
+  // ✅ FINAL_VIEW same row number (headers bhi yahi likhta hai)
   var finalViewRow = prepareFinalViewRow_Z2H();
 
   saveFinalViewUltra({
@@ -524,6 +511,10 @@ function resetStateIfContextChanged_Z2H(symbol, expiry, tz) {
     props.deleteProperty(k);
   });
 
+  // strike history + open position bhi naye symbol / din ke liye saaf
+  clearHistory_Z2H();
+  resetEntryExit_Z2H();
+
   props.setProperty("RUN_CONTEXT", context);
   return true;
 }
@@ -641,23 +632,10 @@ function getOptionChainClean() {
 }
 
 
-// ✅ FINAL_VIEW sheet + dono header (A:N aur P:Y) pakke
-var FINAL_VIEW_SHEET_Z2H = null;
-
+// headers prepareFinalViewRow_Z2H (EntryExit.gs) likhta hai
 function getFinalViewSheet_Z2H() {
-
-  if (FINAL_VIEW_SHEET_Z2H) return FINAL_VIEW_SHEET_Z2H;
-
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = spreadsheet.getSheetByName("FINAL_VIEW") || spreadsheet.insertSheet("FINAL_VIEW");
-
-  var header = sheet.getRange("A1:Y1").getDisplayValues()[0];
-
-  if (!header[0]) sheet.getRange("A1:N1").setValues([FINAL_VIEW_HEADERS_AN_Z2H]);
-  if (!header[15]) sheet.getRange("P1:Y1").setValues([FINAL_VIEW_HEADERS_PY_Z2H]);
-
-  FINAL_VIEW_SHEET_Z2H = sheet;
-  return sheet;
+  return spreadsheet.getSheetByName("FINAL_VIEW") || spreadsheet.insertSheet("FINAL_VIEW");
 }
 
 
