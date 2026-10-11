@@ -635,6 +635,80 @@ main{padding:16px 22px 120px}
   .phead h1{font-size:20px}
 }
 @media (prefers-reduced-motion: reduce){.scflow .lk,.scflow .ll{animation:none}}
+/* ---- v6: live feel ---- */
+.chart .pl{transform-box:fill-box;transform-origin:center;animation:plr 1.6s ease-out infinite;pointer-events:none}
+@keyframes plr{from{transform:scale(1);opacity:.7}to{transform:scale(3.4);opacity:0}}
+.mf-cvw{position:relative;min-width:0}
+#mfFx{position:absolute;left:0;top:0;pointer-events:none}
+.scflow canvas.flfx{position:absolute;left:0;top:0;pointer-events:none}
+.tl-px,.tl-ln{transition:top .45s linear}
+.flashcard{animation:flashcard 1.6s ease-out}
+@keyframes flashcard{0%{box-shadow:0 0 0 2px var(--accent)}100%{box-shadow:0 0 0 2px transparent}}
+/* feed chip */
+.fchip{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;border:1px dashed color-mix(in srgb,var(--amber) 60%,transparent);font:700 10px var(--f-mono);letter-spacing:.08em;color:var(--amber);white-space:nowrap}
+.fchip .dot{animation:pulse 1.2s ease-out infinite}
+.fchip span{color:var(--muted);font-weight:600}
+.fchip:hover{border-style:solid}
+/* tools hub */
+.th-g{margin:18px 0 8px;font:700 10px var(--f-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.th-g:first-of-type{margin-top:4px}
+.th{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tc{display:grid;grid-template-columns:32px 1fr;gap:4px 10px;align-items:start;padding:12px;text-align:left;border:1px solid var(--line);border-radius:7px;background:var(--panel);position:relative;transition:border-color .2s,transform .2s;min-height:118px}
+.tc:hover{border-color:var(--fg);transform:translateY(-2px)}
+.tc .ti{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line)}
+.tc .ti svg{width:16px;height:16px}
+.tc b{font:700 13.5px/1.2 var(--f-display);display:block}
+.tc p{margin:2px 0 0;font-size:11.5px;color:var(--muted);line-height:1.45}
+.tc .tsp{grid-column:1/-1;height:30px;margin-top:4px}
+.tc .tsp svg{width:100%;height:30px;display:block}
+.tc .nw{position:absolute;top:10px;right:10px;font:700 8.5px var(--f-mono);letter-spacing:.12em;color:var(--accent)}
+/* oi charts */
+.chips2{display:flex;flex-wrap:wrap;gap:5px}
+.chips2 button{padding:3px 8px;border-radius:5px;border:1px solid var(--line-2);font:600 11px var(--f-mono);color:var(--muted)}
+.chips2 button[aria-pressed="true"]{color:var(--fg);border-color:var(--fg);box-shadow:inset 3px 0 0 var(--sc)}
+.cyc-l{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--muted);margin-top:6px}
+.cyc-l i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+/* broker */
+.bk-hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,2fr);gap:12px}
+.bk-st{display:flex;flex-direction:column;gap:10px}
+.bk-big{display:flex;align-items:center;gap:10px;font:700 20px var(--f-display)}
+.bk-big .dot{width:10px;height:10px;color:var(--amber);animation:pulse 1.2s ease-out infinite}
+.bk-m{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bk-m div{padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2)}
+.bk-m span{display:block;font:700 9px var(--f-mono);letter-spacing:.14em;color:var(--faint)}
+.bk-m b{font:700 16px var(--f-mono)}
+.bk-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.bk{padding:14px;border:1px solid var(--line);border-radius:7px;background:var(--panel);display:flex;flex-direction:column;gap:8px;position:relative}
+.bk:hover{border-color:var(--line-2)}
+.bk-h{display:flex;align-items:center;gap:10px}
+.bk-h .lg{width:34px;height:34px;border-radius:8px}
+.bk-h b{font:700 15px var(--f-display);display:block}
+.bk-h small{font:600 10px var(--f-mono);color:var(--muted)}
+.bk ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.bk li::before{content:"✓ ";color:var(--put);font-weight:700}
+.bk .go{margin-top:auto;padding:8px;border-radius:6px;background:var(--ink);color:var(--ink-fg);font:700 12px var(--f-body)}
+.ts{list-style:none;margin:0;padding:0;font:500 11.5px var(--f-mono);max-height:300px;overflow:hidden}
+.ts li{display:grid;grid-template-columns:96px 1fr 80px 70px;gap:8px;padding:4px 2px;border-bottom:1px dotted var(--line);animation:slidein .35s ease-out}
+.ts li b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts li span{text-align:right}
+.ts .tt{color:var(--faint);text-align:left}
+.pipe svg{display:block;width:100%;height:auto}
+.pipe text{font:700 10px var(--f-mono);fill:var(--fg)}
+.pipe .sub{font:500 9px var(--f-mono);fill:var(--muted)}
+.modal{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px}
+.modal-b{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border:1px solid var(--line-2);border-radius:10px;padding:18px;position:relative}
+.modal-b::before{content:"";position:absolute;inset:-5px;pointer-events:none;color:var(--fg);background:var(--brackets)}
+.stp{display:grid;grid-template-columns:26px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid var(--line)}
+.stp i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f-mono);font-style:normal;border:1px solid var(--line-2)}
+.stp b{font-size:13px}
+.stp p{grid-column:2;margin:0;font-size:12px;color:var(--muted)}
+.stp .field{grid-column:2}
+.stp input:disabled,.stp button:disabled{opacity:.55;cursor:not-allowed}
+.lock2{grid-column:2;font-size:11.5px;color:var(--amber)}
+@media (max-width:900px){.bk-hero{grid-template-columns:minmax(0,1fr)}.bk-m{grid-template-columns:repeat(2,minmax(0,1fr))}.ts li{grid-template-columns:80px 1fr 64px}.ts li span:last-child{display:none}}
+@media (max-width:1100px){.fchip span{display:none}}
+@media (prefers-reduced-motion: reduce){.chart .pl,.fchip .dot,.bk-big .dot{animation:none}}
+.card{scroll-margin-top:calc(var(--top) + 14px)}
 </style>
 
 </head>
@@ -651,7 +725,7 @@ main{padding:16px 22px 120px}
       <button class="stk" id="stkBtn" aria-haspopup="listbox">Stocks ▾</button>
     </div>
     <span class="grow"></span>
-    <span class="demo hide-s" title="Sab numbers simulated hain">Demo data</span>
+    <button class="fchip" id="feedChip" title="Data feed · open Broker & Data"><span class="dot"></span><b>DEMO FEED</b><span id="feedTps">0/s</span></button>
     <span class="pill up live" id="status"><span class="dot"></span><span id="statusTxt">Live</span></span>
     <span class="clock" id="clock">12:00:00</span>
     <span class="pill hide-s" id="expiry">Exp 13 Oct</span>
@@ -1053,7 +1127,12 @@ const EN = new Map(Object.entries({
   '09:45 ke baad': 'after 09:45', 'Options mehenge': 'Options rich', 'Options saste': 'Options cheap', '· abhi': '· now', 'Ye UI · React, Tailwind, Framer Motion, charts': 'This UI · React, Tailwind, Framer Motion, charts',
   'Python FastAPI · OI, Greeks, GEX, walls calculate': 'Python FastAPI · computes OI, Greeks, GEX, walls', 'Broker API jodna, NIFTY live chain, flash animation, login, light/dark theme': 'Connect broker API, NIFTY live chain, flash animation, login, light/dark theme',
   'Strategy builder, Journal + OI, Signal Backtest (asli history), AI market read (Claude API), mobile PWA': 'Strategy builder, Journal + OI, Signal Backtest (real history), AI market read (Claude API), mobile PWA', 'Python FastAPI (ya Node.js)': 'Python FastAPI (or Node.js)',
-  'Sector → buildup → leaders · band ki motai = stocks ki ginti': 'Sector → buildup → leaders · band thickness = number of stocks', 'Kaunse sector kis buildup mein hain': 'Which sectors are in which buildup', 'X = price change · Y = OI change · bada gola = zyada volume': 'X = price change · Y = OI change · bigger dot = more volume',
+  'Sector → buildup → leaders · band ki motai = stocks ki ginti': 'Sector → buildup → leaders · band thickness = number of stocks', 'Kaunse sector kis buildup mein hain': 'Which sectors are in which buildup',
+  'Saare tools ek hub mein, live mini preview ke saath (naya)': 'All tools in one hub with live mini previews (new)',
+  'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)': 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (new)',
+  'ATM CE, PE aur straddle ka decay + theta (naya)': 'ATM CE, PE and straddle decay + theta (new)',
+  '6 brokers, connect steps, live feed health, tick stream, pipeline (naya)': '6 brokers, connect steps, live feed health, tick stream, pipeline (new)',
+  'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)': 'Flowing particles in Market Flow and Buildup Flow, tick-by-tick prices on tiles (new)', 'X = price change · Y = OI change · bada gola = zyada volume': 'X = price change · Y = OI change · bigger dot = more volume',
 }));
 const EN_RX = [
   [/^Ek order mein max (\d+) lots\.$/, 'Max $1 lots per order.'], [/^Aaj ke max (\d+) trades ho chuke\.$/, 'Daily limit of $1 trades reached.'],
@@ -1090,12 +1169,15 @@ const IC = {
   map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
   radar: 'M12 12l6-6M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5', flask: 'M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M7.5 15h9',
   wave: 'M2 12c2.5-6 5.5-6 8 0s5.5 6 8 0 3-4 4-4M2 18h20', flowi: 'M3 5c7 0 7 7 14 7h4M3 19c7 0 7-7 14-7M3 12h6', tiles: 'M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z',
+  apps: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z', bars: 'M4 20V10M10 20V4M16 20v-7M22 20H2', plug: 'M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4',
   wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-4v4M16 13h2',
 };
 const PAGES = [
   {id: 'overview', label: 'Overview', ic: 'grid', grp: 'Live market'},
+  {id: 'tools', label: 'All Tools', ic: 'apps'},
   {id: 'chain', label: 'Option Chain', ic: 'table'},
   {id: 'oi', label: 'OI Analysis', ic: 'layers'},
+  {id: 'oicharts', label: 'OI Charts', ic: 'bars', isNew: 1},
   {id: 'heatmap', label: 'OI Heatmap', ic: 'heat', isNew: 1},
   {id: 'mflow', label: 'Market Flow', ic: 'flowi', isNew: 1},
   {id: 'grid', label: 'Buildup Grid', ic: 'tiles', isNew: 1},
@@ -1110,7 +1192,8 @@ const PAGES = [
   {id: 'paper', label: 'Paper Trading', ic: 'wallet', isNew: 1, grp: 'Your trading'},
   {id: 'journal', label: 'Journal + OI', ic: 'book', isNew: 1},
   {id: 'alerts', label: 'Alerts', ic: 'bell', isNew: 1},
-  {id: 'blueprint', label: 'Blueprint', ic: 'map', grp: 'Plan'},
+  {id: 'broker', label: 'Broker & Data', ic: 'plug', isNew: 1, grp: 'Setup'},
+  {id: 'blueprint', label: 'Blueprint', ic: 'map'},
 ];
 const icon = (n, w = 1.7) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
 $('#rail').innerHTML = PAGES.map(p => `${p.grp ? `<h6>${p.grp}</h6>` : ''}<button class="nav-i" data-p="${p.id}" title="${esc(p.label)}">${icon(p.ic)}<span>${esc(p.label)}</span>${p.isNew ? '<em title="New"></em>' : ''}<small class="nb" id="nb-${p.id}"></small></button>`).join('') +
@@ -1143,7 +1226,7 @@ function svgChart(el, o) {
     const fx = X(xs[0]), lx = X(xs[xs.length - 1]), ly = Y(s.v[s.v.length - 1]);
     if (s.area) b += `<path d="${d}L${lx},${Y(s.base || 0)}L${fx},${Y(s.base || 0)}Z" style="fill:${s.c};fill-opacity:.13;stroke:none"/>`;
     b += `<path class="ln${o.anim && !s.dash ? ' draw' : ''}" d="${d}" style="fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
-    if (s.dot) b += `<circle cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c};stroke:var(--panel);stroke-width:2"/>`;
+    if (s.dot) b += `<circle class="pl" cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c}"/><circle cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c};stroke:var(--panel);stroke-width:2"/>`;
   }
   const extra = o.extra ? o.extra(X, Y, w, h) : '';
   el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(o.label || 'chart')}">${g}${b}${extra}</svg>`;
@@ -1720,6 +1803,7 @@ MODS.straddle = {
         <section class="card"><div class="card-h"><h3>Range to expiry</h3></div><div class="card-b" id="stdB"></div></section>
         <section class="card"><div class="card-h"><h3>Expiry watch</h3></div><div class="card-b" id="stdC"></div></section>
         <section class="card span3"><div class="card-h"><h3>Straddle through the day</h3></div><div class="card-b"><div class="chart" id="stdCh"></div><div class="legend"><span><i style="background:var(--fg)"></i>Straddle</span><span><i style="background:var(--accent)"></i>VWAP</span></div></div></section>
+        <section class="card span3" id="stDecay"><div class="card-h"><h3>Premium decay · ATM at open</h3><span class="sub">${L('CE, PE and straddle as % of their 09:15 price', 'CE, PE aur straddle, 09:15 ke bhaav ka %')}</span></div><div class="card-b grid g3"><div id="dcStat"></div><div class="span2"><div class="chart" id="dcCh"></div><div class="legend"><span><i style="background:var(--call)"></i>CE</span><span><i style="background:var(--put)"></i>PE</span><span><i style="background:var(--fg)"></i>Straddle</span></div></div></div></section>
         <section class="card span3"><div class="card-h"><h3>FII / DII positions · index derivatives</h3><span class="sub">Example numbers. Asli app NSE ki end-of-day file se lega.</span></div><div class="tw"><table class="tbl"><thead><tr><th class="l">Participant</th><th>Index futures net</th><th>Change</th><th>Long %</th><th>Index calls net</th><th>Index puts net</th></tr></thead><tbody>${FII.map(r => `<tr><td class="l"><b>${r[0]}</b></td><td class="${r[1] >= 0 ? 'up' : 'dn'}">${sgn(r[1])}</td><td class="${r[2] >= 0 ? 'up' : 'dn'}">${sgn(r[2])}</td><td>${r[3]}%</td><td class="${r[4] >= 0 ? 'up' : 'dn'}">${sgn(r[4])}</td><td class="${r[5] >= 0 ? 'up' : 'dn'}">${sgn(r[5])}</td></tr>`).join('')}</tbody></table></div></section>
       </div>`;
     $('#stdSel').onchange = e => { app.stdStrike[app.sym] = +e.target.value; this.dirty = true; this.update(lastCtx); };
@@ -1738,6 +1822,11 @@ MODS.straddle = {
     $('#stdC').innerHTML = `<div class="verdict" style="font-size:24px">${watch[0]}</div><p class="note" style="margin-top:4px">Chain OI aur straddle 15 minute mein kis taraf chale.</p><div class="kv"><span>Chain OI, 15 min</span><b class="${oi15 >= 0 ? 'up' : 'dn'}">${pct(oi15)}</b></div><div class="kv"><span>Straddle, 15 min</span><b class="${st15 >= 0 ? 'up' : 'dn'}">${pct(st15)}</b></div><div class="kv"><span>Max pain</span><b>${inr(s.maxPain)}</b></div><div class="kv"><span>OI chg calls / puts</span><b>${compact(s.totCc)} / ${compact(s.totPc)}</b></div>`;
     if (ctx.minuteChanged || this.dirty) {
       const all = [...ser, ...vw], mn = Math.min(...all), mx = Math.max(...all), p = (mx - mn) * 0.1 || 1;
+      const k0 = D.snaps[0].atmK, s0 = D.snaps[0], ce = [], pe = [], sd = [];
+      for (let t = 0; t <= t0; t++) { const q = D.snaps[t]; ce.push(q.cP[k0] / s0.cP[k0] * 100); pe.push(q.pP[k0] / s0.pP[k0] * 100); sd.push((q.cP[k0] + q.pP[k0]) / (s0.cP[k0] + s0.pP[k0]) * 100); }
+      const ad = [...ce, ...pe, ...sd], th = (s.cTh[k0] + s.pTh[k0]) / 6.25 * D.c.lot, last = a => a[a.length - 1] - 100;
+      $('#dcStat').innerHTML = `<div class="bigv ${last(sd) < 0 ? 'dn' : 'up'}">${pct(last(sd), 1)}</div><p class="note" style="margin:2px 0 10px">${D.strikes[k0]} ${L('straddle since 09:15', 'straddle 09:15 se')}</p><div class="kv"><span>${D.strikes[k0]} CE</span><b class="${last(ce) < 0 ? 'dn' : 'up'}">${pct(last(ce), 1)}</b></div><div class="kv"><span>${D.strikes[k0]} PE</span><b class="${last(pe) < 0 ? 'dn' : 'up'}">${pct(last(pe), 1)}</b></div><div class="kv"><span>${L('Theta per hour · 1 lot straddle', 'Theta har ghante · 1 lot straddle')}</span><b class="dn">₹${inr(Math.abs(th))}</b></div>`;
+      svgChart($('#dcCh'), {h: 210, x0: 0, x1: N, y0: Math.min(...ad) - 4, y1: Math.max(...ad) + 4, yf: v => v.toFixed(0) + '%', pl: 44, anim: this.dirty, label: 'Premium decay', series: [{v: ce, c: 'var(--call)', dot: 1}, {v: pe, c: 'var(--put)', dot: 1}, {v: sd, c: 'var(--fg)', dot: 1, w: 2.2}], extra: (X, Y) => `<line x1="${X(0)}" x2="${X(N)}" y1="${Y(100)}" y2="${Y(100)}" style="stroke:var(--line-2);stroke-dasharray:3 3"/>`});
       svgChart($('#stdCh'), {h: 230, anim: this.dirty, x0: 0, x1: N, y0: mn - p, y1: mx + p, yf: v => inr(v), label: 'Straddle vs VWAP', series: [{v: vw, c: 'var(--accent)', dash: 1}, {v: ser, c: 'var(--fg)', dot: 1}]});
       this.dirty = false;
     }
@@ -1826,7 +1915,7 @@ MODS.scanner = {
       if (th) { if (f.sort === th.dataset.k) f.dir *= -1; else { f.sort = th.dataset.k; f.dir = th.dataset.k === 's' ? 1 : -1; } again(); return; }
       const tr = e.target.closest('tr[data-s]'); if (tr) setSymGo(tr.dataset.s, 'chain');
     };
-    this.mapBuilt = false; this.refs = {};
+    this.mapBuilt = false; this.refs = {}; this.flowFx();
   },
   match(r) { const f = app.scan; return (f.cat === 'ALL' || r.bu === f.cat) && (f.sec === 'ALL' || r.sec === f.sec) && (!f.q || r.s.includes(f.q.trim().toUpperCase())) && (!f.unusual || r.vx >= 2); },
   update(ctx) {
@@ -1849,6 +1938,21 @@ MODS.scanner = {
     }
     for (const r of rows) { const R = this.refs[r.s]; if (!R) continue; flash(R.px, +r.px.toFixed(2), inr2(r.px)); setText(R.p, pct(r.p)); R.p.className = r.p >= 0 ? 'up' : 'dn'; }
   },
+  flowFx() {
+    if (REDUCE) return; let last = performance.now(), T = 0;
+    const bez = (c, u) => { const v = 1 - u, a = v * v * v, b = 3 * v * v * u, d = 3 * v * u * u, e = u * u * u; return [a * c.x0 + b * c.cx1 + d * c.cx2 + e * c.x3, a * c.y0 + b * c.cy1 + d * c.cy2 + e * c.y3]; };
+    const step = now => {
+      const el = $('#scFlow'); if (!el) return; requestAnimationFrame(step); const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const cv = el.querySelector('canvas.flfx'); if (document.hidden || !cv || !this.fgeo || !this.bands) return; T += dt;
+      const G = this.fgeo, dpr = window.devicePixelRatio || 1;
+      if (cv.width !== Math.round(G.W * dpr)) { cv.width = Math.round(G.W * dpr); cv.height = Math.round(G.H * dpr); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
+      const g = cv.getContext('2d'), col = {LB: tok('--put'), SC: tok('--put'), NT: tok('--faint'), LU: tok('--call'), SB: tok('--call')}, al = {LB: 1, SC: 0.6, NT: 0.5, LU: 0.6, SB: 1};
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, G.W, G.H);
+      this.bands.forEach((b, i) => { const n = clamp(Math.round(b.k * 0.7), 1, 7); for (let j = 0; j < n; j++) { const seed = (i * 7.31 + j * 3.17) % 1, u = (T * (0.16 + seed * 0.12) + seed + j / n) % 1, p = bez(b, u), off = (((i * 13 + j * 29) % 17) / 17 - 0.5) * b.w * 0.75; g.fillStyle = rgba(col[b.cat], al[b.cat] * 0.95 * Math.sin(u * Math.PI)); g.beginPath(); g.arc(p[0], p[1] + off, 1.7, 0, 7); g.fill(); } });
+      this.leads.forEach((b, i) => { for (let j = 0; j < 2; j++) { const u = (T * 0.35 + i * 0.21 + j / 2) % 1, p = bez(b, u); g.fillStyle = rgba(col[b.cat], al[b.cat] * Math.sin(u * Math.PI)); g.beginPath(); g.arc(p[0], p[1], 2, 0, 7); g.fill(); } });
+    };
+    requestAnimationFrame(step);
+  },
   drawFlow(rows) {
     const el = $('#scFlow'); if (!el) return;
     const W = Math.max(300, el.clientWidth), mob = W < 700, H = mob ? 470 : 500, n = rows.length;
@@ -1859,11 +1963,12 @@ MODS.scanner = {
     const availA = H - pt - pb - gA * (secs.length - 1), availB = H - pt - pb - gB * (cats.length - 1);
     let y = pt; for (const s of secs) { s.h = s.rs.length / n * availA; s.y = y; s.o = 0; y += s.h + gA; }
     y = pt; for (const c of cats) { c.h = c.rs.length / n * availB; c.y = y; c.o = 0; y += c.h + gB; }
-    let svg = '', links = '';
+    let svg = '', links = ''; this.bands = []; this.leads = [];
     const xm = (xA + nw + xB) / 2;
     for (const s of secs) for (const c of cats) {
       const k = s.rs.filter(r => r.bu === c.c).length; if (!k) continue;
       const ha = k / n * availA, hb = k / n * availB, y0 = s.y + s.o, y1 = c.y + c.o; s.o += ha; c.o += hb;
+      this.bands.push({x0: xA + nw, y0: y0 + ha / 2, cx1: xm, cy1: y0 + ha / 2, cx2: xm, cy2: y1 + hb / 2, x3: xB, y3: y1 + hb / 2, w: Math.min(ha, hb), k, cat: c.c});
       links += `<path class="lk" data-sec="${s.s}" data-c="${c.c}" data-k="${k}" d="M${xA + nw},${y0.toFixed(1)} C${xm},${y0.toFixed(1)} ${xm},${y1.toFixed(1)} ${xB},${y1.toFixed(1)} L${xB},${(y1 + hb).toFixed(1)} C${xm},${(y1 + hb).toFixed(1)} ${xm},${(y0 + ha).toFixed(1)} ${xA + nw},${(y0 + ha).toFixed(1)}Z" style="fill:${CC[c.c]}"/>`;
     }
     svg += `<g class="lks">${links}</g>`;
@@ -1883,12 +1988,14 @@ MODS.scanner = {
       lead.forEach(({r, c}, i) => {
         const yy = pt + (i + 0.5) * step, ys = c.y + c.h / 2, x0 = xB + nw + lblW;
         svg += `<path class="ll" d="M${x0},${ys.toFixed(1)} C${(x0 + xC) / 2},${ys.toFixed(1)} ${(x0 + xC) / 2},${yy.toFixed(1)} ${xC - 6},${yy.toFixed(1)}" style="stroke:${CC[c.c]}"/>`;
+        this.leads.push({x0, y0: ys, cx1: (x0 + xC) / 2, cy1: ys, cx2: (x0 + xC) / 2, cy2: yy, x3: xC - 6, y3: yy, w: 0, k: 2, cat: c.c});
         svg += `<g class="ld" data-s="${esc(r.s)}"><rect x="${xC - 4}" y="${(yy - 13).toFixed(1)}" width="${W - xC + 4}" height="26" rx="4"/><circle cx="${xC + 6}" cy="${yy.toFixed(1)}" r="3.5" style="fill:${CC[c.c]}"/><text x="${xC + 16}" y="${(yy + 4).toFixed(1)}" class="fl-t">${esc(r.s)}</text><text x="${W - 70}" y="${(yy + 4).toFixed(1)}" text-anchor="end" class="fl-n" style="fill:var(${r.p >= 0 ? '--put' : '--call'})">${pct(r.p)}</text><text x="${W - 6}" y="${(yy + 4).toFixed(1)}" text-anchor="end" class="fl-v">OI ${pct(r.oc, 1)}</text></g>`;
       });
       svg += `<text x="${xC - 4}" y="12" class="fl-h">LEADERS BY OI CHANGE</text>`;
     }
     svg += `<text x="${xA - 8}" y="12" text-anchor="end" class="fl-h">SECTOR</text><text x="${xB}" y="12" class="fl-h">BUILDUP</text>`;
-    el.innerHTML = `<svg width="${W}" height="${H}" role="img" aria-label="Sector to buildup flow">${svg}</svg><div class="tip" id="flTip" hidden></div>`;
+    el.innerHTML = `<svg width="${W}" height="${H}" role="img" aria-label="Sector to buildup flow">${svg}</svg><canvas class="flfx" aria-hidden="true"></canvas><div class="tip" id="flTip" hidden></div>`;
+    this.fgeo = {W, H};
     const s = el.querySelector('svg'), tip = $('#flTip');
     const hl = (k, v) => { s.classList.add('dim'); s.querySelectorAll('.lk').forEach(p => p.classList.toggle('on', p.dataset[k] === v)); };
     s.onmouseover = e => {
@@ -2245,9 +2352,14 @@ MODS.grid = {
     P.style.left = x + 'px'; P.style.top = y + 'px';
     stockChart(P.querySelector('canvas'), V);
   },
+  tick(ctx) {
+    const a = ctx.tf - ctx.t0, t1 = Math.min(N, ctx.t0 + 1);
+    $$('#view .tl').forEach(el => { const V = SV[el.dataset.s]; if (!V) return; const u = V.u, px = lerp(u.px[ctx.t0], u.px[t1], a), p = lerp(u.pct[ctx.t0], u.pct[t1], a), yp = clamp((1 - (px - V.lo) / ((V.hi - V.lo) || 1)) * 100, 0, 100);
+      const b = el.querySelector('.tl-px'); b.style.top = clamp(yp, 6, 94) + '%'; el.querySelector('.tl-ln').style.top = yp + '%'; flash(b, +px.toFixed(2), f2(px)); flash(el.querySelector('.tl-p'), +p.toFixed(2), pct(p)); });
+  },
   hide() { const P = $('#gdPop'); if (P) P.hidden = true; this.cur = null; $$('.tl.on').forEach(x => x.classList.remove('on')); },
   update(ctx) {
-    if (!ctx.minuteChanged && !this.dirty) return;
+    if (!ctx.minuteChanged && !this.dirty) { this.tick(ctx); return; }
     const {bulls, bears} = rankAll(ctx.tf), n = app.gridN, old = {};
     $$('#view .tl').forEach(el => { old[el.dataset.s] = el.getBoundingClientRect(); });
     $('#gdBull').innerHTML = bulls.slice(0, n).map((V, i) => tileHTML(V, i < 3)).join('');
@@ -2266,7 +2378,7 @@ MODS.mflow = {
     v.innerHTML = phead('Market Flow', `Saare ${UL.length} F&amp;O stocks ek saath. Har patli line ek stock ki din bhar ki chaal hai. Daayein sab rank ke hisaab se line mein lagte hain, aur sabse mazboot aur sabse kamzor stocks alag nikal aate hain. Baayein har sector apne % par baitha hai.`,
       `<div class="seg" id="mfK"><button data-k="6">Top 6</button><button data-k="10">Top 10</button></div>`) +
       `<section class="card mf"><div class="mf-top"><canvas id="mfStrip"></canvas></div>
-        <div class="mf-body" id="mfBody"><canvas id="mfCv"></canvas><svg id="mfLinks" class="mf-links" aria-hidden="true"></svg>
+        <div class="mf-body" id="mfBody"><div class="mf-cvw"><canvas id="mfCv"></canvas><canvas id="mfFx" aria-hidden="true"></canvas></div><svg id="mfLinks" class="mf-links" aria-hidden="true"></svg>
           <div class="mf-list"><div id="mfBull"></div><div id="mfBear"></div></div></div>
         <div class="tip" id="mfTip" hidden></div></section>
       <p class="note">Mouse kisi line par le jao to us stock ka naam aur % dikhega. Neeli moti line NIFTY hai. Daayein tile par click = us stock ki option chain.</p>`;
@@ -2276,7 +2388,7 @@ MODS.mflow = {
     cv.onmousemove = e => { const r = cv.getBoundingClientRect(); this.hov = {x: e.clientX - r.left, y: e.clientY - r.top}; if (!this.hraf) this.hraf = requestAnimationFrame(() => { this.hraf = 0; this.draw(lastCtx, 1); }); };
     cv.onmouseleave = () => { this.hov = null; $('#mfTip').hidden = true; this.draw(lastCtx, 1); };
     $('.mf-list').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSymGo(b.dataset.s, 'chain'); };
-    this.grow = REDUCE ? 1 : 0; this.hov = null; this.anim = 0; this.hraf = 0;
+    this.grow = REDUCE ? 1 : 0; this.hov = null; this.anim = 0; this.hraf = 0; this.geo = null; this.fx();
   },
   update(ctx) {
     if (this.grow < 1) { if (!this.anim) { const t0 = performance.now(); const step = () => { this.grow = Math.min(1, (performance.now() - t0) / 1400); this.draw(lastCtx); if (this.grow < 1 && $('#mfCv')) requestAnimationFrame(step); else this.anim = 0; }; this.anim = requestAnimationFrame(step); } return; }
@@ -2322,6 +2434,7 @@ MODS.mflow = {
     g.strokeStyle = C.acc; g.lineWidth = 2.2; g.beginPath(); for (let t = 0; t <= tE; t++) { t ? g.lineTo(X(t), Y(idx(t))) : g.moveTo(X(t), Y(idx(t))); } g.stroke(); g.lineWidth = 1;
     g.fillStyle = C.acc; g.textAlign = 'left'; g.fillText('NIFTY', X(tE) + 6, Y(idx(tE)) - 8);
     g.strokeStyle = rgba(C.fg, 0.35); g.setLineDash([2, 3]); g.beginPath(); g.moveTo(X(tE), pt); g.lineTo(X(tE), H - pb); g.stroke(); g.setLineDash([]);
+    this.geo = {W, H, pt, pb, xNow: X(tE), acc: C.acc, curves: sorted.map((x, i) => { const xa = X(tE), ya = Y(x.u.pct[tE]), ry = pt + (i + 0.5) * rh; return {x0: xa, y0: ya, cx1: xa + (x1 - xa) * 0.5 + 10, cy1: ya, cx2: x1 - 10, cy2: ry, x3: x1 + 2, y3: ry, c: x.p >= 0 ? C.put : C.call, hot: hot.has(x.u.s)}; })};
     // rank column
     const cx = x1 + 4, cw = RC - 4;
     sorted.forEach((x, i) => { const y = pt + i * rh; g.fillStyle = rgba(x.p >= 0 ? C.put : C.call, hot.has(x.u.s) ? 0.95 : 0.55); g.fillRect(cx, y, Math.max(1.5, Math.abs(x.p) / M * cw), Math.max(0.8, rh - 0.6)); });
@@ -2342,6 +2455,21 @@ MODS.mflow = {
     const link = (x, i, top) => { const el = $(`#mf${top ? 'Bull' : 'Bear'} [data-s="${CSS.escape(x.u.s)}"]`); if (!el) return; const tr = el.getBoundingClientRect(), ya = cvr.top - sr.top + pt + (i + 0.5) * rh, yb = tr.top - sr.top + tr.height / 2; paths += `<path d="M0,${ya.toFixed(1)} C30,${ya.toFixed(1)} 30,${yb.toFixed(1)} 60,${yb.toFixed(1)}" style="stroke:var(${top ? '--put' : '--call'})"/>`; };
     sorted.slice(0, K).forEach((x, i) => link(x, i, true)); sorted.slice(-K).forEach((x, j) => link(x, n - K + j, false));
     svg.innerHTML = paths;
+  },
+  fx() {
+    const cv = $('#mfFx'); if (!cv || REDUCE) return; let last = performance.now(), T = 0;
+    const bez = (c, u) => { const v = 1 - u, a = v * v * v, b = 3 * v * v * u, d = 3 * v * u * u, e = u * u * u; return [a * c.x0 + b * c.cx1 + d * c.cx2 + e * c.x3, a * c.y0 + b * c.cy1 + d * c.cy2 + e * c.y3]; };
+    const step = now => {
+      if (!cv.isConnected) return; requestAnimationFrame(step); const dt = Math.min(0.05, (now - last) / 1000); last = now; if (document.hidden || !this.geo) return; T += dt;
+      const G = this.geo, dpr = window.devicePixelRatio || 1;
+      if (cv.width !== Math.round(G.W * dpr) || cv.height !== Math.round(G.H * dpr)) { cv.width = Math.round(G.W * dpr); cv.height = Math.round(G.H * dpr); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
+      const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, G.W, G.H);
+      const sy = G.pt + ((T * 0.22) % 1) * (G.H - G.pt - G.pb), gr = g.createLinearGradient(0, sy - 46, 0, sy + 46); gr.addColorStop(0, rgba(G.acc, 0)); gr.addColorStop(0.5, rgba(G.acc, 0.85)); gr.addColorStop(1, rgba(G.acc, 0)); g.fillStyle = gr; g.fillRect(G.xNow - 1.5, sy - 46, 3, 92);
+      G.curves.forEach((c, i) => { const n = c.hot ? 3 : 1, sp = c.hot ? 0.42 : 0.26; for (let j = 0; j < n; j++) { const u = (T * sp + i * 0.1379 + j / n) % 1, p = bez(c, u); g.fillStyle = rgba(c.c, (c.hot ? 1 : 0.7) * Math.sin(u * Math.PI)); g.beginPath(); g.arc(p[0], p[1], c.hot ? 2.1 : 1.4, 0, 7); g.fill(); } });
+      const pr = (T % 1.5) / 1.5;
+      for (const c of G.curves) if (c.hot) { g.strokeStyle = rgba(c.c, 0.75 * (1 - pr)); g.lineWidth = 1.5; g.beginPath(); g.arc(c.x0, c.y0, 3 + pr * 10, 0, 7); g.stroke(); g.fillStyle = c.c; g.beginPath(); g.arc(c.x0, c.y0, 2.8, 0, 7); g.fill(); }
+    };
+    requestAnimationFrame(step);
   },
   drawStrip(now, secs, M, x0, x1, C, nb, n) {
     const cv = $('#mfStrip'), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = 62; cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
@@ -2397,6 +2525,220 @@ MODS.vol = {
     $('#vlGrid').innerHTML = rows.map(r => `<button class="ivt" data-s="${esc(r.s)}" style="background:color-mix(in srgb,var(--glow3) ${Math.round(6 + (r.iv - mn) / (mx - mn || 1) * 46)}%,var(--panel))"><span>${esc(r.s)}</span><b>${r.iv.toFixed(1)}%</b><i class="${r.ivc >= 0 ? 'up' : 'dn'}">${sgn(r.ivc, x => x.toFixed(1))}</i></button>`).join('');
     this.dirty = false;
   },
+};
+
+/* ---- OI charts: multi-strike OI, call vs put OI, PCR, max pain, futures sentiment ---- */
+const FUT = {};
+function futOI(sym) {
+  if (FUT[sym]) return FUT[sym];
+  if (U[sym]) return FUT[sym] = {px: U[sym].px, oi: U[sym].oi};
+  const D = getData(sym), r = mulberry32(hashS(sym + 'fut')), oi = new Float64Array(N + 1), px = new Float64Array(N + 1); let o = D.c.base * 9, mode = 1;
+  for (let t = 0; t <= N; t++) {
+    if (t % 45 === 0) mode = r() < 0.65 ? 1 : -1;
+    px[t] = D.spot[t] * (1 + RATE * (D.c.dte - 0.26 * t / N) / 365);
+    if (t) { const ret = D.spot[t] / D.spot[t - 1] - 1; o *= 1 + mode * Math.abs(ret) * 2.4 + gauss(r) * 0.00035; }
+    oi[t] = o;
+  }
+  return FUT[sym] = {px, oi};
+}
+const MS_COL = ['var(--accent)', 'var(--amber)', 'var(--glow3)', 'var(--glow1)'];
+MODS.oicharts = {
+  mount(v) {
+    const D = this.D = getData(app.sym), s = state(D, app.tf);
+    app.ms = app.ms || {}; if (!app.ms[app.sym]) app.ms[app.sym] = [s.atmK - 1, s.atmK, s.atmK + 1].filter(k => k >= 0 && k < D.K);
+    app.msMode = app.msMode || 'chg';
+    v.innerHTML = phead('OI Charts', L('Multi-strike OI, call vs put OI, PCR and max pain through the day, plus the futures sentiment cycle (price vs OI every 5 minutes). Every chart updates live.', 'Multi-strike OI, call vs put OI, PCR aur max pain din bhar, saath mein futures sentiment cycle (har 5 minute price vs OI). Har chart live update hota hai.'), symLabel()) +
+      `<div class="grid g3">
+        <section class="card span3" id="ocMulti"><div class="card-h"><h3>Multi-strike OI</h3><span class="sub">${L('Solid = puts · dashed = calls · pick up to 4 strikes', 'Solid = puts · dashed = calls · 4 strike tak chuno')}</span><div class="tools"><div class="seg" id="msMode"><button data-m="chg">OI change</button><button data-m="oi">Total OI</button></div></div></div>
+          <div class="card-b"><div class="chips2" id="msChips"></div><div class="chart" id="msCh" style="margin-top:10px"></div><div class="legend" id="msLeg"></div></div></section>
+        <section class="card span2" id="ocCvp"><div class="card-h"><h3>Call vs Put OI</h3><span class="sub">${L('Total open interest across the chain', 'Poori chain ka total open interest')}</span></div><div class="card-b"><div class="chart" id="cvpCh"></div><div class="legend"><span><i style="background:var(--put)"></i>Put OI</span><span><i style="background:var(--call)"></i>Call OI</span></div></div></section>
+        <section class="card" id="ocMp"><div class="card-h"><h3>Max pain tracker</h3></div><div class="card-b"><div id="mpStat"></div><div class="chart" id="mpCh"></div><div class="legend"><span><i style="background:var(--fg)"></i>Spot</span><span><i style="background:var(--amber)"></i>Max pain</span></div></div></section>
+        <section class="card span2" id="ocPcr"><div class="card-h"><h3>PCR tracker</h3><span class="sub">${L('Green band = put-heavy (bullish tilt) · red band = call-heavy', 'Hara band = puts zyada (bullish jhukav) · laal = calls zyada')}</span></div><div class="card-b"><div class="chart" id="pcrCh"></div></div></section>
+        <section class="card"><div class="card-h"><h3>PCR by strike</h3></div><div class="card-b"><div class="chart" id="pcrK"></div></div></section>
+        <section class="card span3" id="ocCycle"><div class="card-h"><h3>Futures sentiment cycle · price vs OI</h3><span class="sub">${L('Every 5 minutes: did price and OI rise or fall together?', 'Har 5 minute: price aur OI saath badhe ya gire?')}</span></div><div class="card-b"><div class="chart" id="cycCh"></div>
+          <div class="cyc-l"><span><i style="background:var(--put)"></i>Long buildup</span><span><i style="background:color-mix(in srgb,var(--put) 45%,var(--panel))"></i>Short covering</span><span><i style="background:color-mix(in srgb,var(--call) 45%,var(--panel))"></i>Long unwinding</span><span><i style="background:var(--call)"></i>Short buildup</span></div><div id="cycStat" class="note"></div></div></section>
+      </div>`;
+    $$('#msMode button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.m === app.msMode); b.onclick = () => { app.msMode = b.dataset.m; $$('#msMode button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    $('#msChips').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; const k = +b.dataset.k, sel = app.ms[app.sym], i = sel.indexOf(k); if (i >= 0) { if (sel.length > 1) sel.splice(i, 1); } else { sel.push(k); if (sel.length > 4) sel.shift(); } this.dirty = true; this.update(lastCtx); };
+  },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return;
+    const D = this.D, s = ctx.st(app.sym), t0 = ctx.t0, sn = D.snaps, an = this.dirty, sel = app.ms[app.sym];
+    const lo = Math.max(0, s.atmK - 6), hi = Math.min(D.K - 1, s.atmK + 6);
+    $('#msChips').innerHTML = D.strikes.slice(lo, hi + 1).map((x, i) => { const k = lo + i, j = sel.indexOf(k); return `<button data-k="${k}" aria-pressed="${j >= 0}" style="--sc:${j >= 0 ? MS_COL[j] : 'transparent'}">${x}${k === s.atmK ? ' ·ATM' : ''}</button>`; }).join('');
+    const key = app.msMode === 'chg' ? ['cChg', 'pChg'] : ['cOI', 'pOI'], ser = [];
+    sel.forEach((k, j) => { const c = [], p = []; for (let t = 0; t <= t0; t++) { c.push(sn[t][key[0]][k]); p.push(sn[t][key[1]][k]); } ser.push({v: p, c: MS_COL[j], dot: 1, w: 2}, {v: c, c: MS_COL[j], dash: 1}); });
+    const all = ser.flatMap(x => x.v).concat([0]), mn = Math.min(...all), mx = Math.max(...all), pd = (mx - mn) * 0.08 || 1;
+    svgChart($('#msCh'), {h: 260, x0: 0, x1: N, y0: mn - pd, y1: mx + pd, zero: 1, anim: an, label: 'Multi-strike OI', series: ser});
+    $('#msLeg').innerHTML = sel.map((k, j) => `<span><i style="background:${MS_COL[j]}"></i>${D.strikes[k]} · P ${compact(sn[t0][key[1]][k])} / C ${compact(sn[t0][key[0]][k])}</span>`).join('');
+    const C = [], P = []; for (let t = 0; t <= t0; t++) { C.push(sn[t].totC); P.push(sn[t].totP); }
+    const a2 = [...C, ...P], m2 = Math.min(...a2), x2 = Math.max(...a2), p2 = (x2 - m2) * 0.1 || 1;
+    svgChart($('#cvpCh'), {h: 220, x0: 0, x1: N, y0: m2 - p2, y1: x2 + p2, anim: an, label: 'Call vs put OI', series: [{v: P, c: 'var(--put)', area: 1, base: m2 - p2, dot: 1, w: 2}, {v: C, c: 'var(--call)', area: 1, base: m2 - p2, dot: 1, w: 2}]});
+    const pcr = D.ser.pcr.slice(0, t0 + 1), pl = Math.min(0.7, ...pcr) - 0.05, ph = Math.max(1.35, ...pcr) + 0.05;
+    svgChart($('#pcrCh'), {h: 220, x0: 0, x1: N, y0: pl, y1: ph, yf: v => v.toFixed(2), anim: an, label: 'PCR intraday', series: [{v: pcr, c: 'var(--accent)', dot: 1, w: 2}],
+      extra: (X, Y, w, h) => `<rect x="${X(0)}" y="${Y(ph)}" width="${X(N) - X(0)}" height="${Math.max(0, Y(1.2) - Y(ph))}" style="fill:var(--put);fill-opacity:.07"/><rect x="${X(0)}" y="${Y(0.8)}" width="${X(N) - X(0)}" height="${Math.max(0, Y(pl) - Y(0.8))}" style="fill:var(--call);fill-opacity:.07"/><line x1="${X(0)}" x2="${X(N)}" y1="${Y(1)}" y2="${Y(1)}" style="stroke:var(--line-2);stroke-dasharray:3 3"/><text class="axl" x="${X(N) - 4}" y="${Y(pcr[pcr.length - 1]) - 8}" text-anchor="end" style="fill:var(--accent);font-weight:700">${pcr[pcr.length - 1].toFixed(2)}</text>`});
+    const el = $('#pcrK'), w = Math.max(220, el.clientWidth), rh = 15, ks = []; for (let k = hi; k >= lo; k--) ks.push(k);
+    const h = ks.length * rh + 6, mxp = Math.max(2, ...ks.map(k => s.pcrK[k])), lw = 50;
+    el.innerHTML = `<svg width="${w}" height="${h}" role="img" aria-label="PCR by strike">${ks.map((k, i) => { const v = s.pcrK[k], bw = Math.min(v, mxp) / mxp * (w - lw - 44); return `<text class="axl" x="${lw - 6}" y="${i * rh + 13}" text-anchor="end" style="${k === s.atmK ? 'fill:var(--accent);font-weight:700' : ''}">${D.strikes[k]}</text><rect x="${lw}" y="${i * rh + 4}" width="${bw.toFixed(1)}" height="${rh - 5}" rx="2" style="fill:var(${v >= 1 ? '--put' : '--call'});fill-opacity:.75"/><text class="axl" x="${lw + bw + 5}" y="${i * rh + 13}">${v.toFixed(2)}</text>`; }).join('')}</svg>`;
+    const sp = [], mp = []; for (let t = 0; t <= t0; t++) { sp.push(D.spot[t]); mp.push(D.ser.mp[t]); }
+    const a3 = [...sp, ...mp], m3 = Math.min(...a3), x3 = Math.max(...a3), p3 = (x3 - m3) * 0.12 || 1;
+    $('#mpStat').innerHTML = `<div class="bigv amb">${inr(s.maxPain)}</div><div class="kv"><span>${L('Spot vs max pain', 'Spot vs max pain')}</span><b>${sgn(s.S - s.maxPain)} pts</b></div>`;
+    svgChart($('#mpCh'), {h: 160, x0: 0, x1: N, y0: m3 - p3, y1: x3 + p3, yf: v => inr(v), pl: 54, anim: an, label: 'Max pain vs spot', series: [{v: mp, c: 'var(--amber)', w: 2}, {v: sp, c: 'var(--fg)', dot: 1}]});
+    this.cycle(ctx);
+    this.dirty = false;
+  },
+  cycle(ctx) {
+    const F = futOI(app.sym), t0 = ctx.t0, el = $('#cycCh'), w = Math.max(300, el.clientWidth), pl = 58, pr = 14, H1 = 150, HS = 30, H2 = 90, H = H1 + HS + H2 + 30;
+    const X = t => pl + t / N * (w - pl - pr);
+    const px = Array.from(F.px.slice(0, t0 + 1)), oi = Array.from(F.oi.slice(0, t0 + 1)), pm = Math.min(...px), pM = Math.max(...px), om = Math.min(...oi), oM = Math.max(...oi);
+    const Yp = v => 8 + (1 - (v - pm) / ((pM - pm) || 1)) * (H1 - 16), Yo = v => H1 + HS + 6 + (1 - (v - om) / ((oM - om) || 1)) * (H2 - 12);
+    const path = (arr, Y) => arr.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join('');
+    const CS = {LB: 'var(--put)', SC: 'color-mix(in srgb,var(--put) 45%,var(--panel))', LU: 'color-mix(in srgb,var(--call) 45%,var(--panel))', SB: 'var(--call)'}, cnt = {LB: 0, SC: 0, LU: 0, SB: 0};
+    let strip = '', last = null;
+    for (let b = 0; b * 5 < t0; b++) { const a = b * 5, z = Math.min(a + 5, t0), dp = F.px[z] - F.px[a], dq = F.oi[z] - F.oi[a], st = dp >= 0 ? (dq >= 0 ? 'LB' : 'SC') : (dq >= 0 ? 'SB' : 'LU'); cnt[st]++; last = st; strip += `<rect x="${X(a).toFixed(1)}" y="${H1 + 6}" width="${Math.max(1, X(z) - X(a) - 1).toFixed(1)}" height="${HS - 12}" rx="1.5" style="fill:${CS[st]}"><title>${tl(a)}–${tl(z)} · ${BU[st]}</title></rect>`; }
+    let ax = ''; for (const [t, l] of TT) ax += `<text class="axl" x="${X(t)}" y="${H - 6}" text-anchor="middle">${l}</text>`;
+    ax += `<text class="axl" x="${pl - 6}" y="${Yp(pM) + 4}" text-anchor="end">${inr(pM)}</text><text class="axl" x="${pl - 6}" y="${Yp(pm) + 4}" text-anchor="end">${inr(pm)}</text><text class="axl" x="${pl - 6}" y="${H1 + HS / 2 + 3}" text-anchor="end">STATE</text><text class="axl" x="${pl - 6}" y="${Yo(oM) + 4}" text-anchor="end">${compact(oM)}</text><text class="axl" x="${pl - 6}" y="${Yo(om) + 4}" text-anchor="end">${compact(om)}</text>`;
+    const lx = X(t0);
+    el.innerHTML = `<svg width="${w}" height="${H}" role="img" aria-label="Futures sentiment cycle">${ax}<path class="ln" d="${path(px, Yp)}" style="fill:none;stroke:var(--fg);stroke-width:1.8"/><circle class="pl" cx="${lx}" cy="${Yp(px[t0])}" r="3.5" style="fill:var(--fg)"/><circle cx="${lx}" cy="${Yp(px[t0])}" r="3" style="fill:var(--fg)"/>${strip}<path class="ln" d="${path(oi, Yo)}" style="fill:none;stroke:var(--accent);stroke-width:1.6"/><circle class="pl" cx="${lx}" cy="${Yo(oi[t0])}" r="3.5" style="fill:var(--accent)"/><circle cx="${lx}" cy="${Yo(oi[t0])}" r="3" style="fill:var(--accent)"/><text class="axl" x="${pl + 4}" y="16" style="fill:var(--fg);font-weight:700">FUT PRICE</text><text class="axl" x="${pl + 4}" y="${H1 + HS + 16}" style="fill:var(--accent);font-weight:700">FUT OI</text></svg>`;
+    const tot = Object.values(cnt).reduce((a, b) => a + b, 0) || 1;
+    $('#cycStat').textContent = L(`Now: ${last ? BU[last] : '—'} · today ${Object.entries(cnt).map(([k, v]) => `${BU[k]} ${(v / tot * 100).toFixed(0)}%`).join(' · ')}`, `Abhi: ${last ? BU[last] : '—'} · aaj ${Object.entries(cnt).map(([k, v]) => `${BU[k]} ${(v / tot * 100).toFixed(0)}%`).join(' · ')}`);
+  },
+};
+/* ---- All tools hub ---- */
+const TOOLS = () => {
+  const DN = getData('NIFTY'), t0 = Math.floor(app.tf), sl = a => Array.from(a.slice(0, t0 + 1)), sn = DN.snaps, ser = f => { const o = []; for (let t = 0; t <= t0; t += 3) o.push(f(sn[t], t)); return o; };
+  const breadth = () => { const o = []; for (let t = 0; t <= t0; t += 3) o.push(UL.filter(u => u.pct[t] >= 0).length); return o; };
+  const F = futOI('NIFTY');
+  return [
+    [L('Option chain & OI', 'Option chain aur OI'), [
+      ['chain', null, 'table', 'Option Chain', L('Every strike: OI, change, volume, IV, delta, reversal', 'Har strike: OI, change, volume, IV, delta, reversal'), sl(DN.spot)],
+      ['oi', null, 'layers', 'OI Analysis', L('Three-strike verdicts, strike ladder, intraday change in OI', 'Three-strike verdict, strike ladder, din bhar ka OI change'), ser(s => s.totPc - s.totCc)],
+      ['oi', 'oiTrend', 'layers', 'Smart OI zones', L('Support / resistance building, auto-tagged per strike', 'Har strike par support/resistance building ka auto tag'), ser(s => s.pChg[s.atmK])],
+      ['oicharts', 'ocMulti', 'bars', 'Multi-strike OI', L('Overlay OI of up to 4 strikes on one chart', '4 strikes ka OI ek chart par'), ser(s => s.pChg[s.atmK] - s.cChg[s.atmK]), 1],
+      ['oicharts', 'ocCvp', 'bars', 'Call vs Put OI', L('Total call vs put open interest through the day', 'Din bhar total call vs put OI'), ser(s => s.totP - s.totC), 1],
+      ['oicharts', 'ocPcr', 'bars', 'PCR tracker', L('Intraday PCR with zones, plus PCR by strike', 'Zones ke saath intraday PCR, aur strike-wise PCR'), sl(DN.ser.pcr), 1],
+      ['oicharts', 'ocMp', 'bars', 'Max pain tracker', L('Max pain vs spot through the day', 'Din bhar max pain vs spot'), sl(DN.ser.mp), 1],
+      ['heatmap', null, 'heat', 'OI Heatmap', L('Time × strike grid of fresh writing', 'Time × strike nayi writing ka grid'), ser(s => s.totPc)],
+    ]],
+    [L('Market breadth', 'Market breadth'), [
+      ['mflow', null, 'flowi', 'Market Flow', L('All F&O stocks as live lines, funnelled into a ranking', 'Saare F&O stocks live lines mein, ranking mein judte hue'), breadth()],
+      ['grid', null, 'tiles', 'Buildup Grid', L('Volume-profile tiles ranked by conviction', 'Conviction ke hisaab se volume-profile tiles'), breadth()],
+      ['scanner', null, 'radar', 'F&O Scanner', L('Sector → buildup flow, buildup map, full table', 'Sector → buildup flow, buildup map, poori table'), breadth()],
+      ['structure', null, 'pulse', 'Market Structure', L('Index stocks rising vs falling, key levels', 'Index ke stocks upar vs neeche, key levels'), breadth()],
+    ]],
+    [L('Futures', 'Futures'), [
+      ['oicharts', 'ocCycle', 'bars', 'Futures sentiment cycle', L('Price vs OI state every 5 minutes', 'Har 5 minute price vs OI ki haalat'), sl(F.oi), 1],
+      ['oicharts', 'ocCycle', 'bars', 'Price vs OI', L('Futures price and OI side by side', 'Futures price aur OI saath mein'), sl(F.px), 1],
+    ]],
+    [L('Volatility & expiry', 'Volatility aur expiry'), [
+      ['vol', 'vlIvhv', 'wave', 'IV chart · IV vs HV', L('Is IV rich or cheap against real movement?', 'IV asli chaal ke mukable mehenga hai ya sasta?'), sl(DN.ser.iv)],
+      ['vol', 'vlSmile', 'wave', 'Volatility skew', L('IV smile at 09:15 vs now', 'IV smile 09:15 vs abhi'), sl(DN.ser.iv)],
+      ['vol', 'vlGrid', 'wave', 'IV grid', L('IV of every F&O stock, sortable', 'Har F&O stock ka IV, sort ke saath'), sl(DN.ser.iv)],
+      ['straddle', null, 'clock', 'ATM straddle chart', L('Straddle vs VWAP, expected range to expiry', 'Straddle vs VWAP, expiry tak ki range'), ser(s => s.cP[s.atmK] + s.pP[s.atmK])],
+      ['straddle', 'stDecay', 'clock', 'Premium decay', L('CE, PE and straddle decay since the open', 'Subah se CE, PE aur straddle kitna pighla'), ser((s, t) => sn[t].cP[sn[0].atmK] + sn[t].pP[sn[0].atmK]), 1],
+      ['gex', null, 'gamma', 'Gamma walls · GEX', L('Where dealer hedging steadies or speeds up price', 'Kahan hedging market ko thamti ya tez karti hai'), sl(DN.ser.gex)],
+    ]],
+    [L('Trade & practice', 'Trade aur practice'), [
+      ['strategy', null, 'payoff', 'Strategy Builder', L('Multi-leg payoff, breakevens, POP, Greeks', 'Multi-leg payoff, breakeven, POP, Greeks'), null],
+      ['paper', null, 'wallet', 'Options simulator', L('Paper trading with a risk manager', 'Risk manager ke saath paper trading'), null],
+      ['backtest', null, 'flask', 'Signal Backtest', L('Hit rate of OI signals on history', 'History par OI signals ka hit rate'), null],
+      ['journal', null, 'book', 'Journal + OI', L('Every trade with the market snapshot at entry', 'Har trade ke saath entry ke waqt ka snapshot'), null],
+      ['alerts', null, 'bell', 'Alerts', L('Wall shifts, PCR extremes, GEX flips, voice', 'Wall shift, PCR extreme, GEX flip, awaaz'), null],
+    ]],
+    [L('Data', 'Data'), [
+      ['broker', null, 'plug', 'Broker & Data', L('Connect a broker feed, see live feed health', 'Broker feed jodo, live feed ki health dekho'), null, 1],
+      ['chart', null, 'candles', 'Chart + Walls', L('Candles with wall history and max pain', 'Candles ke saath walls ki history aur max pain'), sl(DN.spot)],
+    ]],
+  ];
+};
+MODS.tools = {
+  mount(v) {
+    v.innerHTML = phead('All Tools', L('Every tool in one place, grouped the way traders work. Each card shows a live mini preview; click to open.', 'Saare tools ek jagah, kaam ke hisaab se. Har card mein live mini preview hai, click karke kholo.')) + '<div id="thBody"></div>';
+    $('#thBody').onclick = e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go, b.dataset.a || null); };
+  },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return; this.dirty = false;
+    $('#thBody').innerHTML = TOOLS().map(([g, items]) => `<h3 class="th-g">${g}</h3><div class="th">${items.map(([p, a, ic, t, d, sp, nw]) => `<button class="tc" data-go="${p}"${a ? ` data-a="${a}"` : ''}><span class="ti">${icon(ic)}</span><span><b>${t}</b><p>${d}</p></span>${sp && sp.length > 1 ? `<span class="tsp">${spark(sp, 'var(--accent)')}</span>` : ''}${nw ? '<span class="nw">NEW</span>' : ''}</button>`).join('')}</div>`).join('');
+  },
+};
+/* ---- simulated data feed (stands in for a broker WebSocket in the demo) ---- */
+const FEED = {tps: 0, lat: 22, ticks: 0, hist: [], up0: Date.now(), subs: {nifty: true, bank: true, stocks: true, idx: true}};
+const SUBS = [['nifty', 'NIFTY option chain', 62], ['bank', 'BANKNIFTY option chain', 62], ['stocks', 'F&O stock futures', 197], ['idx', 'Indices (NIFTY, BANK, VIX)', 3]];
+const feedInstr = () => SUBS.reduce((a, [k, , n]) => a + (FEED.subs[k] ? n : 0), 0);
+function feedTick() {
+  const live = app.edge < N, base = feedInstr() * (live ? 0.62 : 0.02);
+  FEED.tps = Math.max(0, base * (0.8 + 0.4 * Math.random()) * (app.edge < 20 ? 1.8 : 1));
+  FEED.ticks += FEED.tps * 0.4; FEED.lat = clamp(FEED.lat + (Math.random() - 0.5) * 6, 9, 48);
+  FEED.hist.push(FEED.tps); if (FEED.hist.length > 120) FEED.hist.shift();
+  const ch = $('#feedTps'); if (ch) ch.textContent = `${Math.round(FEED.tps)}/s · ${Math.round(FEED.lat)}ms`;
+}
+const BROKERS = () => [
+  ['kite', 'Zerodha Kite Connect', 'ZK', '#4c7cf3', L('About ₹500/month (verify)', 'Lagbhag ₹500/mahina (check karein)'), ['WebSocket quotes', 'Instruments + option chain', 'Historical candles']],
+  ['dhan', 'Dhan', 'DH', '#7a5af8', L('Data API about ₹499/month (verify)', 'Data API lagbhag ₹499/mahina (check karein)'), ['Option chain API', 'WebSocket feed', 'Historical data']],
+  ['upstox', 'Upstox', 'UP', '#5b3fd6', L('Pricing varies (verify)', 'Pricing alag-alag (check karein)'), ['Option chain API', 'WebSocket feed', 'Historical candles']],
+  ['angel', 'Angel One SmartAPI', 'AO', '#e0752d', L('Reported free (verify)', 'Free bataya jaata hai (check karein)'), ['WebSocket feed', 'Historical data', 'Order APIs']],
+  ['fyers', 'Fyers', 'FY', '#2f9e8f', L('Reported free (verify)', 'Free bataya jaata hai (check karein)'), ['WebSocket feed', 'Minute history 1–2 yrs', 'Order APIs']],
+  ['breeze', 'ICICI Breeze', 'IB', '#b4492f', L('Reported free (verify)', 'Free bataya jaata hai (check karein)'), ['Option chain API', 'WebSocket feed', 'Historical data']],
+];
+MODS.broker = {
+  mount(v) {
+    v.innerHTML = phead('Broker & Data', L('Connect your broker’s data feed. Until then the app runs on a simulated feed, shown live below with the same health metrics a real WebSocket would report.', 'Apne broker ka data feed jodo. Tab tak app simulated feed par chalta hai, jiski health neeche live dikh rahi hai, bilkul asli WebSocket jaisi.'), '<span class="pill warn">Demo · simulated feed</span>') +
+      `<div class="bk-hero">
+        <section class="card"><div class="card-h"><h3>Feed status</h3></div><div class="card-b bk-st">
+          <div class="bk-big"><span class="dot"></span><span>${L('Simulated feed · streaming', 'Simulated feed · chal raha hai')}</span></div>
+          <div class="bk-m"><div><span>TICKS / SEC</span><b id="bkTps">0</b></div><div><span>LATENCY</span><b id="bkLat">0 ms</b></div><div><span>INSTRUMENTS</span><b id="bkIns">0</b></div><div><span>TICKS TODAY</span><b id="bkTot">0</b></div><div><span>UPTIME</span><b id="bkUp">0s</b></div><div><span>RECONNECTS</span><b>0</b></div></div>
+          <div class="chart" id="bkSpark" style="height:60px"></div>
+        </div></section>
+        <section class="card"><div class="card-h"><h3>${L('Live tick stream', 'Live tick stream')}</h3><span class="sub">${L('What the app receives, tick by tick', 'App ko tick-by-tick kya mil raha hai')}</span></div><div class="card-b"><ul class="ts" id="bkTs"></ul></div></section>
+      </div>
+      <section class="card" style="margin-top:12px"><div class="card-h"><h3>${L('Data pipeline', 'Data pipeline')}</h3><span class="sub">${L('How ticks travel from the broker to your screen', 'Tick broker se aapki screen tak kaise pahunchta hai')}</span></div><div class="card-b pipe" id="bkPipe"></div></section>
+      <h3 class="th-g" style="margin-top:18px">${L('Choose a broker', 'Broker chuno')}</h3>
+      <div class="bk-g">${BROKERS().map(([id, n, ab, col, cost, feats]) => `<div class="bk"><div class="bk-h"><span class="lg" style="background:${col}">${ab}</span><div><b>${n}</b><small>${cost}</small></div></div><ul>${feats.map(f => `<li>${f}</li>`).join('')}</ul><button class="go" data-bk="${id}">${L('Connect', 'Connect karo')} →</button></div>`).join('')}</div>
+      <section class="card" style="margin-top:12px"><div class="card-h"><h3>${L('Subscriptions', 'Subscriptions')}</h3><span class="sub">${L('What the feed streams', 'Feed kya-kya bhejta hai')}</span></div><div class="card-b">${SUBS.map(([k, n, c]) => `<div class="rule"><b id="sb-${k}">${n}</b><p>${c} ${L('instruments', 'instruments')}</p><button class="sw" role="switch" aria-labelledby="sb-${k}" aria-checked="${FEED.subs[k]}" data-sub="${k}"></button></div>`).join('')}</div></section>
+      <p class="note">${L('Demo: nothing connects to a broker from this page. Real login comes in Phase 1, with API keys kept on your own server, never in the browser. Prices shown for each broker come from public articles and change often.', 'Demo: is page se koi broker connect nahi hota. Asli login Phase 1 mein aayega, API keys aapke apne server par rahengi, browser mein kabhi nahi. Har broker ka price public articles se liya hai aur badalta rehta hai.')}</p>
+      <div class="modal" id="bkModal" hidden></div>`;
+    this.pipe();
+    v.querySelectorAll('[data-sub]').forEach(b => b.onclick = () => { const k = b.dataset.sub; FEED.subs[k] = !FEED.subs[k]; b.setAttribute('aria-checked', FEED.subs[k]); });
+    v.querySelectorAll('[data-bk]').forEach(b => b.onclick = () => this.open(b.dataset.bk));
+    clearInterval(this.iv);
+    this.iv = setInterval(() => { if (!$('#bkTs')) { clearInterval(this.iv); return; } if (!document.hidden) this.stream(); }, 170);
+  },
+  open(id) {
+    const B = BROKERS().find(x => x[0] === id), M = $('#bkModal');
+    M.innerHTML = `<div class="modal-b" role="dialog" aria-label="Connect ${B[1]}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${B[1]}</b><small>${L('Connection steps', 'Connect karne ke steps')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
+      <div class="stp" style="margin-top:12px"><i>1</i><b>${L('Create an app on the broker’s developer portal', 'Broker ke developer portal par app banao')}</b><p>${L('You get an API key and secret. Set the redirect URL to your Professor OI server.', 'Wahan API key aur secret milega. Redirect URL apne Professor OI server ka do.')}</p></div>
+      <div class="stp"><i>2</i><b>${L('Add the keys on your server', 'Keys apne server par daalo')}</b><label class="field"><span>API key</span><input id="bkKey" disabled placeholder="Phase 1"></label><span class="lock2">🔒 ${L('Disabled in the demo. Keys will live encrypted on your server, never in this page.', 'Demo mein band hai. Keys encrypted hokar aapke server par rahengi, is page mein kabhi nahi.')}</span></div>
+      <div class="stp"><i>3</i><b>${L('Log in with the broker (daily)', 'Broker se login karo (roz)')}</b><p>${L('Brokers issue a fresh access token each trading day.', 'Broker har trading din naya access token dete hain.')}</p><button class="ibtn" disabled style="grid-column:2;justify-self:start">${L('Login with', 'Login with')} ${B[1]} · Phase 1</button></div>
+      <div class="stp"><i>4</i><b>${L('Pick what to stream', 'Kya stream karna hai chuno')}</b><p>${L('NIFTY and BANKNIFTY chains, F&O futures and indices, as in Subscriptions.', 'NIFTY aur BANKNIFTY chain, F&O futures aur indices, Subscriptions jaisa.')}</p></div>
+      <button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Keep using the simulated feed', 'Abhi simulated feed hi chalao')}</button></div>`;
+    M.hidden = false;
+    const close = () => { M.hidden = true; };
+    $('#bkClose').onclick = close; $('#bkSim').onclick = close; M.onclick = e => { if (e.target === M) close(); };
+  },
+  pipe() {
+    const el = $('#bkPipe'), w = Math.max(320, el.clientWidth), mob = w < 620, h = mob ? 300 : 120;
+    const nodes = [['Broker WebSocket', 'ticks · quotes · OI'], ['Ingest service', 'Python · OI, Greeks, walls'], ['Redis + TimescaleDB', 'live cache · history'], ['Gateway', 'push · alerts'], ['Your screen', 'this app']];
+    const pos = nodes.map((_, i) => mob ? [w / 2, 30 + i * 60] : [78 + i * (w - 156) / 4, 52]);
+    let s = '';
+    for (let i = 0; i < 4; i++) { const [x1, y1] = pos[i], [x2, y2] = pos[i + 1], d = `M${x1},${y1} L${x2},${y2}`; s += `<path d="${d}" style="stroke:var(--line-2);stroke-width:1.5;fill:none"/>`; for (let j = 0; j < 3; j++) s += `<circle r="3" style="fill:var(--accent)"><animateMotion dur="${1.6 + i * 0.1}s" begin="${-j * 0.53 - i * 0.2}s" repeatCount="indefinite" path="${d}"/></circle>`; }
+    nodes.forEach(([a, b], i) => { const [x, y] = pos[i]; s += `<rect x="${x - 74}" y="${y - 17}" width="148" height="34" rx="6" style="fill:var(--panel);stroke:var(--line-2)"/><text x="${x}" y="${y - 2}" text-anchor="middle">${a}</text><text x="${x}" y="${y + 11}" text-anchor="middle" class="sub">${b}</text>`; });
+    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Data pipeline">${s}</svg>`;
+  },
+  stream() {
+    const ul = $('#bkTs'), pick = Math.random(), now = new Date(), ts = `${tls(app.edge)}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+    let name, px, ch, vol;
+    if (pick < 0.55 && (FEED.subs.nifty || FEED.subs.bank)) {
+      const sym = FEED.subs.nifty && (!FEED.subs.bank || Math.random() < 0.6) ? 'NIFTY' : 'BANKNIFTY', s = liveSt(sym), D = getData(sym), k = clamp(s.atmK + Math.round((Math.random() - 0.5) * 10), 0, D.K - 1), ce = Math.random() < 0.5;
+      name = `${sym} ${D.strikes[k]} ${ce ? 'CE' : 'PE'}`; px = (ce ? s.cP[k] : s.pP[k]) + (Math.random() - 0.5) * 0.4; ch = ce ? s.cCh[k] : s.pCh[k]; vol = Math.round(25 + Math.random() * 900) * D.c.lot;
+    } else if (FEED.subs.stocks) { const u = UL[Math.floor(Math.random() * UL.length)], t0 = Math.floor(app.edge); name = `${u.s} FUT`; px = u.px[t0] * (1 + (Math.random() - 0.5) * 0.0004); ch = u.px[t0] - u.prev; vol = Math.round(1 + Math.random() * 40) * u.lot; }
+    else return;
+    const li = document.createElement('li'); li.innerHTML = `<span class="tt">${ts}</span><b>${esc(name)}</b><span class="${ch >= 0 ? 'up' : 'dn'}">${f2(px)}</span><span class="mut">${compact(vol)}</span>`;
+    ul.prepend(li); while (ul.children.length > 24) ul.lastChild.remove();
+    setText($('#bkTps'), String(Math.round(FEED.tps))); setText($('#bkLat'), Math.round(FEED.lat) + ' ms'); setText($('#bkIns'), String(feedInstr())); setText($('#bkTot'), inr(FEED.ticks));
+    const up = Math.floor((Date.now() - FEED.up0) / 1000); setText($('#bkUp'), up >= 60 ? `${Math.floor(up / 60)}m ${up % 60}s` : up + 's');
+    if (FEED.hist.length > 1 && (!this.sp || Date.now() - this.sp > 400)) { this.sp = Date.now(); $('#bkSpark').innerHTML = spark(FEED.hist, 'var(--amber)'); $('#bkSpark svg').style.cssText = 'width:100%;height:60px;display:block'; }
+  },
+  update() {},
 };
 
 /* ---- Journal + OI ---- */
@@ -2485,7 +2827,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['All Tools', 'Saare tools ek hub mein, live mini preview ke saath (naya)'], ['OI Charts', 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)'], ['Premium decay', 'ATM CE, PE aur straddle ka decay + theta (naya)'], ['Broker & Data', '6 brokers, connect steps, live feed health, tick stream, pipeline (naya)'], ['Live motion', 'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
@@ -2517,7 +2859,7 @@ MODS.blueprint = {
 };
 
 /* ================= chrome: header, tape, dock, toasts, cmdk ================= */
-const SYM_PAGES = new Set(['chain', 'oi', 'heatmap', 'chart', 'gex', 'vol', 'straddle', 'strategy']);
+const SYM_PAGES = new Set(['chain', 'oi', 'oicharts', 'heatmap', 'chart', 'gex', 'vol', 'straddle', 'strategy']);
 function syncSym() {
   const D = getData(app.sym), st = isStock(app.sym);
   $$('#symsw [data-sym]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sym === app.sym));
@@ -2676,7 +3018,11 @@ function mount() {
   $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
   render(true);
 }
-function go(p) { if (!MODS[p]) return; app.page = p; try { history.replaceState(null, '', '#' + p); } catch (e) {} mount(); window.scrollTo(0, 0); }
+function go(p, anchor) {
+  if (!MODS[p]) return; app.page = p; try { history.replaceState(null, '', '#' + p); } catch (e) {} mount(); window.scrollTo(0, 0);
+  if (anchor) setTimeout(() => { const el = document.getElementById(anchor); if (!el) return; const c = el.closest('.card') || el; c.scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'start'}); c.classList.remove('flashcard'); void c.offsetWidth; c.classList.add('flashcard'); }, 380);
+}
+$('#feedChip').onclick = () => go('broker');
 
 const TICK = 400, MIN_MS = 2000;
 setInterval(() => {
@@ -2685,7 +3031,7 @@ setInterval(() => {
   app.edge = Math.min(N, app.edge + TICK / MIN_MS);
   if (app.mode === 'live') app.tf = app.edge;
   else if (app.playing) { app.tf = Math.min(app.edge, app.tf + TICK / MIN_MS * app.speed); if (app.tf >= app.edge - 1e-6) { app.mode = 'live'; app.tf = app.edge; } }
-  paperTick();
+  paperTick(); feedTick();
   fireToasts(prev, app.edge);
   if (app.mode === 'live' && prev >= N && app.edge >= N) return;
   render();
