@@ -1,0 +1,18 @@
+{
+  "_read_me": "Step 1: set broker. Step 2: fill ONLY that broker's keys below. Step 3: save and run Start-Live-Broker. Never share this file or paste it in any chat.",
+  "broker": "demo",
+  "_broker_choices": "demo | kite | upstox | fyers | dhan | angel | breeze",
+
+  "symbols": ["NIFTY", "BANKNIFTY"],
+  "strikes_each_side": 15,
+  "port": 8765,
+  "redirect_url": "",
+  "_redirect_url_help": "Leave empty to use http://127.0.0.1:8765/callback. If your broker app has a different redirect URL saved, put that exact URL here.",
+
+  "kite":   { "api_key": "", "api_secret": "" },
+  "upstox": { "api_key": "", "api_secret": "" },
+  "fyers":  { "app_id": "", "secret_key": "" },
+  "dhan":   { "client_id": "", "access_token": "", "app_id": "", "app_secret": "" },
+  "angel":  { "api_key": "", "client_code": "", "pin": "", "totp_secret": "" },
+  "breeze": { "api_key": "", "api_secret": "" }
+}

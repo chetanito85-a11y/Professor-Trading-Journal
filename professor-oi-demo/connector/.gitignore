@@ -1,0 +1,5 @@
+# your keys, today's login and cached data never leave this PC
+config.json
+session.json
+cache/
+__pycache__/

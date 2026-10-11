@@ -1,7 +1,7 @@
 @echo off
 title Professor OI Terminal
 cd /d "%~dp0"
-set PORT=8765
+set PORT=8764
 set PY=
 
 rem Python mila to local server chalao, warna seedha file kholo

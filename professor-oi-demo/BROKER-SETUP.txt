@@ -1,0 +1,150 @@
+PROFESSOR OI: APNA BROKER CONNECT KARO (LIVE DATA)
+==================================================
+
+Ye kaise kaam karta hai
+-----------------------
+Aapke PC par ek chhota program ("connector") chalta hai. Wo aapke broker
+mein login karta hai, har kuch second mein option chain laata hai, aur
+Professor OI app ko bhejta hai. App khulta hai:  http://127.0.0.1:8765
+
+  Broker API  ->  connector (aapka PC)  ->  Professor OI app (browser)
+
+Aapki API key aur secret SIRF connector\config.json mein rehti hain,
+aapke apne PC par. Web page tak kabhi nahi pahunchti.
+
+  !!  config.json kisi ko mat bhejo. Kisi chat mein (Claude bhi) paste mat karo.
+  !!  Galti se share ho jaye to broker ki site par turant naya secret banao.
+
+
+Ek baar ka setup (5 minute)
+---------------------------
+1. Python 3.12 install karo:  https://www.python.org/downloads/
+   Windows par setup mein "Add python.exe to PATH" par tick zaroor lagao.
+   (Kuch aur install nahi karna. Connector ko koi pip package nahi chahiye.)
+
+2. Neeche apne broker ka section padho. Broker ki developer site par app
+   banao, aur jahan "Redirect URL" maange wahan ye daalo:
+
+       http://127.0.0.1:8765/callback
+
+3. "Start-Live-Broker.bat" (Windows) ya "Start-Live-Broker.command" (Mac)
+   par double-click karo. Pehli baar Notepad mein config.json khulega:
+     - "broker" mein apna broker likho, jaise  "broker": "kite"
+     - usi broker ke section mein keys bharo
+     - Save karo, Notepad band karo.
+
+4. Browser khulega. "Broker & Data" page par "Login with ..." dabao,
+   broker ki site par login karo. Wapas aate hi "Live Chain" page
+   live data se bhar jayega.
+
+Bina keys ke try karna ho: "broker": "demo" rehne do. Demo broker se poora
+flow (login, live chain, ticks) dekh sakte ho.
+
+
+Roz subah
+---------
+Start-Live-Broker chalao -> "Login with ..." dabao. Bas.
+Brokers ka token ek trading din chalta hai, isliye roz login karna padta hai.
+Usi din dobara start karoge to connector purana login khud use kar lega.
+Pura din ka OI change dekhna hai to connector 09:15 se pehle chalao.
+
+
+BROKER-WISE STEPS
+=================
+
+Zerodha Kite Connect   ("broker": "kite")
+-----------------------------------------
+- Site: https://developers.kite.trade  -> Create new app (Connect).
+- Redirect URL: http://127.0.0.1:8765/callback
+- config.json:  "kite": { "api_key": "...", "api_secret": "..." }
+- Kite Connect paid plan hai (lagbhag Rs 500/mahina, site par check karo).
+  Live quotes tabhi chalenge jab plan active ho.
+- Kite pichhle din ka OI nahi bhejta. OI change us waqt se gina jaata hai
+  jab connector ne aaj pehli baar data liya.
+
+Upstox   ("broker": "upstox")
+-----------------------------
+- Site: https://account.upstox.com/developer/apps  -> New app.
+- Redirect URL: http://127.0.0.1:8765/callback  (bilkul same, http aur port ke saath)
+- config.json:  "upstox": { "api_key": "...", "api_secret": "..." }
+
+Fyers   ("broker": "fyers")
+---------------------------
+- Site: https://myapi.fyers.in/dashboard  -> Create app.
+  App ID kuch aisa dikhta hai: XXXXXXXX-100
+- Redirect URL: http://127.0.0.1:8765/callback
+- config.json:  "fyers": { "app_id": "XXXXXXXX-100", "secret_key": "..." }
+
+Dhan   ("broker": "dhan")
+-------------------------
+Sabse aasaan tarika (token):
+- web.dhan.co -> My Profile -> Access DhanHQ APIs -> Access token banao.
+- config.json:  "dhan": { "client_id": "aapka Dhan client ID", "access_token": "..." }
+- Token lagbhag ek din chalta hai. Expire ho jaye to naya bana kar
+  config.json mein daalo aur connector dobara chalao.
+API key + secret wala tarika:
+- "access_token" khaali chhodo, "app_id" aur "app_secret" bharo,
+  aur Dhan app mein Redirect URL  http://127.0.0.1:8765/callback  rakho.
+- Dhan ka option chain API 3 second mein 1 request deta hai, isliye
+  Dhan par update thoda dheere aata hai.
+
+Angel One SmartAPI   ("broker": "angel")
+----------------------------------------
+- Site: https://smartapi.angelone.in -> My Apps -> Create app (Market Feeds API).
+- Redirect URL ki zaroorat nahi. Connector khud login karta hai.
+- TOTP on karo: https://smartapi.angelone.in/enable-totp
+  QR code ke neeche jo text key dikhti hai, wahi "totp_secret" hai.
+- config.json:
+    "angel": { "api_key": "...", "client_code": "aapka Angel client ID",
+               "pin": "MPIN", "totp_secret": "QR ke neeche wali key" }
+- pin ya totp_secret file mein nahi rakhna chahte? Khaali chhod do.
+  Broker page login ke waqt MPIN aur 6 digit TOTP maangega.
+- Pehli baar Angel ki instrument list (badi file) download hoti hai,
+  usme ek minute tak lag sakta hai. Din mein ek hi baar hota hai.
+
+ICICI Direct Breeze   ("broker": "breeze")
+------------------------------------------
+- Site: https://api.icicidirect.com/apiuser/home -> Register an app.
+- Redirect URL: http://127.0.0.1:8765/callback
+- config.json:  "breeze": { "api_key": "...", "api_secret": "..." }
+- Yahan NIFTY aur BANKNIFTY aate hain.
+
+
+Broker kisi aur page par le gaya?
+---------------------------------
+Agar broker app mein aapne pehle se koi aur Redirect URL rakha hai
+(jaise google.com), to login ke baad wahi page khulega. Tab:
+  1. Us page ke browser address bar ka POORA address copy karo.
+  2. Professor OI -> Broker & Data -> "Broker kisi aur page par le gaya?"
+     -> paste karo -> Connect.
+Upstox aur Fyers ke liye config.json mein "redirect_url" bhi wahi likhna
+hoga jo broker app mein saved hai.
+
+
+Kuch aur settings (config.json)
+-------------------------------
+"symbols": ["NIFTY", "BANKNIFTY"]   FINNIFTY, MIDCPNIFTY bhi (Breeze chhod kar)
+"strikes_each_side": 15             ATM ke upar-neeche kitne strikes (5 se 30)
+"port": 8765                        badla to Redirect URL ka port bhi badlo
+"expiry_NIFTY": "2026-10-13"        broker section ke andar, koi aur expiry chahiye to
+                                    (Fyers ke alawa sab brokers)
+
+
+Dikkat aaye to
+--------------
+- Kaali window mein jo message likha hai wahi asli wajah hai. Broker page
+  par bhi wahi message dikhta hai.
+- "Port 8765 is busy": connector pehle se chal raha hai, ya
+  Start-Professor-OI (demo) window khuli hai. Use band karo.
+- "Login expired": roz ka login khatam. "Login with ..." dobara dabao.
+- "SSL certificate" error (Mac): Python folder mein
+  "Install Certificates.command" chalao.
+- Galat keys: broker site par keys check karo, config.json save karo,
+  connector band karke dobara chalao.
+
+Abhi kya live hai: "Live Chain" page (NIFTY, BANKNIFTY ki asli chain:
+OI, OI change, IV, buildup, max pain, PCR, din bhar ka chart), header ka
+ticker aur Broker page ke live ticks. Baaki pages abhi demo data par hain;
+unpar upar ek patti yahi batati hai.
+
+Ye tool sirf analysis ke liye hai, trading advice nahi.

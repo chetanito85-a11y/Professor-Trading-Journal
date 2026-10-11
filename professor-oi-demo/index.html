@@ -709,6 +709,62 @@ main{padding:16px 22px 120px}
 @media (max-width:1100px){.fchip span{display:none}}
 @media (prefers-reduced-motion: reduce){.chart .pl,.fchip .dot,.bk-big .dot{animation:none}}
 .card{scroll-margin-top:calc(var(--top) + 14px)}
+/* ---- v7: live connector ---- */
+.fchip.lv{color:var(--put);border:1px solid color-mix(in srgb,var(--put) 55%,transparent);background:color-mix(in srgb,var(--put) 8%,transparent)}
+.fchip.lg{color:var(--amber);border-style:solid}
+.fchip.off{color:var(--call);border:1px solid color-mix(in srgb,var(--call) 55%,transparent)}
+.fchip.off .dot{animation:none}
+.lvban{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;border:1px solid var(--line);border-left:3px solid var(--put);border-radius:6px;background:var(--panel);font-size:12px;color:var(--muted)}
+.lvban b{color:var(--fg)}
+.lvban .ibtn{margin-left:auto}
+.lvc-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:18px}
+.lvc-l{display:flex;flex-direction:column;gap:12px;min-width:0}
+.lvc-r{min-width:0}
+.lvmsg{margin:0;padding:8px 10px;border-radius:6px;font-size:12px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);overflow-wrap:anywhere}
+.lvmsg.dn{color:var(--call)}.lvmsg.warn{color:var(--amber)}
+.lvact p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.lvgo{display:inline-block;padding:9px 16px;border-radius:7px;background:var(--ink);color:var(--ink-fg);font:700 12.5px var(--f-body);text-decoration:none;border:0;cursor:pointer;transition:transform .15s}
+.lvgo:hover{transform:translateY(-1px)}
+.lvrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lvrow input{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font:500 12px var(--f-mono)}
+.lvform{display:flex;flex-direction:column;gap:9px;max-width:340px}
+.lvform .lvgo{align-self:flex-start}
+.lverr{margin:6px 0 0;font-size:12px;color:var(--call);min-height:1em}
+.lvpaste{margin-top:12px;font-size:12px;color:var(--muted)}
+.lvpaste summary{cursor:pointer}
+.lvpaste p{margin:6px 0}
+.lvred{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px;font-size:11.5px;color:var(--muted)}
+.lvred code,.stp code{font:600 11.5px var(--f-mono);color:var(--fg);padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel-2);overflow-wrap:anywhere}
+.lvcfg{grid-column:2;margin:4px 0;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2);font:500 11.5px/1.5 var(--f-mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.lvwait{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.lvwait .lvsweep{width:100%;margin:0}
+.lvsweep{height:2px;background:var(--line);border-radius:2px;overflow:hidden;margin:-4px 0 12px}
+.lvsweep i{display:block;height:100%;width:100%;background:var(--put);transform-origin:left;transform:scaleX(0)}
+.lvsweep i.ind{width:30%;transform:none;animation:lvind 1.2s ease-in-out infinite}
+@keyframes lvsw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes lvind{from{margin-left:-30%}to{margin-left:100%}}
+.lvtb{min-width:980px}
+.bu{display:inline-block;margin-left:5px;padding:0 4px;border-radius:3px;font:700 9px/14px var(--f-mono);letter-spacing:.04em;vertical-align:1px}
+.bu.lb{color:var(--put);background:color-mix(in srgb,var(--put) 15%,transparent)}
+.bu.sb{color:var(--call);background:color-mix(in srgb,var(--call) 15%,transparent)}
+.bu.sc{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.bu.lu{color:var(--amber);background:color-mix(in srgb,var(--amber) 15%,transparent)}
+.lvb{transform-box:fill-box;transform-origin:50% 100%}
+.lvb.gr{animation:lvg .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes lvg{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.lvw{display:grid;grid-template-columns:96px 1fr 62px;gap:8px;align-items:center;font:600 11.5px var(--f-mono);padding:3px 0}
+.lvw i{display:block;height:6px;border-radius:3px;min-width:2px;transition:width .5s}
+.lvw span:last-child{text-align:right}
+.lvm{grid-template-columns:30px 1fr 24px}
+.lvw i.b-lb{background:var(--put)}.lvw i.b-sb{background:var(--call)}.lvw i.b-sc{background:var(--accent)}.lvw i.b-lu{background:var(--amber)}
+.lvh{font:700 9.5px var(--f-mono);letter-spacing:.14em;color:var(--faint);margin:12px 0 5px}
+.lvh:first-child{margin-top:0}
+.lvmix{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lvverd{margin:12px 0 0;font-size:12.5px;line-height:1.45}
+.lvverd.up{color:var(--put)}.lvverd.dn{color:var(--call)}
+.ti.lvt>b::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--put);color:var(--put);margin-left:5px;vertical-align:2px;animation:pulse 1.6s ease-out infinite}
+@media (max-width:900px){.lvc-b{grid-template-columns:minmax(0,1fr)}.lvw{grid-template-columns:84px 1fr 56px}}
+@media (prefers-reduced-motion: reduce){.lvb.gr,.ti.lvt>b::after,.lvsweep i.ind{animation:none}}
 </style>
 
 </head>
@@ -1058,6 +1114,8 @@ let LANG0 = 'en'; try { LANG0 = localStorage.getItem('poi-lang') || 'en'; } catc
 app.lang = LANG0;
 const L = (en, hi) => app.lang === 'hi' ? hi : en;
 const EN = new Map(Object.entries({
+  'Aapke broker ki asli chain: OI, OI change, IV, buildup, max pain, PCR, din bhar ka chart (naya)': 'Your broker’s real chain: OI, OI change, IV, buildup, max pain, PCR, intraday chart (new)',
+  '6 brokers ka asli login local connector se, live ticks, pipeline (naya)': 'Real login for 6 brokers through the local connector, live ticks, pipeline (new)',
   'Abhi': 'Now', 'Demo mein:': 'In this demo:', 'Asli app mein:': 'In the real app:', 'Dhyan rahe:': 'Note:', 'Har din average': 'Average per day', 'Har baar kya hua': 'Every occurrence',
   'Ticket mein lagao': 'Apply to ticket', 'Spot ki asli chaal': 'Actual spot movement', 'Journal mein dekho': 'View in journal', 'Pages · approve karo': 'Pages · approve',
   'Header se theme badlo': 'Switch theme from the header', 'Call OI change (neeche)': 'Call OI change (below)', 'IV smile · 09:15 vs abhi': 'IV smile · 09:15 vs now',
@@ -1170,11 +1228,13 @@ const IC = {
   radar: 'M12 12l6-6M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5', flask: 'M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M7.5 15h9',
   wave: 'M2 12c2.5-6 5.5-6 8 0s5.5 6 8 0 3-4 4-4M2 18h20', flowi: 'M3 5c7 0 7 7 14 7h4M3 19c7 0 7-7 14-7M3 12h6', tiles: 'M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z',
   apps: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z', bars: 'M4 20V10M10 20V4M16 20v-7M22 20H2', plug: 'M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4',
+  bolt: 'M13 2L4 14h7l-1 8 9-12h-7z',
   wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-4v4M16 13h2',
 };
 const PAGES = [
   {id: 'overview', label: 'Overview', ic: 'grid', grp: 'Live market'},
   {id: 'chain', label: 'Option Chain', ic: 'table'},
+  {id: 'livechain', label: 'Live Chain', ic: 'bolt', isNew: 1},
   {id: 'oi', label: 'OI Analysis', ic: 'layers'},
   {id: 'oicharts', label: 'OI Charts', ic: 'bars', isNew: 1},
   {id: 'heatmap', label: 'OI Heatmap', ic: 'heat', isNew: 1},
@@ -1196,7 +1256,7 @@ const PAGES = [
 ];
 const icon = (n, w = 1.7) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
 $('#rail').innerHTML = PAGES.map(p => `${p.grp ? `<h6>${p.grp}</h6>` : ''}<button class="nav-i" data-p="${p.id}" title="${esc(p.label)}">${icon(p.ic)}<span>${esc(p.label)}</span>${p.isNew ? '<em title="New"></em>' : ''}<small class="nb" id="nb-${p.id}"></small></button>`).join('') +
-  `<div class="rail-foot"><span class="rf-lbl">Language</span><div class="seg lang langsw" aria-label="Language"><button data-l="en">English</button><button data-l="hi">Hinglish</button></div><div class="rf-row"><span class="rf-lbl">Session</span><b id="rfSess">—</b></div><div class="rf-pro"><b>Professor OI</b><span>DEMO · v5</span></div></div>`;
+  `<div class="rail-foot"><span class="rf-lbl">Language</span><div class="seg lang langsw" aria-label="Language"><button data-l="en">English</button><button data-l="hi">Hinglish</button></div><div class="rf-row"><span class="rf-lbl">Session</span><b id="rfSess">—</b></div><div class="rf-pro"><b>Professor OI</b><span id="rfVer">DEMO · v7</span></div></div>`;
 $('#rail').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) go(b.dataset.p); });
 
 /* ================= small renderers ================= */
@@ -2608,6 +2668,7 @@ const FEED = {tps: 0, lat: 22, ticks: 0, hist: [], up0: Date.now(), subs: {nifty
 const SUBS = [['nifty', 'NIFTY option chain', 62], ['bank', 'BANKNIFTY option chain', 62], ['stocks', 'F&O stock futures', 197], ['idx', 'Indices (NIFTY, BANK, VIX)', 3]];
 const feedInstr = () => SUBS.reduce((a, [k, , n]) => a + (FEED.subs[k] ? n : 0), 0);
 function feedTick() {
+  if (LIVE.on) return liveFeedTick();
   const live = app.edge < N, base = feedInstr() * (live ? 0.62 : 0.02);
   FEED.tps = Math.max(0, base * (0.8 + 0.4 * Math.random()) * (app.edge < 20 ? 1.8 : 1));
   FEED.ticks += FEED.tps * 0.4; FEED.lat = clamp(FEED.lat + (Math.random() - 0.5) * 6, 9, 48);
@@ -2664,7 +2725,7 @@ MODS.broker = {
   },
   pipe() {
     const el = $('#bkPipe'), w = Math.max(320, el.clientWidth), mob = w < 620, h = mob ? 300 : 120;
-    const nodes = [['Broker WebSocket', 'ticks · quotes · OI'], ['Ingest service', 'Python · OI, Greeks, walls'], ['Redis + TimescaleDB', 'live cache · history'], ['Gateway', 'push · alerts'], ['Your screen', 'this app']];
+    const nodes = LIVE.on ? [['Broker API', 'option chain · OI'], ['Connector', 'Python · this PC'], ['Normalise', 'OI chg · IV · max pain'], ['Live stream', '127.0.0.1 · SSE'], ['Your screen', 'Live Chain']] : [['Broker API', 'option chain · OI'], ['Connector', 'Python · your PC'], ['Normalise', 'OI chg · IV · max pain'], ['Live stream', 'local · SSE'], ['Your screen', 'Live Chain']];
     const pos = nodes.map((_, i) => mob ? [w / 2, 30 + i * 60] : [78 + i * (w - 156) / 4, 52]);
     let s = '';
     for (let i = 0; i < 4; i++) { const [x1, y1] = pos[i], [x2, y2] = pos[i + 1], d = `M${x1},${y1} L${x2},${y2}`; s += `<path d="${d}" style="stroke:var(--line-2);stroke-width:1.5;fill:none"/>`; for (let j = 0; j < 3; j++) s += `<circle r="3" style="fill:var(--accent)"><animateMotion dur="${1.6 + i * 0.1}s" begin="${-j * 0.53 - i * 0.2}s" repeatCount="indefinite" path="${d}"/></circle>`; }
@@ -2686,6 +2747,381 @@ MODS.broker = {
     if (FEED.hist.length > 1 && (!this.sp || Date.now() - this.sp > 400)) { this.sp = Date.now(); $('#bkSpark').innerHTML = spark(FEED.hist, 'var(--amber)'); $('#bkSpark svg').style.cssText = 'width:100%;height:60px;display:block'; }
   },
   update() {},
+};
+
+/* ---- v7: real broker data through the local Professor OI Connector ---- */
+const LIVE = {on: false, st: null, chains: {}, prev: {}, hist: {}, es: null, down: false, sym: 'NIFTY', n: 0};
+const LIVE_PAGES = new Set(['livechain', 'broker', 'blueprint']);
+const LV_ST = () => ({
+  starting: [L('Starting…', 'Shuru ho raha hai…'), 'acc'],
+  need_config: [L('Keys missing in config.json', 'config.json mein keys nahi hain'), 'warn'],
+  need_login: [L('Login needed', 'Login karna hai'), 'warn'],
+  connecting: [L('Connecting…', 'Connect ho raha hai…'), 'acc'],
+  live: [L('Live', 'Live'), 'up'],
+  error: [L('Error, retrying', 'Error, dobara try ho raha hai'), 'dn'],
+});
+const BKG = () => ({
+  kite: {portal: 'developers.kite.trade → Create new app (Kite Connect)', keys: ['api_key', 'api_secret'], redirect: 1,
+    note: L('Kite Connect is a paid plan. Live quotes work only while it is active.', 'Kite Connect paid plan hai. Live quotes tabhi chalenge jab plan active ho.')},
+  dhan: {portal: 'web.dhan.co → My Profile → Access DhanHQ APIs', keys: ['client_id', 'access_token'], redirect: 0,
+    note: L('Easiest: generate an access token there (valid about a day) and paste it in config.json. Using an API key and secret instead? Fill app_id and app_secret, leave access_token empty, and set the redirect URL below.', 'Sabse aasaan: wahan access token banao (lagbhag ek din chalta hai) aur config.json mein daalo. API key aur secret use karna hai? app_id aur app_secret bharo, access_token khaali chhodo, aur neeche wala redirect URL set karo.')},
+  upstox: {portal: 'account.upstox.com/developer/apps → New app', keys: ['api_key', 'api_secret'], redirect: 1,
+    note: L('The redirect URL must match exactly, including http:// and the port.', 'Redirect URL bilkul same hona chahiye, http:// aur port ke saath.')},
+  angel: {portal: 'smartapi.angelone.in → My Apps → Create app (Market Feeds API)', keys: ['api_key', 'client_code', 'pin', 'totp_secret'], redirect: 0,
+    note: L('totp_secret is the text key shown under the QR code when you enable TOTP at smartapi.angelone.in/enable-totp. Leave pin or totp_secret empty to type them on this page instead.', 'totp_secret wo text key hai jo smartapi.angelone.in/enable-totp par TOTP on karte waqt QR code ke neeche dikhti hai. pin ya totp_secret khaali chhodoge to ye page unhe login ke waqt maangega.')},
+  fyers: {portal: 'myapi.fyers.in/dashboard → Create app (App ID looks like XXXX-100)', keys: ['app_id', 'secret_key'], redirect: 1,
+    note: L('Fyers tokens last one trading day, so log in each morning.', 'Fyers token ek trading din chalta hai, isliye roz subah login karo.')},
+  breeze: {portal: 'api.icicidirect.com/apiuser/home → Register an app', keys: ['api_key', 'api_secret'], redirect: 1,
+    note: L('Breeze supports NIFTY and BANKNIFTY here. The session lasts one day.', 'Yahan Breeze se NIFTY aur BANKNIFTY aate hain. Session ek din chalta hai.')},
+});
+const lvJ = e => { try { return JSON.parse(e.data); } catch (x) { return null; } };
+const fmtExp = e => { if (!e) return '—'; const d = new Date(e + 'T00:00:00'); return isNaN(d) ? e : d.toLocaleDateString('en-IN', {day: '2-digit', month: 'short'}); };
+const hmIST = t => new Date(t).toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Kolkata'});
+const lvPost = (url, body) => fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})}).then(r => r.json().catch(() => ({ok: r.ok})));
+const LBU = {lb: ['LB', 'Long buildup'], sb: ['SB', 'Short buildup'], sc: ['SC', 'Short covering'], lu: ['LU', 'Long unwinding']};
+const buKey = x => x.chg == null || !x.oic || !x.chg ? '' : x.chg > 0 ? (x.oic > 0 ? 'lb' : 'sc') : (x.oic > 0 ? 'sb' : 'lu');
+
+function liveInit() {
+  if (!/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
+  fetch('/api/status', {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(s => {
+    if (!s || s.app !== 'professor-oi-connector') return;
+    LIVE.on = true; LIVE.st = s; if (s.symbols && s.symbols.length) LIVE.sym = s.symbols[0];
+    liveSSE(); liveChrome(); mount();
+  }).catch(() => {});
+}
+function liveSSE() {
+  const es = LIVE.es = new EventSource('/stream');
+  es.addEventListener('status', e => {
+    const s = lvJ(e); if (!s) return; LIVE.st = s; LIVE.down = false; liveChrome();
+    if (app.page === 'broker') MODS.broker.livePanel();
+    if (app.page === 'livechain' && !MODS.livechain.ready) mount();
+  });
+  es.addEventListener('chain', e => {
+    const c = lvJ(e); if (!c) return; const p = LIVE.chains[c.sym]; if (p && p.ts === c.ts) return;
+    LIVE.prev[c.sym] = p; LIVE.chains[c.sym] = c; LIVE.n++;
+    if (app.page === 'broker') MODS.broker.liveTicks(c, p);
+  });
+  es.addEventListener('stats', e => { const x = lvJ(e); if (x && LIVE.st) Object.assign(LIVE.st, x); });
+  es.addEventListener('history', e => { const h = lvJ(e); if (h) LIVE.hist[h.sym] = h.rows || []; });
+  es.addEventListener('point', e => {
+    const p = lvJ(e); if (!p) return; const h = LIVE.hist[p.sym] || (LIVE.hist[p.sym] = []), l = h[h.length - 1];
+    if (l && Math.floor(l.t / 6e4) === Math.floor(p.pt.t / 6e4)) h[h.length - 1] = p.pt; else h.push(p.pt);
+  });
+  es.onerror = () => { if (!LIVE.down) { LIVE.down = true; liveChrome(); if (app.page === 'broker') MODS.broker.livePanel(); } };
+}
+function liveChrome() {
+  const ch = $('#feedChip'); if (!ch || !LIVE.on) return;
+  const s = LIVE.st || {}, b = (s.broker || '').toUpperCase();
+  const [txt, cls] = LIVE.down ? ['CONNECTOR OFF', 'off'] : s.state === 'live' ? ['LIVE · ' + b, 'lv'] : s.state === 'error' ? ['RETRYING · ' + b, 'off'] : s.state === 'need_login' || s.state === 'need_config' ? ['LOGIN · ' + b, 'lg'] : ['CONNECTING · ' + b, 'lg'];
+  ch.classList.remove('lv', 'lg', 'off'); ch.classList.add(cls); setText(ch.querySelector('b'), txt);
+  ch.title = L('Live broker feed · open Broker & Data', 'Live broker feed · Broker & Data kholo');
+  const nb = $('#nb-livechain'); if (nb) { setText(nb, s.state === 'live' && !LIVE.down ? 'LIVE' : ''); nb.className = 'nb up'; }
+  setText($('#rfVer'), (s.state === 'live' && !LIVE.down ? 'LIVE' : 'CONNECTOR') + ' · v7');
+}
+function liveFeedTick() {
+  const c = LIVE.chains[LIVE.sym], age = c ? Math.max(0, Math.round((Date.now() - c.ts) / 1000)) : null;
+  setText($('#feedTps'), age == null ? '—' : age + 's');
+  if (app.page === 'livechain') MODS.livechain.age();
+  if (app.page === 'broker') MODS.broker.liveStats();
+}
+function liveTape() {
+  if (LIVE_PAGES.has(app.page)) {
+    const s = LIVE.st || {}, open = s.market_open && !LIVE.down;
+    setText($('#clock'), hmIST(Date.now()) + ' IST'); setText($('#statusTxt'), open ? 'Live' : 'Market closed'); $('#status').className = 'pill ' + (open ? 'up live' : '');
+  }
+  for (const sym of ['NIFTY', 'BANKNIFTY']) {
+    const c = LIVE.chains[sym]; if (!c) continue;
+    $$(`#tape .ti[data-tk="${sym}"]`).forEach(el => { el.classList.add('lvt'); setText(el.children[1], inr2(c.spot)); const b = el.children[2]; setText(b, 'LIVE'); b.className = 'b up'; });
+  }
+  const c = LIVE.chains.NIFTY; if (c && c.sum.pcr != null) $$('#tape .ti[data-tk="PCR"]').forEach(el => { el.classList.add('lvt'); setText(el.children[1], c.sum.pcr.toFixed(2)); });
+}
+function liveBan(v) {
+  if (!LIVE.on || LIVE_PAGES.has(app.page)) return;
+  const s = LIVE.st || {}, ok = s.state === 'live' && !LIVE.down;
+  v.insertAdjacentHTML('afterbegin', `<div class="lvban" id="lvBan"><span class="pill ${ok ? 'up live' : 'warn'}"><span class="dot"></span>${ok ? 'LIVE' : 'CONNECTOR'}</span><span>${ok ? L('Your broker is connected. <b>Live Chain</b> shows real data; this page still runs on demo data.', 'Broker connected hai. <b>Live Chain</b> asli data dikhata hai; ye page abhi demo data par hai.') : L('The connector is running but not logged in yet.', 'Connector chal raha hai par login abhi nahi hua.')}</span><button class="ibtn">${ok ? L('Open Live Chain', 'Live Chain kholo') : L('Log in', 'Login karo')} →</button></div>`);
+  $('#lvBan button').onclick = () => go(ok ? 'livechain' : 'broker');
+}
+
+/* bars per strike: CE and PE side by side, spot and max-pain markers */
+function lvBars(el, c, fa, fb, o) {
+  const w = Math.max(300, el.clientWidth || 600), h = o.h || 220, pl = 52, pr = 10, pt = 14, pb = 24, R = c.rows, n = R.length;
+  const va = R.map(fa), vb = R.map(fb);
+  let mn = Math.min(0, ...va, ...vb), mx = Math.max(0, ...va, ...vb); if (mx - mn < 1) mx = mn + 1;
+  const bw = (w - pl - pr) / n, X = i => pl + i * bw, Y = v => pt + (1 - (v - mn) / (mx - mn)) * (h - pt - pb), y0 = Y(0);
+  let g = '', b = '';
+  for (const t of niceTicks(mn, mx, 4)) g += `<line class="grid" x1="${pl}" x2="${w - pr}" y1="${Y(t)}" y2="${Y(t)}"/><text class="axl" x="${pl - 7}" y="${Y(t) + 3.5}" text-anchor="end">${compact(t)}</text>`;
+  const every = Math.max(1, Math.ceil(n / Math.max(3, Math.floor((w - pl) / 58))));
+  const q = Math.max(1.5, bw * 0.36), an = o.anim && !REDUCE ? ' gr' : '';
+  const rect = (v, x, col, tip) => { const y = Y(v); return `<rect class="lvb${an}" x="${x.toFixed(1)}" y="${Math.min(y, y0).toFixed(1)}" width="${q.toFixed(1)}" height="${Math.max(0.6, Math.abs(y - y0)).toFixed(1)}" rx="1.5" style="fill:${col}${v < 0 ? ';transform-origin:50% 0' : ''}"><title>${tip}</title></rect>`; };
+  R.forEach((r, i) => {
+    b += rect(va[i], X(i) + bw * 0.12, 'var(--call)', `${inr(r.k)} CE · ${o.fmt(va[i])}`) + rect(vb[i], X(i) + bw * 0.52, 'var(--put)', `${inr(r.k)} PE · ${o.fmt(vb[i])}`);
+    if (i % every === 0) g += `<text class="axl" x="${(X(i) + bw / 2).toFixed(1)}" y="${h - 7}" text-anchor="middle">${r.k}</text>`;
+  });
+  const xAt = k => { for (let i = 0; i < n - 1; i++) if (k >= R[i].k && k <= R[i + 1].k) return X(i) + bw / 2 + (k - R[i].k) / (R[i + 1].k - R[i].k) * bw; return k < R[0].k ? X(0) : X(n - 1) + bw; };
+  if (mn < 0) b += `<line x1="${pl}" x2="${w - pr}" y1="${y0}" y2="${y0}" style="stroke:var(--line-2)"/>`;
+  if (o.mp) { const x = xAt(o.mp); b += `<line x1="${x}" x2="${x}" y1="${pt}" y2="${h - pb}" style="stroke:var(--amber);stroke-dasharray:2 3"/><text class="axl" x="${x + 4}" y="${pt + 20}" style="fill:var(--amber)">${L('Max pain', 'Max pain')} ${inr(o.mp)}</text>`; }
+  const sx = xAt(c.spot);
+  b += `<line x1="${sx}" x2="${sx}" y1="${pt - 6}" y2="${h - pb}" style="stroke:var(--fg);stroke-dasharray:4 3;opacity:.75"/><text class="axl" x="${sx + 4}" y="${pt + 4}" style="fill:var(--fg)">Spot ${inr2(c.spot)}</text>`;
+  el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(o.label)}">${g}${b}</svg>`;
+}
+
+MODS.livechain = {
+  mount(v) {
+    this.ready = false; this.ts = 0; this.key = '';
+    const s = LIVE.st || {}, syms = (s.symbols || ['NIFTY']).map(x => `<button data-ls="${esc(x)}" aria-pressed="${x === LIVE.sym}">${esc(x)}</button>`).join('');
+    const seg = LIVE.on ? `<div class="seg" id="lvSym">${syms}</div>` : '';
+    if (!LIVE.on) {
+      v.innerHTML = phead('Live Chain', L('The real option chain from your own broker account, through a small connector that runs on your PC.', 'Aapke apne broker account se asli option chain, ek chhote connector ke through jo aapke PC par chalta hai.'), `<span class="pill warn">${L('Not connected', 'Connected nahi')}</span>`) +
+        `<section class="card"><div class="card-h"><h3>${L('Connect in 3 steps', '3 steps mein connect karo')}</h3></div><div class="card-b grid g3">
+          <div><b>1 · config.json</b><p class="note" style="margin-top:4px">${L('Open the connector folder, copy config.example.json to config.json and fill your broker’s keys. Keys stay on your PC.', 'connector folder kholo, config.example.json ko config.json bana kar apne broker ki keys bharo. Keys aapke PC par hi rehti hain.')}</p></div>
+          <div><b>2 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('Double-click it. Professor OI opens at 127.0.0.1:8765 with the connector behind it.', 'Us par double-click karo. Professor OI 127.0.0.1:8765 par connector ke saath khulega.')}</p></div>
+          <div><b>3 · ${L('Log in', 'Login')}</b><p class="note" style="margin-top:4px">${L('On the Broker page, click “Login with …”. This page fills with live OI within seconds.', 'Broker page par “Login with …” dabao. Kuch second mein ye page live OI se bhar jayega.')}</p></div>
+        </div></section>
+        <p class="note">${L('You are on the offline copy (opened as a file or online preview), so there is nothing to connect to here. Every other page runs on demo data.', 'Aap offline copy par hain (file ya online preview), isliye yahan connect karne ko kuch nahi hai. Baaki sab pages demo data par chalte hain.')}</p>
+        <button class="place" id="lvHow" style="margin-top:6px">${L('Broker setup guide', 'Broker setup guide')} →</button>`;
+      $('#lvHow').onclick = () => go('broker');
+      return;
+    }
+    const c = LIVE.chains[LIVE.sym];
+    const bindSeg = () => $$('#lvSym [data-ls]').forEach(b => b.onclick = () => { LIVE.sym = b.dataset.ls; mount(); });
+    if (!c) {
+      const [txt, tone] = LIVE.down ? [L('Connector stopped', 'Connector band hai'), 'dn'] : (LV_ST()[s.state] || [s.state, 'warn']);
+      const wait = s.state === 'live' || s.state === 'connecting';
+      v.innerHTML = phead(`${esc(LIVE.sym)} · ${L('live chain', 'live chain')}`, L('Waiting for the first option chain from your broker.', 'Broker se pehli option chain ka intezaar.'), seg) +
+        `<section class="card"><div class="card-b lvwait"><span class="pill ${tone}"><span class="dot"></span>${txt}</span>${s.msg ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}
+          <p class="note">${wait ? L('The first chain usually arrives in a few seconds. Angel and Kite download their instrument list once a day first, which can take up to a minute.', 'Pehli chain aam taur par kuch second mein aati hai. Angel aur Kite din mein ek baar pehle instrument list download karte hain, usme ek minute tak lag sakta hai.') : L('Finish the login on the Broker page.', 'Broker page par login poora karo.')}</p>
+          ${wait ? '<div class="lvsweep"><i class="ind"></i></div>' : `<button class="place" id="lvGoBk">${L('Go to Broker & Data', 'Broker & Data par jao')} →</button>`}</div></section>`;
+      bindSeg(); const gb = $('#lvGoBk'); if (gb) gb.onclick = () => go('broker');
+      return;
+    }
+    this.ready = true;
+    const kp = (i, l) => `<div class="card kpi"><span class="lab">${l}</span><span class="val" id="lk${i}"${i === 5 ? ' style="font-size:17px"' : ''}>—</span><span class="sub" id="lks${i}">—</span></div>`;
+    v.innerHTML = phead(`${esc(LIVE.sym)} · ${L('live option chain', 'live option chain')}`, L('Straight from your broker through the connector on this PC. Numbers flash as they change.', 'Aapke broker se seedha, is PC ke connector ke through. Badalte hi number chamakte hain.'),
+      `${seg}<span class="pill up live" id="lvPill"><span class="dot"></span><span id="lvAge">LIVE</span></span>`) +
+      `<div class="kpis">${kp(0, 'Spot')}${kp(1, 'PCR · OI')}${kp(2, 'Max pain')}${kp(3, 'ATM straddle')}${kp(4, 'ATM IV')}${kp(5, L('Support · Resistance', 'Support · Resistance'))}</div>
+      <div class="lvsweep" title="${L('Time to next update', 'Agle update tak')}"><i id="lvSw"></i></div>
+      <section class="card"><div class="card-h"><h3>${L('Option chain', 'Option chain')}</h3><span class="sub" id="lvMeta"></span></div><div class="tw"><table class="tbl chain lvtb"><thead>
+        <tr><th class="cg" colspan="5">Calls</th><th class="sp">Strike</th><th class="pg" colspan="5">Puts</th></tr>
+        <tr><th>IV</th><th>OI chg</th><th>OI</th><th>Volume</th><th>LTP / chg</th><th class="sp">PCR</th><th class="l">LTP / chg</th><th class="l">Volume</th><th class="l">OI</th><th class="l">OI chg</th><th class="l">IV</th></tr>
+      </thead><tbody id="lvB"></tbody></table></div></section>
+      <div class="grid g3" style="margin-top:12px">
+        <section class="card span2"><div class="card-h"><h3>${L('Open interest by strike', 'Strike-wise open interest')}</h3><span class="sub">${L('Tallest put bar = support, tallest call bar = resistance', 'Sabse uncha put bar = support, call bar = resistance')}</span></div><div class="card-b"><div class="chart" id="lvOI"></div><div class="legend"><span><i style="background:var(--call)"></i>Call OI</span><span><i style="background:var(--put)"></i>Put OI</span></div></div></section>
+        <section class="card"><div class="card-h"><h3>${L('Who is writing', 'Kaun likh raha hai')}</h3><span class="sub">${L('Biggest OI change today', 'Aaj ka sabse bada OI change')}</span></div><div class="card-b" id="lvW"></div></section>
+        <section class="card span2"><div class="card-h"><h3>${L('Change in OI by strike', 'Strike-wise OI change')}</h3><span class="sub" id="lvOicSub"></span></div><div class="card-b"><div class="chart" id="lvOIC"></div><div class="legend"><span><i style="background:var(--call)"></i>Call OI chg</span><span><i style="background:var(--put)"></i>Put OI chg</span></div></div></section>
+        <section class="card"><div class="card-h"><h3>${L('Buildup mix', 'Buildup mix')}</h3><span class="sub">${L('Price vs OI on each strike', 'Har strike par bhaav vs OI')}</span></div><div class="card-b" id="lvMix"></div></section>
+        <section class="card span3"><div class="card-h"><h3>${L('Today so far', 'Aaj ab tak')}</h3><span class="sub">${L('Spot with support, resistance and max pain · PCR', 'Spot ke saath support, resistance, max pain · PCR')}</span></div><div class="card-b grid g2"><div><div class="chart" id="lvH1"></div><div class="legend"><span><i style="background:var(--fg)"></i>Spot</span><span><i style="background:var(--put)"></i>Support</span><span><i style="background:var(--call)"></i>Resistance</span><span><i style="background:var(--amber)"></i>Max pain</span></div></div><div><div class="chart" id="lvH2"></div><div class="legend"><span><i style="background:var(--accent)"></i>PCR</span></div></div></div></section>
+      </div>
+      <p class="note" id="lvNote"></p>`;
+    bindSeg();
+  },
+  age() {
+    const c = LIVE.chains[LIVE.sym], el = $('#lvAge'); if (!c || !el) return;
+    const s = LIVE.st || {}, a = Math.max(0, Math.round((Date.now() - c.ts) / 1000)), pill = $('#lvPill');
+    const off = LIVE.down, closed = !s.market_open;
+    setText(el, off ? L('OFFLINE · last data', 'OFFLINE · purana data') : `${closed ? L('LAST', 'LAST') : 'LIVE'} · ${(s.broker || '').toUpperCase()} · ${a}s`);
+    if (pill) pill.className = 'pill ' + (off ? 'dn' : closed ? 'warn' : 'up live');
+  },
+  update(ctx) {
+    if (!LIVE.on) return;
+    const c = LIVE.chains[LIVE.sym];
+    if (!this.ready) { if (c) mount(); return; }
+    if (!c || (c.ts === this.ts && !this.dirty)) return;
+    const first = this.dirty, prev = this.ts; this.ts = c.ts; this.dirty = false;
+    this.draw(c, first);
+    const sw = $('#lvSw'); if (sw && prev && !REDUCE) { const gap = clamp(c.ts - prev, 800, 60000); sw.style.animation = 'none'; void sw.offsetWidth; sw.style.animation = `lvsw ${gap}ms linear forwards`; }
+    this.age();
+  },
+  draw(c, first) {
+    const R = c.rows, S = c.spot, sm = c.sum;
+    // KPIs
+    flash($('#lk0'), S, inr2(S)); setText($('#lks0'), `${L('Expiry', 'Expiry')} ${fmtExp(c.expiry)}${c.lot ? ' · lot ' + c.lot : ''}`);
+    flash($('#lk1'), sm.pcr || 0, sm.pcr == null ? '—' : sm.pcr.toFixed(2));
+    setText($('#lks1'), sm.pcr == null ? '—' : sm.pcr > 1.2 ? L('Put writers stronger', 'Put writers zyada mazboot') : sm.pcr < 0.8 ? L('Call writers stronger', 'Call writers zyada mazboot') : L('Balanced', 'Barabar'));
+    flash($('#lk2'), sm.max_pain, inr(sm.max_pain)); setText($('#lks2'), `${sgn(sm.max_pain - S, inr)} ${L('from spot', 'spot se')}`);
+    flash($('#lk3'), sm.straddle, inr2(sm.straddle)); setText($('#lks3'), `${inr(sm.atm)} · ±${(sm.straddle / S * 100).toFixed(2)}%`);
+    flash($('#lk4'), sm.atm_iv || 0, sm.atm_iv ? sm.atm_iv.toFixed(1) + '%' : '—'); setText($('#lks4'), L('Implied volatility at ATM', 'ATM par implied volatility'));
+    setText($('#lk5'), `${inr(sm.sup)} · ${inr(sm.res)}`); setText($('#lks5'), L('Max put OI · max call OI', 'Sabse zyada put OI · call OI'));
+    setText($('#lvMeta'), `${L('Expiry', 'Expiry')} ${fmtExp(c.expiry)} · ${R.length} ${L('strikes', 'strikes')} · ${hmIST(c.ts)} IST`);
+    // table
+    const key = R.map(r => r.k).join(',');
+    if (key !== this.key) this.build(c, key);
+    const tops = (s, f) => { let a = -1, b = -1; R.forEach((r, i) => { const v = r[s][f]; if (v <= 0) return; if (a < 0 || v > R[a][s][f]) { b = a; a = i; } else if (b < 0 || v > R[b][s][f]) b = i; }); return [a, b, a >= 0 ? R[a][s][f] : 1]; };
+    const T = {}; for (const s of ['ce', 'pe']) for (const f of ['oic', 'oi', 'vol']) T[s + f] = tops(s, f);
+    const bar = (td, s, f, i) => {
+      const v = R[i][s][f], [a, b, m] = T[s + f], p = v > 0 ? v / m * 100 : 0;
+      td.children[0].style.width = (p * 0.96) + '%'; setText(td.children[1], p.toFixed(0) + '%'); flash(td.children[2], Math.round(v), f === 'oic' ? sgn(v, compact) : compact(v));
+      td.classList.toggle(s === 'ce' ? 'h1c' : 'h1p', i === a); td.classList.toggle('h2', i === b && v >= 0.75 * m);
+    };
+    const ltp = (td, x) => {
+      flash(td.children[0], x.ltp, inr2(x.ltp)); const bk = buKey(x);
+      const h = `${x.chg == null ? '' : `<i class="${x.chg >= 0 ? 'up' : 'dn'}">${sgn(x.chg, inr2)}</i>`}${bk ? `<b class="bu ${bk}" title="${LBU[bk][1]}">${LBU[bk][0]}</b>` : ''}`;
+      if (td.children[1]._h !== h) { td.children[1].innerHTML = h; td.children[1]._h = h; }
+    };
+    R.forEach((r, i) => {
+      const {tr, td} = this.rows[i];
+      tr.classList.toggle('atm', r.k === sm.atm); tr.classList.toggle('itmc', r.k < S); tr.classList.toggle('itmp', r.k > S);
+      setText(td[0].children[0], r.ce.iv ? r.ce.iv.toFixed(1) : '—');
+      bar(td[1], 'ce', 'oic', i); bar(td[2], 'ce', 'oi', i); bar(td[3], 'ce', 'vol', i); ltp(td[4], r.ce);
+      setText(td[5].children[1], r.ce.oi > 0 ? (r.pe.oi / r.ce.oi).toFixed(2) : '—');
+      ltp(td[6], r.pe); bar(td[7], 'pe', 'vol', i); bar(td[8], 'pe', 'oi', i); bar(td[9], 'pe', 'oic', i);
+      setText(td[10].children[0], r.pe.iv ? r.pe.iv.toFixed(1) : '—');
+    });
+    const tb = $('#lvB'), before = this.rows.find(x => x.k > S);
+    if (before) { if (this.mid.nextSibling !== before.tr) tb.insertBefore(this.mid, before.tr); } else if (tb.lastChild !== this.mid) tb.appendChild(this.mid);
+    $('#lvMidC').innerHTML = `<span>Spot <b class="fl">${inr2(S)}</b></span><span>PCR <b>${sm.pcr == null ? '—' : sm.pcr.toFixed(2)}</b></span><span>Max pain <b>${inr(sm.max_pain)}</b></span><span>Straddle <b>${inr2(sm.straddle)}</b></span>`;
+    setText($('#lvShR'), `${L('Resistance', 'Resistance')} ${inr(sm.res)}${sm.res2 ? ' / ' + inr(sm.res2) : ''}`);
+    setText($('#lvShS'), `${L('Support', 'Support')} ${inr(sm.sup)}${sm.sup2 ? ' / ' + inr(sm.sup2) : ''}`);
+    // charts
+    lvBars($('#lvOI'), c, r => r.ce.oi, r => r.pe.oi, {h: 230, anim: first, mp: sm.max_pain, fmt: compact, label: 'Open interest by strike'});
+    lvBars($('#lvOIC'), c, r => r.ce.oic, r => r.pe.oic, {h: 210, anim: first, fmt: v => sgn(v, compact), label: 'Change in OI by strike'});
+    setText($('#lvOicSub'), `Call ${sgn(sm.ce_oic, compact)} · Put ${sgn(sm.pe_oic, compact)}`);
+    this.writers(c); this.mix(c); this.hist(c, first);
+    const notes = [];
+    if (c.since_start) notes.push(L('OI change is counted from the first reading the connector took today, because this broker does not send previous-day OI. Start the connector before 09:15 for full-day numbers.', 'OI change aaj connector ki pehli reading se gina gaya hai, kyunki ye broker pichhle din ka OI nahi bhejta. Poore din ke numbers ke liye connector 09:15 se pehle chalao.'));
+    if (!(LIVE.st || {}).market_open) notes.push(L('Market is closed, so these are the last traded values.', 'Market band hai, isliye ye aakhri traded values hain.'));
+    notes.push(L('IV is computed from LTP when the broker does not send it. LB long buildup · SB short buildup · SC short covering · LU long unwinding.', 'Jab broker IV nahi bhejta to LTP se nikala jaata hai. LB long buildup · SB short buildup · SC short covering · LU long unwinding.'));
+    setText($('#lvNote'), notes.join(' '));
+  },
+  build(c, key) {
+    this.key = key;
+    const tb = $('#lvB'); tb.innerHTML = '';
+    const bc = side => `<td class="bc ${side} ${side === 'p' ? 'l ps' : 'cs'}"><i class="bar"></i><span class="pc"></span><b class="v"></b></td>`;
+    this.rows = c.rows.map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="cs"><b class="v"></b></td>${bc('c')}${bc('c')}${bc('c')}<td class="cs"><b class="v"></b><span class="sub"></span></td><td class="sp"><b>${inr(r.k)}</b><i></i></td><td class="l ps"><b class="v"></b><span class="sub"></span></td>${bc('p')}${bc('p')}${bc('p')}<td class="l ps"><b class="v"></b></td>`;
+      tb.appendChild(tr); return {tr, td: tr.children, k: r.k};
+    });
+    this.mid = document.createElement('tr'); this.mid.className = 'mid';
+    this.mid.innerHTML = `<td colspan="11"><div class="mid-in"><span class="sh" id="lvShR"></span><span class="ctr" id="lvMidC"></span><span class="sh" id="lvShS"></span></div></td>`;
+  },
+  writers(c) {
+    const R = c.rows, m = Math.max(1, ...R.map(r => Math.abs(r.ce.oic)), ...R.map(r => Math.abs(r.pe.oic)));
+    const top = (s, dir) => [...R].sort((a, b) => dir * (b[s].oic - a[s].oic)).filter(r => dir * r[s].oic > 0).slice(0, 3);
+    const line = (r, s, col) => `<div class="lvw"><b>${inr(r.k)} ${s.toUpperCase()}</b><i style="width:${(Math.abs(r[s].oic) / m * 100).toFixed(1)}%;background:${col}"></i><span class="${r[s].oic >= 0 ? 'up' : 'dn'}">${sgn(r[s].oic, compact)}</span></div>`;
+    const un = [...top('ce', -1).map(r => [r, 'ce']), ...top('pe', -1).map(r => [r, 'pe'])].sort((a, b) => a[0][a[1]].oic - b[0][b[1]].oic).slice(0, 3);
+    const none = `<p class="note" style="margin:2px 0">—</p>`;
+    $('#lvW').innerHTML = `<div class="lvh">${L('CALL WRITING · RESISTANCE', 'CALL WRITING · RESISTANCE')}</div>${top('ce', 1).map(r => line(r, 'ce', 'var(--call)')).join('') || none}
+      <div class="lvh">${L('PUT WRITING · SUPPORT', 'PUT WRITING · SUPPORT')}</div>${top('pe', 1).map(r => line(r, 'pe', 'var(--put)')).join('') || none}
+      <div class="lvh">${L('UNWINDING', 'UNWINDING')}</div>${un.map(([r, s]) => line(r, s, 'var(--amber)')).join('') || none}`;
+  },
+  mix(c) {
+    const cnt = {ce: {lb: 0, sb: 0, sc: 0, lu: 0}, pe: {lb: 0, sb: 0, sc: 0, lu: 0}};
+    for (const r of c.rows) for (const s of ['ce', 'pe']) { const k = buKey(r[s]); if (k) cnt[s][k]++; }
+    const col = s => `<div><div class="lvh">${s === 'ce' ? 'CALLS' : 'PUTS'}</div>${Object.keys(LBU).map(k => `<div class="lvw lvm"><b class="bu ${k}">${LBU[k][0]}</b><i class="b-${k}" style="width:${(cnt[s][k] / Math.max(1, c.rows.length) * 100).toFixed(1)}%"></i><span>${cnt[s][k]}</span></div>`).join('')}</div>`;
+    const sm = c.sum, tot = Math.abs(sm.ce_oic) + Math.abs(sm.pe_oic), d = sm.pe_oic - sm.ce_oic;
+    const [vt, tone] = !tot ? [L('No OI change yet', 'Abhi OI change nahi'), ''] : d > 0.15 * tot ? [L('Put writers are adding faster: support is building, bullish tilt.', 'Put writers tez hain: support ban raha hai, bullish jhukaav.'), 'up'] : d < -0.15 * tot ? [L('Call writers are adding faster: resistance is building, bearish tilt.', 'Call writers tez hain: resistance ban raha hai, bearish jhukaav.'), 'dn'] : [L('Both sides are adding evenly: range-bound for now.', 'Dono taraf barabar: abhi range-bound.'), ''];
+    $('#lvMix').innerHTML = `<div class="lvmix">${col('ce')}${col('pe')}</div><p class="lvverd ${tone}">${vt}</p>`;
+  },
+  hist(c, first) {
+    const H = (LIVE.hist[c.sym] || []).filter(p => p.s > 0), e1 = $('#lvH1'), e2 = $('#lvH2');
+    if (H.length < 2) { e1.innerHTML = `<p class="note">${L('This builds through the day, one point a minute. Keep the connector running.', 'Ye din bhar mein banta hai, har minute ek point. Connector chalta rehne do.')}</p>`; e2.innerHTML = ''; return; }
+    const t0 = H[0].t, xs = H.map(p => (p.t - t0) / 6e4), x1 = Math.max(1, xs[xs.length - 1]);
+    const hm = t => new Date(t).toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata'});
+    const xt = [0, x1 / 3, 2 * x1 / 3, x1].map(v => [v, hm(t0 + v * 6e4)]);
+    const S = H.map(p => p.s), MP = H.map(p => p.mp), SU = H.map(p => p.sup), RE = H.map(p => p.res);
+    const all = [...S, ...MP, ...SU, ...RE].filter(v => v > 0), y0 = Math.min(...all), y1 = Math.max(...all), pad = (y1 - y0) * 0.08 + 1;
+    svgChart(e1, {h: 220, x0: 0, x1, xt, y0: y0 - pad, y1: y1 + pad, yf: v => inr(v), anim: first, label: 'Spot with walls',
+      series: [{v: RE, x: xs, c: 'var(--call)', dash: 1}, {v: SU, x: xs, c: 'var(--put)', dash: 1}, {v: MP, x: xs, c: 'var(--amber)', dash: 1}, {v: S, x: xs, c: 'var(--fg)', dot: 1, w: 2}]});
+    const P = H.map(p => p.pcr || 0), p0 = Math.min(0.6, ...P) - 0.05, p1 = Math.max(1.4, ...P) + 0.05;
+    svgChart(e2, {h: 220, x0: 0, x1, xt, y0: p0, y1: p1, yf: v => v.toFixed(2), pl: 40, anim: first, label: 'PCR',
+      series: [{v: P, x: xs, c: 'var(--accent)', dot: 1, area: 1, base: p0}], extra: (X, Y) => `<line x1="${X(0)}" x2="${X(x1)}" y1="${Y(1)}" y2="${Y(1)}" style="stroke:var(--line-2);stroke-dasharray:3 3"/>`});
+  },
+};
+
+/* ---- Broker page: real connector panel when running through the connector ---- */
+const _bkMount = MODS.broker.mount;
+MODS.broker.mount = function (v) {
+  _bkMount.call(this, v);
+  const why = v.querySelector('section.card');
+  if (LIVE.on) {
+    if (why) why.outerHTML = '<section class="card lvc" id="lvPanel" style="margin-bottom:12px"></section>';
+    const pill = v.querySelector('.phead .pill'); if (pill) { pill.className = 'pill up'; pill.textContent = L('Connector running', 'Connector chal raha hai'); }
+    const p = v.querySelector('.phead p'); if (p) p.textContent = L('Your connector is running on this PC. Log in with your broker here; keys stay in connector/config.json and never reach this page.', 'Aapka connector is PC par chal raha hai. Yahan broker se login karo; keys connector/config.json mein rehti hain, is page tak kabhi nahi aati.');
+    v.querySelectorAll('.bk-hero').forEach(x => x.remove());
+    v.querySelectorAll('[data-sub]').forEach(x => { const c = x.closest('section.card'); if (c) c.remove(); });
+    const last = [...v.querySelectorAll(':scope > p.note')].pop(); if (last) last.remove();
+    this.pk = ''; this.livePanel();
+  } else if (why) {
+    why.outerHTML = `<section class="card" style="margin-bottom:12px"><div class="card-h"><h3>${L('Connect your broker in 3 steps', '3 steps mein broker connect karo')}</h3><span class="pill warn" style="margin-left:auto">${L('Offline copy', 'Offline copy')}</span></div><div class="card-b grid g3">
+      <div><b>1 · ${L('Keys in config.json', 'Keys config.json mein')}</b><p class="note" style="margin-top:4px">${L('Pick your broker below for exact steps. Keys go in connector/config.json on your PC, never in this page or any chat.', 'Neeche apna broker chuno, exact steps milenge. Keys aapke PC par connector/config.json mein jaati hain, is page ya kisi chat mein kabhi nahi.')}</p></div>
+      <div><b>2 · ${L('Start the connector', 'Connector chalao')}</b><p class="note" style="margin-top:4px">${L('Double-click Start-Live-Broker. The app reopens at 127.0.0.1:8765 with your broker behind it.', 'Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par aapke broker ke saath dobara khulega.')}</p></div>
+      <div><b>3 · ${L('Log in each morning', 'Roz subah login')}</b><p class="note" style="margin-top:4px">${L('Click “Login with …” on this page. Live Chain then shows your broker’s real option chain.', 'Is page par “Login with …” dabao. Phir Live Chain aapke broker ki asli option chain dikhayega.')}</p></div>
+    </div></section>`;
+    const p = v.querySelector('.phead p'); if (p) p.textContent = L('This copy runs without the connector, so it shows a simulated feed. Follow the 3 steps to see your broker’s live data.', 'Ye copy bina connector ke chal rahi hai, isliye simulated feed dikhata hai. Live data ke liye 3 steps follow karo.');
+  }
+};
+MODS.broker.livePanel = function () {
+  const el = $('#lvPanel'); if (!el) return;
+  const s = LIVE.st || {}, k = [s.state, s.msg, LIVE.down, (s.missing || []).join(), (s.fields || []).length, s.user, app.lang].join('|');
+  if (k === this.pk) { this.liveStats(); return; }
+  this.pk = k;
+  const dp = el.querySelector('.lvpaste'), keep = {open: !!(dp && dp.open), url: ($('#lvUrl') || {}).value || ''};
+  const [stxt, tone] = LIVE.down ? [L('Connector stopped', 'Connector band hai'), 'dn'] : (LV_ST()[s.state] || [s.state, 'warn']);
+  const B = BROKERS().find(x => x[0] === s.broker), lg = B ? `<span class="lg" style="background:${B[3]}">${B[2]}</span>` : '<span class="lg" style="background:var(--muted)">DM</span>';
+  const nm = esc(s.broker_name || '');
+  let act;
+  if (LIVE.down) act = `<p>${L('Start it again with Start-Live-Broker, then reload this page.', 'Start-Live-Broker se dobara chalao, phir ye page reload karo.')}</p>`;
+  else if (s.state === 'need_config') act = `<p>${L('Open connector/config.json on this PC and fill', 'Is PC par connector/config.json kholo aur bharo')}: <b>${(s.missing || []).map(esc).join(', ')}</b> (${L('under', 'section')} "${esc(s.broker)}"). ${L('Save, close the connector window and start it again.', 'Save karo, connector window band karo aur dobara chalao.')}</p><button class="ibtn" data-bkg="${esc(s.broker)}">${L('Show steps for', 'Steps dekho:')} ${nm}</button>`;
+  else if (s.state === 'need_login' && s.login_kind === 'direct' && (s.fields || []).length) act = `<form class="lvform" id="lvForm">${s.fields.map(([f, lab, typ]) => `<label class="field"><span>${esc(lab)}</span><input name="${esc(f)}" type="${typ === 'password' ? 'password' : 'text'}" ${f === 'totp' ? 'inputmode="numeric" maxlength="6" pattern="[0-9]{6}"' : ''} autocomplete="off" required></label>`).join('')}<button class="lvgo" type="submit">${L('Login with', 'Login with')} ${nm} →</button><p class="note" style="margin:0">${L('Sent only to the connector on this PC.', 'Sirf is PC ke connector ko jaata hai.')}</p><p class="lverr" id="lvErr"></p></form>`;
+  else if (s.state === 'need_login') act = `<a class="lvgo" href="/api/login">${L('Login with', 'Login with')} ${nm} →</a>${s.login_kind === 'redirect' ? `<details class="lvpaste"><summary>${L('Broker sent you to a different page after login?', 'Login ke baad broker kisi aur page par le gaya?')}</summary><p>${L('Copy the full address from the browser bar on that page and paste it here.', 'Us page ke browser bar ka poora address copy karke yahan paste karo.')}</p><div class="lvrow"><input id="lvUrl" placeholder="https://…?request_token=…" autocomplete="off"><button class="ibtn" id="lvUrlGo">${L('Connect', 'Connect')}</button></div><p class="lverr" id="lvErr"></p></details>` : ''}`;
+  else act = `<div class="lvrow"><button class="lvgo" id="lvOpen">${L('Open Live Chain', 'Live Chain kholo')} →</button><button class="ibtn" id="lvOut">${L('Log out', 'Log out')}</button></div>`;
+  el.innerHTML = `<div class="card-h"><h3>${L('Your connector', 'Aapka connector')}</h3><span class="pill ${tone}${s.state === 'live' && !LIVE.down ? ' live' : ''}" style="margin-left:auto"><span class="dot"></span>${stxt}</span></div>
+    <div class="card-b lvc-b">
+      <div class="lvc-l"><div class="bk-h">${lg}<div><b>${nm}</b><small>${s.user ? 'ID ' + esc(s.user) : L('Not logged in', 'Login nahi hua')}</small></div></div>
+        ${s.msg ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}<div class="lvact">${act}</div></div>
+      <div class="lvc-r"><div class="bk-m"><div><span>LAST UPDATE</span><b id="lvS1">—</b></div><div><span>API CALLS</span><b id="lvS2">—</b></div><div><span>ERRORS</span><b id="lvS3">—</b></div><div><span>SYMBOLS</span><b style="font-size:12px">${(s.symbols || []).map(esc).join(' · ')}</b></div><div><span>MARKET</span><b id="lvS4">—</b></div><div><span>UPTIME</span><b id="lvS5">—</b></div></div>
+        ${s.login_kind === 'redirect' ? `<div class="lvred"><span>${L('Redirect URL for your broker app', 'Broker app ka Redirect URL')}</span><code>${esc(s.redirect_url || '')}</code><button class="ibtn" id="lvCopy">${L('Copy', 'Copy')}</button></div>` : ''}
+        <div class="lvh">${L('LIVE TICKS FROM YOUR BROKER', 'BROKER SE LIVE TICKS')}</div><ul class="ts" id="lvTs"><li><span class="tt">—</span><b>${L('Waiting for data…', 'Data ka intezaar…')}</b><span></span><span></span></li></ul></div>
+    </div>`;
+  const np = el.querySelector('.lvpaste'); if (np && keep.open) { np.open = true; $('#lvUrl').value = keep.url; }
+  const err = m => { const e = $('#lvErr'); if (e) e.textContent = m || ''; };
+  const f = $('#lvForm'); if (f) f.onsubmit = e => { e.preventDefault(); const d = Object.fromEntries(new FormData(f)); err(L('Logging in…', 'Login ho raha hai…')); lvPost('/api/login', d).then(r => err(r.ok ? '' : r.error)).catch(() => err(L('Connector not reachable.', 'Connector tak nahi pahunch paaye.'))); };
+  const ug = $('#lvUrlGo'); if (ug) ug.onclick = () => { err(L('Connecting…', 'Connect ho raha hai…')); lvPost('/api/session', {url: $('#lvUrl').value}).then(r => err(r.ok ? '' : r.error)).catch(() => err(L('Connector not reachable.', 'Connector tak nahi pahunch paaye.'))); };
+  const op = $('#lvOpen'); if (op) op.onclick = () => go('livechain');
+  const lo = $('#lvOut'); if (lo) lo.onclick = () => lvPost('/api/logout');
+  const cp = $('#lvCopy'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(s.redirect_url); cp.textContent = L('Copied', 'Copy ho gaya'); } catch (e) {} };
+  el.querySelectorAll('[data-bkg]').forEach(b => b.onclick = () => this.open(b.dataset.bkg));
+  this.liveStats();
+};
+MODS.broker.liveStats = function () {
+  if (!$('#lvS1')) return;
+  const s = LIVE.st || {}, ts = Object.values(LIVE.chains).map(c => c.ts), last = ts.length ? Math.max(...ts) : 0;
+  setText($('#lvS1'), last ? Math.max(0, Math.round((Date.now() - last) / 1000)) + 's ago' : '—');
+  setText($('#lvS2'), inr(s.calls || 0)); setText($('#lvS3'), String(s.errors || 0));
+  setText($('#lvS4'), s.market_open ? L('Open', 'Khula') : L('Closed', 'Band'));
+  const up = Math.floor((Date.now() - (s.started || Date.now())) / 1000); setText($('#lvS5'), up >= 3600 ? `${Math.floor(up / 3600)}h ${Math.floor(up % 3600 / 60)}m` : `${Math.floor(up / 60)}m ${up % 60}s`);
+};
+MODS.broker.liveTicks = function (c, p) {
+  const ul = $('#lvTs'); if (!ul) return;
+  if (ul.firstChild && !ul.firstChild.dataset.t) ul.innerHTML = '';
+  const old = {}; if (p) for (const r of p.rows) old[r.k] = r;
+  const out = [];
+  for (const r of c.rows) for (const s of ['ce', 'pe']) { const o = old[r.k] && old[r.k][s], x = r[s]; if (!o || o.ltp !== x.ltp || o.oi !== x.oi) out.push([r.k, s, x, o]); }
+  out.sort((a, b) => Math.abs(a[0] - c.spot) - Math.abs(b[0] - c.spot));
+  const t = hmIST(c.ts);
+  for (const [k, s, x, o] of out.slice(0, 8).reverse()) {
+    const li = document.createElement('li'); li.dataset.t = '1';
+    li.innerHTML = `<span class="tt">${t}</span><b>${esc(c.sym)} ${k} ${s.toUpperCase()}</b><span class="${!o || x.ltp >= o.ltp ? 'up' : 'dn'}">${inr2(x.ltp)}</span><span class="mut">OI ${compact(x.oi)}</span>`;
+    ul.prepend(li);
+  }
+  while (ul.children.length > 24) ul.lastChild.remove();
+};
+MODS.broker.open = function (id) {
+  const B = BROKERS().find(x => x[0] === id), G = BKG()[id], M = $('#bkModal'), s = LIVE.st || {}, active = LIVE.on && s.broker === id && !LIVE.down;
+  const red = (s.redirect_url || 'http://127.0.0.1:8765/callback');
+  const cfg = `"broker": "${id}",\n\n"${id}": {\n${G.keys.map(k => `  "${k}": "…"`).join(',\n')}\n}`;
+  let n = 0; const st = (t, body) => `<div class="stp"><i>${++n}</i><b>${t}</b>${body}</div>`;
+  M.innerHTML = `<div class="modal-b" role="dialog" aria-label="Connect ${esc(B[1])}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${esc(B[1])}</b><small>${L('Setup steps', 'Setup ke steps')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
+    <div style="margin-top:12px"></div>
+    ${st(L('Create an app on the broker’s developer site', 'Broker ki developer site par app banao'), `<p>${esc(G.portal)}</p>`)}
+    ${G.redirect ? st(L('Set its Redirect URL to', 'Uska Redirect URL ye rakho'), `<p><code>${esc(red)}</code></p>`) : ''}
+    ${st(L('Put the keys in connector/config.json on your PC', 'Keys apne PC par connector/config.json mein daalo'), `<pre class="lvcfg">${esc(cfg)}</pre><span class="lock2">🔒 ${L('Never paste keys into this page or any chat. Only the connector on your PC reads that file.', 'Keys kabhi is page ya kisi chat mein paste mat karo. Sirf aapke PC ka connector wo file padhta hai.')}</span>`)}
+    ${st(L('Start the connector', 'Connector chalao'), `<p>${L('Double-click Start-Live-Broker (Windows) or Start-Live-Broker.command (Mac). The app opens at 127.0.0.1:8765.', 'Start-Live-Broker (Windows) ya Start-Live-Broker.command (Mac) par double-click karo. App 127.0.0.1:8765 par khulega.')}</p>`)}
+    ${st(G.redirect ? L('Log in with the broker each trading day', 'Har trading din broker se login karo') : L('The connector logs in for you', 'Connector aapke liye login karta hai'), `<p>${G.note}</p>`)}
+    ${active && s.state === 'need_login' && s.login_kind === 'redirect' ? `<a class="lvgo" href="/api/login" style="display:block;text-align:center;margin-top:8px">${L('Login with', 'Login with')} ${esc(B[1])} →</a>` : `<button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Got it', 'Samajh gaya')}</button>`}</div>`;
+  M.hidden = false;
+  const close = () => { M.hidden = true; };
+  $('#bkClose').onclick = close; const bs = $('#bkSim'); if (bs) bs.onclick = close; M.onclick = e => { if (e.target === M) close(); };
 };
 
 /* ---- Journal + OI ---- */
@@ -2774,7 +3210,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['OI Charts', 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)'], ['Premium decay', 'ATM CE, PE aur straddle ka decay + theta (naya)'], ['Broker & Data', '6 brokers, connect steps, live feed health, tick stream, pipeline (naya)'], ['Live motion', 'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['Live Chain', 'Aapke broker ki asli chain: OI, OI change, IV, buildup, max pain, PCR, din bhar ka chart (naya)'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['OI Charts', 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)'], ['Premium decay', 'ATM CE, PE aur straddle ka decay + theta (naya)'], ['Broker & Data', '6 brokers ka asli login local connector se, live ticks, pipeline (naya)'], ['Live motion', 'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
@@ -2869,7 +3305,7 @@ function updateChrome(ctx) {
     const nbP = $('#nb-paper'), ps = paperStats(); if (nbP) { setText(nbP, paper.trades ? sgn(ps.day, compact) : ''); nbP.className = 'nb ' + (ps.day >= 0 ? 'up' : 'dn'); }
     const nbF = $('#nb-mflow'); if (nbF) { setText(nbF, '▲' + UL.filter(u => u.pct[ctx.t0] >= 0).length); nbF.className = 'nb up'; }
   }
-  updateTape(ctx);
+  updateTape(ctx); if (LIVE.on) liveTape();
 }
 $('#playBtn').onclick = () => {
   if (app.mode === 'live') { app.mode = 'replay'; app.playing = false; }
@@ -2900,6 +3336,7 @@ function toast(e) {
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 6000);
 }
 function fireToasts(a, b) {
+  if (LIVE.on && LIVE_PAGES.has(app.page)) return;
   if (Math.floor(a) === Math.floor(b)) return;
   const syms = ['NIFTY', 'BANKNIFTY']; if (isStock(app.sym)) syms.push(app.sym);
   for (const s of syms) for (const e of getData(s).events) if (e.t > Math.floor(a) && e.t <= Math.floor(b) && app.rules[e.type]) toast(e);
@@ -2960,7 +3397,7 @@ function render(force) {
 function mount() {
   const v = $('#view'), m = MODS[app.page];
   v.innerHTML = ''; v.onmouseover = v.onmouseout = v.onclick = null; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
-  m.mount(v); m.dirty = true; m.tiles = null; m.br = 0;
+  m.mount(v); liveBan(v); m.dirty = true; m.tiles = null; m.br = 0;
   $$('#view .card, #view .cat').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 14)));
   $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
   render(true);
@@ -2986,7 +3423,7 @@ setInterval(() => {
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
 getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
-syncSym(); setLang(app.lang);
+syncSym(); setLang(app.lang); liveInit();
 const h0 = (location.hash || '').slice(1);
 go(MODS[h0] ? h0 : 'overview');
 })();
