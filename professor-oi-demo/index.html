@@ -825,6 +825,24 @@ main{padding:16px 22px 120px}
 .tgl li{display:grid;grid-template-columns:44px 1fr 16px;gap:8px;padding:5px 0;border-bottom:1px dotted var(--line)}
 .tgl .tt{font:600 11px var(--f-mono);color:var(--faint)}
 @media (max-width:900px){.tgw{grid-template-columns:minmax(0,1fr)}}
+/* ---- v9: auto strategy ---- */
+.sga-v{display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--panel-2);margin-bottom:12px;font:600 12px var(--f-mono)}
+.sga-v i{font-style:normal;font:700 9.5px var(--f-mono);letter-spacing:.12em;color:var(--faint);margin-right:6px;text-transform:uppercase}
+.sga-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sga-c{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--panel)}
+.sga-c.best{border-color:var(--put);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--put) 35%,transparent)}
+.sga-h{display:flex;align-items:center;gap:8px}
+.sga-h b{font:700 14px var(--f-display)}
+.sga-s{margin-left:auto;font:700 12px var(--f-mono);padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.sga-l{display:flex;flex-wrap:wrap;gap:6px;font:700 11px var(--f-mono)}
+.sga-l span{padding:2px 7px;border-radius:4px;border:1px solid currentColor}
+.sga-m{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.sga-m span{display:block;font:700 9px var(--f-mono);letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
+.sga-m b{font:600 13px var(--f-mono)}
+.sga-w{margin:0;padding-left:16px;font-size:11.5px;color:var(--muted);line-height:1.5}
+.sga-w b{color:var(--fg)}
+.sga-load{align-self:flex-start;margin-top:auto}
+@media (max-width:1100px){.sga-g{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 </head>
@@ -3835,6 +3853,122 @@ MODS.alerts.tgDraw = function (a, msg, bad) {
   $('#tgTest').onclick = () => post('test', {}, L('Test sent. Check Telegram.', 'Test bhej diya. Telegram dekho.'));
   const off = $('#tgOff'); if (off) off.onclick = () => post('config', {clear: true}, L('Telegram disconnected.', 'Telegram disconnect ho gaya.'));
   b.querySelectorAll('[data-k]').forEach(x => x.onchange = () => { const kinds = {}; b.querySelectorAll('[data-k]').forEach(y => kinds[y.dataset.k] = y.checked); post('config', {kinds}, L('Saved.', 'Save ho gaya.')); });
+};
+
+
+/* ---- Strategy Builder: auto-pick the best strategies for the market right now ----
+   1. read the market (walls, PCR, fresh writing, trend, IV, expected move)
+   2. price every candidate from the live chain
+   3. score = fit with the view + chance of profit + reward/risk, and explain why */
+function sgView(D, s, t) {
+  const st = D.c.step, S = s.S, K = D.K;
+  let supK = wallK(D, 'S', t), resK = wallK(D, 'R', t);
+  if (!(D.strikes[resK] > D.strikes[supK])) { supK = s.majS; resK = s.majR; }
+  if (!(D.strikes[resK] > S) || !(D.strikes[supK] < S)) { supK = clamp(s.atmK - 3, 0, K - 1); resK = clamp(s.atmK + 3, 0, K - 1); }
+  const sup = D.strikes[supK], res = D.strikes[resK], pos = clamp((S - sup) / Math.max(st, res - sup), 0, 1);
+  const iv = s.cIV[s.atmK], move = s.cP[s.atmK] + s.pP[s.atmK], dte = Math.max(0.05, s.T * 365);
+  const t30 = Math.max(0, Math.floor(t) - 30), trend = (S / D.spot[t30] - 1) * 100;
+  const wr = s.totPc - s.totCc, wrN = (Math.abs(s.totPc) + Math.abs(s.totCc)) || 1;
+  let bias = 0;
+  bias += s.pcr > 1.2 ? 0.3 : s.pcr < 0.8 ? -0.3 : (s.pcr - 1) * 0.8;
+  bias += clamp(wr / wrN, -1, 1) * 0.3;
+  bias += clamp(trend / 0.4, -1, 1) * 0.2;
+  bias += (0.5 - pos) * 0.3;                                  // near support leans up, near resistance leans down
+  bias = clamp(bias, -1, 1);
+  const hiIV = D.sym === 'BANKNIFTY' ? 16 : D.c.kind === 'index' ? 14 : 34, loIV = D.sym === 'BANKNIFTY' ? 12 : D.c.kind === 'index' ? 10.5 : 24;
+  const ivLv = iv > hiIV ? 1 : iv < loIV ? -1 : 0;
+  const width = res - sup, rangey = clamp(1 - Math.abs(bias) * 1.6, 0, 1) * (width > move * 0.8 ? 1 : 0.6);
+  const view = Math.abs(bias) < 0.2 ? (ivLv < 0 && width < move ? 'breakout' : 'range') : bias > 0 ? 'bullish' : 'bearish';
+  return {S, st, sup, res, supK, resK, pos, iv, ivLv, move, dte, trend, bias, rangey, view, pcr: s.pcr, wr, wrN};
+}
+
+function sgEval(D, s, legs) {
+  const lot = D.c.lot, idx = x => D.strikes.indexOf(x);
+  const pr = legs.map(L => { const k = idx(L.strike); return {...L, k, price: k < 0 ? NaN : L.type === 'CE' ? s.cP[k] : s.pP[k], sg: (L.side === 'B' ? 1 : -1) * L.lots * lot}; });
+  if (pr.some(L => !(L.price > 0.05))) return null;
+  const atExp = x => pr.reduce((a, L) => a + L.sg * ((L.type === 'CE' ? Math.max(0, x - L.strike) : Math.max(0, L.strike - x)) - L.price), 0);
+  const S = s.S, n = 300, xs = [], ex = [];
+  for (let i = 0; i <= n; i++) { const x = S * (0.8 + 0.4 * i / n); xs.push(x); ex.push(atExp(x)); }
+  const upSlope = atExp(S * 3) - atExp(S * 2.9), lowv = atExp(0.01);
+  const unlP = upSlope > 1, unlL = upSlope < -1;
+  const maxP = Math.max(...ex, lowv), maxL = Math.min(...ex, lowv);
+  const bes = []; for (let i = 1; i <= n; i++) if (Math.sign(ex[i]) !== Math.sign(ex[i - 1]) && ex[i] !== 0) bes.push(xs[i - 1] + (xs[i] - xs[i - 1]) * (-ex[i - 1]) / (ex[i] - ex[i - 1]));
+  const sig = s.cIV[s.atmK] / 100 * Math.sqrt(s.T); let pop = 0, tot = 0, ev = 0;
+  for (let i = 0; i <= 400; i++) { const z = -4 + 8 * i / 400, x = S * Math.exp(z * sig - sig * sig / 2), w = npdf(z), v = atExp(x); tot += w; ev += w * v; if (v > 0) pop += w; }
+  const net = pr.reduce((a, L) => a - L.sg * L.price, 0);
+  const shortNotional = pr.filter(L => L.side === 'S').reduce((a, L) => a + L.lots * lot * L.strike, 0);
+  const margin = unlL ? shortNotional * 0.12 : Math.abs(maxL) + Math.max(0, -net) * 0;   // rough: defined risk = max loss
+  return {legs, net, maxP, maxL, unlP, unlL, bes, pop: pop / tot, ev: ev / tot, rr: unlL || maxL >= 0 ? 0 : maxP / Math.abs(maxL), margin};
+}
+
+function sgCandidates(D, s, v) {
+  const K = D.K, k = i => D.strikes[clamp(i, 0, K - 1)], a = s.atmK, w = clamp(Math.round(v.move / 2 / v.st), 1, 4);
+  const sP = Math.min(v.supK, a - 1), sC = Math.max(v.resK, a + 1);
+  const leg = (side, type, strike) => ({side, type, strike, lots: 1});
+  return [
+    {name: 'Bull Put Spread', kind: 'bull', credit: 1, legs: [leg('S', 'PE', k(sP)), leg('B', 'PE', k(sP - w))]},
+    {name: 'Bear Call Spread', kind: 'bear', credit: 1, legs: [leg('S', 'CE', k(sC)), leg('B', 'CE', k(sC + w))]},
+    {name: 'Iron Condor', kind: 'range', credit: 1, legs: [leg('S', 'PE', k(sP)), leg('B', 'PE', k(sP - w)), leg('S', 'CE', k(sC)), leg('B', 'CE', k(sC + w))]},
+    {name: 'Short Strangle', kind: 'range', credit: 1, naked: 1, legs: [leg('S', 'PE', k(sP)), leg('S', 'CE', k(sC))]},
+    {name: 'Bull Call Spread', kind: 'bull', credit: 0, legs: [leg('B', 'CE', k(a)), leg('S', 'CE', k(Math.max(sC, a + 1)))]},
+    {name: 'Bear Put Spread', kind: 'bear', credit: 0, legs: [leg('B', 'PE', k(a)), leg('S', 'PE', k(Math.min(sP, a - 1)))]},
+    {name: 'Long Straddle', kind: 'breakout', credit: 0, legs: [leg('B', 'CE', k(a)), leg('B', 'PE', k(a))]},
+  ];
+}
+
+function sgAuto(D, s, t) {
+  const v = sgView(D, s, t), out = [];
+  for (const c of sgCandidates(D, s, v)) {
+    const e = sgEval(D, s, c.legs); if (!e) continue;
+    const dir = c.kind === 'bull' ? v.bias : c.kind === 'bear' ? -v.bias : c.kind === 'range' ? v.rangey * 0.8 - Math.abs(v.bias) * 0.3 : (v.view === 'breakout' ? 0.6 : 0) - v.rangey * 0.4;
+    const ivFit = c.credit ? v.ivLv * 0.25 : -v.ivLv * 0.25;
+    const outside = c.credit && e.bes.length && e.bes.every(b => b <= v.sup + v.st * 0.5 || b >= v.res - v.st * 0.5) ? 0.15 : 0;
+    const fit = clamp(0.5 + dir * 0.5 + ivFit + outside, 0, 1.2);
+    const rrS = c.credit ? clamp(e.rr * 2, 0, 1) : clamp(e.rr / 3, 0, 1);
+    const evS = clamp(0.5 + e.ev / Math.max(1, Math.abs(e.maxL) || e.margin || 1) * 2, 0, 1);
+    let score = 0.45 * fit + 0.3 * e.pop + 0.15 * rrS + 0.1 * evS;
+    if (c.naked) score -= 0.12;                                // unlimited risk needs a clear edge
+    out.push({...c, ...e, fit, score: Math.round(clamp(score, 0, 1) * 100)});
+  }
+  out.sort((a, b) => b.score - a.score);
+  return {view: v, top: out.slice(0, 3)};
+}
+
+function sgWhy(v, c) {
+  const r = [], f = x => inr(x);
+  r.push(v.view === 'bullish' ? L('Market view: <b>bullish tilt</b>', 'Market view: <b>bullish jhukaav</b>') : v.view === 'bearish' ? L('Market view: <b>bearish tilt</b>', 'Market view: <b>bearish jhukaav</b>') : v.view === 'breakout' ? L('Market view: <b>breakout likely</b> (tight walls, cheap options)', 'Market view: <b>breakout ho sakta hai</b> (walls paas, options saste)') : L('Market view: <b>range-bound</b>', 'Market view: <b>range-bound</b>'));
+  r.push(L(`Support ${f(v.sup)} (biggest put writing) · resistance ${f(v.res)} (biggest call writing)`, `Support ${f(v.sup)} (sabse badi put writing) · resistance ${f(v.res)} (sabse badi call writing)`));
+  r.push(L(`PCR ${v.pcr.toFixed(2)} · ${v.wr >= 0 ? 'puts' : 'calls'} being written harder today`, `PCR ${v.pcr.toFixed(2)} · aaj ${v.wr >= 0 ? 'puts' : 'calls'} zyada likhe ja rahe hain`));
+  r.push(L(`ATM IV ${v.iv.toFixed(1)}% · ${v.ivLv > 0 ? 'high, selling premium pays' : v.ivLv < 0 ? 'low, buying options is cheap' : 'normal'}`, `ATM IV ${v.iv.toFixed(1)}% · ${v.ivLv > 0 ? 'high, premium bechna faydemand' : v.ivLv < 0 ? 'low, options khareedna sasta' : 'normal'}`));
+  if (c.credit && c.bes.length && c.bes.every(b => b <= v.sup + v.st * 0.5 || b >= v.res - v.st * 0.5)) r.push(L('Breakevens sit beyond the walls', 'Breakevens walls ke bahar hain'));
+  if (c.naked) r.push(L('<b>Unlimited risk</b> on a big move: use a stop-loss', '<b>Unlimited risk</b> bade move par: stop-loss zaroor lagao'));
+  return r;
+}
+
+const _sgMount = MODS.strategy.mount, _sgUpd = MODS.strategy.update;
+MODS.strategy.mount = function (v) {
+  _sgMount.call(this, v);
+  const g = v.querySelector('.grid'); if (!g) return;
+  g.insertAdjacentHTML('afterbegin', `<section class="card span3 sga"><div class="card-h"><h3>${L('Auto pick · best for this market', 'Auto pick · is market ke liye best')}</h3><span class="sub" id="sgaSub"></span><span class="pill acc" style="margin-left:auto">${L('Updates every minute', 'Har minute update')}</span></div><div class="card-b"><div class="sga-v" id="sgaView"></div><div class="sga-g" id="sgaTop"></div><p class="note" style="margin:10px 0 0">${L('A suggestion from the option chain, not trading advice. Prices are the current LTP, 1 lot per leg; margin is a rough estimate.', 'Option chain se suggestion hai, trading advice nahi. Bhaav abhi ke LTP, har leg 1 lot; margin sirf andaaza hai.')}</p></div></section>`);
+  this.autoT = -1;
+};
+MODS.strategy.update = function (ctx) {
+  _sgUpd.call(this, ctx);
+  if (!$('#sgaTop') || (this.autoT === ctx.t0 && !this.autoDirty)) return;
+  this.autoT = ctx.t0; this.autoDirty = false;
+  const D = this.D, s = ctx.st(app.sym), A = sgAuto(D, s, ctx.tf), v = A.view;
+  setText($('#sgaSub'), `${app.sym} ${inr2(v.S)} · ${tl(ctx.t0)} · ${isLiveD(app.sym) ? L('live chain', 'live chain') : L('demo chain', 'demo chain')}`);
+  const chip = (l, x, c = '') => `<span><i>${l}</i><b class="${c}">${x}</b></span>`;
+  $('#sgaView').innerHTML = chip(L('View', 'View'), v.view.toUpperCase(), v.view === 'bullish' ? 'up' : v.view === 'bearish' ? 'dn' : 'acc') + chip(L('Bias', 'Bias'), (v.bias >= 0 ? '+' : '') + v.bias.toFixed(2), v.bias >= 0 ? 'up' : 'dn') + chip('Support', inr(v.sup), 'up') + chip('Resistance', inr(v.res), 'dn') + chip('PCR', v.pcr.toFixed(2)) + chip('ATM IV', v.iv.toFixed(1) + '%', v.ivLv > 0 ? 'amb' : '') + chip(L('Expected move', 'Expected move'), '±' + inr(v.move)) + chip(L('Days left', 'Din baaki'), v.dte.toFixed(1));
+  const legTxt = legs => legs.map(l => `<span class="${l.side === 'B' ? 'up' : 'dn'}">${l.side === 'B' ? 'BUY' : 'SELL'} ${inr(l.strike)} ${l.type}</span>`).join('');
+  $('#sgaTop').innerHTML = A.top.map((c, i) => `<div class="sga-c${i === 0 ? ' best' : ''}"><div class="sga-h"><b>${i + 1}. ${c.name}</b><span class="sga-s">${c.score}</span></div>
+      <div class="sga-l">${legTxt(c.legs)}</div>
+      <div class="sga-m"><div><span>${L('Chance of profit', 'Profit ka chance')}</span><b class="acc">${(c.pop * 100).toFixed(0)}%</b></div><div><span>${c.net >= 0 ? L('Credit', 'Credit') : L('Debit', 'Debit')}</span><b>₹${inr(Math.abs(c.net))}</b></div>
+        <div><span>${L('Max profit', 'Max profit')}</span><b class="up">${c.unlP ? L('Unlimited', 'Unlimited') : '₹' + inr(c.maxP)}</b></div><div><span>${L('Max loss', 'Max loss')}</span><b class="dn">${c.unlL ? L('Unlimited', 'Unlimited') : '₹' + inr(Math.abs(c.maxL))}</b></div>
+        <div><span>${L('Breakevens', 'Breakevens')}</span><b>${c.bes.map(b => inr(b)).join(' · ') || '—'}</b></div><div><span>${L('Margin ≈', 'Margin ≈')}</span><b>₹${inr(c.margin)}</b></div></div>
+      <ul class="sga-w">${sgWhy(v, c).map(x => `<li>${x}</li>`).join('')}</ul>
+      <button class="lvgo sga-load" data-i="${i}">${L('Load into builder', 'Builder mein load karo')} →</button></div>`).join('') || `<p class="note">${L('Not enough prices on the chain yet.', 'Chain par abhi kaafi bhaav nahi hain.')}</p>`;
+  $$('#sgaTop .sga-load').forEach(b => b.onclick = () => { const c = A.top[+b.dataset.i]; app.legs = c.legs.map(l => ({...l})); app.legsSym = app.sym; this.renderLegs(); this.autoDirty = true; _sgUpd.call(this, lastCtx); const ch = $('#sgCh'); if (ch) ch.closest('.card').scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'center'}); });
 };
 
 /* ================= routing + loop ================= */
