@@ -1,0 +1,1495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>Professor OI Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: trading-terminal shell — sticky header + ticker tape, left rail nav, dense card grid, replay dock fixed at bottom */
+:root{
+  --bg:#0A0E14; --panel:#0F151E; --panel-2:#151D29; --line:#1D2734; --line-2:#2A3647;
+  --fg:#E4E9F0; --muted:#8693A5; --faint:#566274;
+  --accent:#5B8CFF; --call:#F0565A; --put:#1FBF88; --amber:#E2A72E; --on-solid:#FFFFFF; --on-amber:#1D1400;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --top:94px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
+    --fg:#111823; --muted:#556173; --faint:#8994A4;
+    --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
+  --fg:#111823; --muted:#556173; --faint:#8994A4;
+  --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono,td,.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono)}
+.up{color:var(--put)} .dn{color:var(--call)} .mut{color:var(--muted)} .acc{color:var(--accent)} .amb{color:var(--amber)}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:212px minmax(0,1fr);grid-template-rows:auto auto 1fr}
+.top{grid-column:1/-1;position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:14px;padding:9px 16px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap}
+.brand small{display:block;font:500 10px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.symsw{display:flex;align-items:center;gap:4px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
+.symsw button{padding:5px 10px;border-radius:6px;font:600 12px var(--f-body);color:var(--muted)}
+.symsw button[aria-pressed="true"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line-2)}
+.symsw select{background:transparent;border:0;padding:5px 6px;font:600 12px var(--f-body);color:var(--muted);border-radius:6px}
+.symsw select.on{background:var(--panel-2);color:var(--fg)}
+.top .grow{flex:1}
+.clock{font:500 13px var(--f-mono);white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font:700 10.5px var(--f-body);letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--line-2);color:var(--muted);white-space:nowrap}
+.pill.up{color:var(--put);border-color:color-mix(in srgb,var(--put) 45%,transparent);background:color-mix(in srgb,var(--put) 10%,transparent)}
+.pill.dn{color:var(--call);border-color:color-mix(in srgb,var(--call) 45%,transparent);background:color-mix(in srgb,var(--call) 10%,transparent)}
+.pill.warn{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:color-mix(in srgb,var(--amber) 10%,transparent)}
+.pill.acc{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.pill.live .dot{animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 70%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+.ibtn{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);font-size:12.5px;white-space:nowrap}
+.ibtn:hover{color:var(--fg);border-color:var(--line-2)}
+.ibtn svg{width:15px;height:15px}
+kbd{font:500 10.5px var(--f-mono);padding:1px 5px;border:1px solid var(--line-2);border-radius:4px;color:var(--muted)}
+.demo{font:700 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--amber);border:1px dashed color-mix(in srgb,var(--amber) 60%,transparent);padding:3px 8px;border-radius:6px;white-space:nowrap}
+
+.tape{grid-column:1/-1;overflow:hidden;border-bottom:1px solid var(--line);background:var(--panel);position:relative}
+.tape-track{display:flex;gap:30px;width:max-content;padding:6px 16px;animation:tape 70s linear infinite}
+.tape:hover .tape-track{animation-play-state:paused}
+@keyframes tape{to{transform:translateX(-50%)}}
+.ti{display:flex;gap:8px;font:500 12px var(--f-mono);white-space:nowrap}
+.ti b{font-family:var(--f-body);font-weight:700;color:var(--muted);letter-spacing:.03em}
+
+.rail{position:sticky;top:var(--top);align-self:start;max-height:calc(100vh - var(--top) - 70px);overflow:auto;padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.rail h6{margin:12px 10px 6px;font:700 10px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.nav-i{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--muted);font-weight:500;font-size:13.5px;text-align:left;width:100%}
+.nav-i svg{width:17px;height:17px;flex:none}
+.nav-i:hover{color:var(--fg);background:color-mix(in srgb,var(--panel-2) 60%,transparent)}
+.nav-i[aria-current="page"]{color:var(--fg);background:var(--panel-2)}
+.nav-i[aria-current="page"] svg{color:var(--accent)}
+.nav-i em{margin-left:auto;font:700 9px var(--f-body);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:1px 5px;border-radius:4px}
+main{min-width:0;padding:18px 20px 120px}
+
+/* ---------- page parts ---------- */
+.phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.phead h1{margin:0;font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;text-wrap:balance}
+.phead p{margin:5px 0 0;color:var(--muted);max-width:68ch}
+.ptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.card-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.card-h h3{margin:0;font:700 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.card-h .sub{font-size:11.5px;color:var(--faint)}
+.card-h .tools{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.card-b{padding:12px 14px}
+.grid{display:grid;gap:12px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.span2{grid-column:span 2}.span3{grid-column:1/-1}
+.seg{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.seg button{padding:4px 9px;border-radius:6px;font:600 11.5px var(--f-body);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line-2)}
+.sel{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:5px 8px;font:600 12px var(--f-body)}
+.note{font-size:12px;color:var(--faint);margin:10px 2px 0}
+.empty{color:var(--faint);font-size:13px;padding:8px 0}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin-bottom:12px}
+.kpi{padding:12px 14px 8px;display:flex;flex-direction:column;gap:3px}
+.kpi .lab{font:700 10.5px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kpi .val{font:600 22px/1.15 var(--f-mono);letter-spacing:-.02em}
+.kpi .sub{font:500 12px var(--f-mono)}
+.kpi svg{width:100%;height:34px;margin-top:4px;display:block}
+
+/* flash on change */
+.fu{animation:fu .9s ease-out}.fd{animation:fd .9s ease-out}
+@keyframes fu{0%{background-color:color-mix(in srgb,var(--put) 50%,transparent)}100%{background-color:transparent}}
+@keyframes fd{0%{background-color:color-mix(in srgb,var(--call) 50%,transparent)}100%{background-color:transparent}}
+b.v,.fl{border-radius:3px;padding:0 2px}
+
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:12px}
+.tbl th{font:700 10px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 8px;background:var(--panel-2);text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.tbl td{padding:5px 8px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl td.l,.tbl th.l{text-align:left}.tbl td.c,.tbl th.c{text-align:center}
+.tbl tbody tr:hover td{background-color:color-mix(in srgb,var(--panel-2) 70%,transparent)}
+.bc{position:relative}
+.bc>.bar{position:absolute;top:3px;bottom:3px;right:2px;width:0;border-radius:3px;background:color-mix(in srgb,var(--call) 24%,transparent);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.bc.p>.bar{right:auto;left:2px;background:color-mix(in srgb,var(--put) 24%,transparent)}
+.bc>span,.bc>b{position:relative}
+.bc .pc{display:block;font-size:10px;color:var(--faint)}
+.bc b.v{font-weight:500}
+td.h1c{background:var(--call)!important;color:var(--on-solid)}
+td.h1p{background:var(--put)!important;color:var(--on-solid)}
+td.h2{background:var(--amber)!important;color:var(--on-amber)}
+td.h1c .pc,td.h1p .pc,td.h2 .pc{color:inherit;opacity:.8}
+td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
+
+/* chain */
+.chain{min-width:1120px}
+.chain th.cg{background:color-mix(in srgb,var(--call) 80%,var(--panel));color:var(--on-solid);text-align:center}
+.chain th.pg{background:color-mix(in srgb,var(--put) 80%,var(--panel));color:var(--on-solid);text-align:center}
+.chain th.sp,.chain td.sp{text-align:center;background:var(--panel-2)}
+.chain th.sp{cursor:pointer}
+.chain td.sp b{font-size:13px}
+.chain td.sp i{display:block;font-style:normal;font-size:10px;color:var(--faint)}
+.chain td .sub{display:block;font-size:10px;color:var(--faint)}
+.chain td .sub i{font-style:normal}
+.chain tr.itmc td.cs{background:color-mix(in srgb,var(--amber) 6%,transparent)}
+.chain tr.itmp td.ps{background:color-mix(in srgb,var(--amber) 6%,transparent)}
+.chain tr.atm td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.chain tr.atm td.sp{background:color-mix(in srgb,var(--accent) 28%,var(--panel));color:var(--fg)}
+.chain tr.mid td{padding:7px 10px;background:var(--panel-2)!important;border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);font-family:var(--f-body);font-size:11.5px;text-align:center}
+.mid-in{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.mid-in .ctr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center;font-family:var(--f-mono);font-size:11.5px}
+.mid-in .sh{color:var(--muted);font-size:11px}
+.sumbar{display:grid;grid-template-columns:1fr auto 1fr;border-radius:8px;overflow:hidden;margin-bottom:10px;font:500 11.5px var(--f-mono)}
+.sumbar>div{display:flex;flex-wrap:wrap;gap:4px 16px;padding:7px 12px;align-items:center}
+.sumbar .cs{background:color-mix(in srgb,var(--call) 16%,var(--panel));justify-content:flex-start}
+.sumbar .ps{background:color-mix(in srgb,var(--put) 16%,var(--panel));justify-content:flex-end}
+.sumbar .tm{background:var(--panel-2);font-weight:700}
+.sumbar span b{font-family:var(--f-body);font-size:10px;letter-spacing:.06em;color:var(--muted);margin-right:5px}
+
+/* overview walls */
+.wl{display:grid;grid-template-columns:minmax(92px,auto) 1fr minmax(92px,auto);gap:14px;align-items:center;padding:10px 0}
+.wl+.wl{border-top:1px solid var(--line)}
+.wl .side .k{font:700 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.wl .side .lv{font:600 20px var(--f-mono)}
+.wl .side .s2{font-size:11.5px;color:var(--faint)}
+.wl .side.r{text-align:right}
+.trk{position:relative;height:44px}
+.trk .ln{position:absolute;left:0;right:0;top:26px;height:8px;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--put) 45%,transparent),color-mix(in srgb,var(--fg) 7%,transparent) 50%,color-mix(in srgb,var(--call) 45%,transparent))}
+.trk .mk{position:absolute;top:30px;left:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--fg);box-shadow:0 0 0 3px var(--panel);transition:left .45s cubic-bezier(.2,.8,.2,1)}
+.trk .mt{position:absolute;top:0;left:50%;transform:translateX(-50%);font:600 12px var(--f-mono);white-space:nowrap;transition:left .45s cubic-bezier(.2,.8,.2,1)}
+.trk .nm{position:absolute;top:2px;left:0;font:700 10px var(--f-body);letter-spacing:.1em;color:var(--faint)}
+.ai{font-size:14.5px;line-height:1.6;margin:0;min-height:7.5em;text-wrap:pretty}
+.ai .cur{display:inline-block;width:7px;height:1em;background:var(--accent);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.meta{font-size:11.5px;color:var(--faint);margin-top:8px}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.feed li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:12.5px}
+.feed li:first-child{border-top:0}
+.feed li .tm{font:500 11.5px var(--f-mono);color:var(--faint);padding-top:1px}
+.feed li .tt{font-weight:600}
+.feed li .dd{color:var(--muted);font-size:11.5px}
+.feed li.new{animation:slidein .5s ease-out}
+.feed button.ev{display:contents;text-align:left}
+@keyframes slidein{from{opacity:.2;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.tone-up .tt{color:var(--put)}.tone-down .tt{color:var(--call)}.tone-warn .tt{color:var(--amber)}.tone-acc .tt{color:var(--accent)}
+.wr{display:grid;grid-template-columns:62px 1fr 64px;gap:8px;align-items:center;font:500 12px var(--f-mono);padding:4px 0}
+.wr .b{height:8px;border-radius:999px;background:color-mix(in srgb,var(--fg) 7%,transparent);overflow:hidden}
+.wr .b i{display:block;height:100%;border-radius:999px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.ring{display:grid;place-items:center;position:relative}
+.ring svg{width:150px;height:150px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11}
+.ring .tr{stroke:color-mix(in srgb,var(--fg) 8%,transparent)}
+.ring .fg{stroke-linecap:round;transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1),stroke .4s}
+.ring .lbl{position:absolute;text-align:center}
+.ring .lbl b{display:block;font:700 34px/1 var(--f-display)}
+.ring .lbl span{font:700 9.5px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.adbar{display:flex;height:8px;border-radius:999px;overflow:hidden;margin:10px 0 6px;background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.adbar i{display:block;transition:width .7s}
+.mv{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font:500 12px var(--f-mono)}
+.mv div{display:flex;justify-content:space-between;gap:8px}
+.mv span{font-family:var(--f-body);font-weight:600;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* charts */
+.chart{width:100%;min-height:60px;position:relative}
+.chart svg{display:block;overflow:visible}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .axl{fill:var(--faint);font:500 10.5px var(--f-mono)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.cvwrap{position:relative;width:100%}
+.cvwrap canvas{display:block;width:100%}
+.tip{position:absolute;pointer-events:none;background:var(--panel-2);border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;font:500 11.5px/1.5 var(--f-mono);white-space:nowrap;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.tip b{font-family:var(--f-body)}
+
+/* structure */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:5px}
+.tile{padding:6px 7px;border-radius:6px;font:600 10.5px var(--f-body);letter-spacing:.02em;border:1px solid transparent;transition:background-color .6s}
+.tile span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile b{display:block;font:500 11.5px var(--f-mono);margin-top:1px}
+.lvls{display:flex;flex-direction:column}
+.lvls div{display:flex;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--line);font-size:13px}
+.lvls div:first-child{border-top:0}
+.lvls div.atm{background:var(--panel-2);border-radius:6px}
+.lvls b{font:600 13px var(--f-mono)}
+.hb{display:grid;grid-template-columns:1fr 64px 1fr;gap:6px;align-items:center;font:500 11px var(--f-mono);padding:2px 0}
+.hb .c,.hb .p{height:16px;position:relative;border-radius:3px;background:color-mix(in srgb,var(--fg) 4%,transparent);overflow:hidden}
+.hb .c i{position:absolute;right:0;top:0;bottom:0;background:var(--call);opacity:.75;transition:width .7s}
+.hb .p i{position:absolute;left:0;top:0;bottom:0;background:var(--put);opacity:.75;transition:width .7s}
+.hb .k{text-align:center}
+.hb.atm .k{color:var(--accent);font-weight:700}
+.verdict{font:700 30px/1 var(--f-display);letter-spacing:-.01em}
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0}
+.kv b{font:600 12.5px var(--f-mono)}
+.bigv{font:600 30px/1.1 var(--f-mono);letter-spacing:-.02em}
+
+/* strategy */
+.legs td{vertical-align:middle}
+.legs select,.legs input{background:var(--panel-2);border:1px solid var(--line-2);border-radius:6px;padding:4px 6px;font:500 12px var(--f-mono);width:100%}
+.legs input{width:64px}
+.bs{padding:4px 9px;border-radius:6px;font:700 11px var(--f-body);letter-spacing:.06em}
+.bs.B{background:color-mix(in srgb,var(--put) 18%,transparent);color:var(--put)}
+.bs.S{background:color-mix(in srgb,var(--call) 18%,transparent);color:var(--call)}
+.x{width:26px;height:26px;border-radius:6px;color:var(--faint)}
+.x:hover{color:var(--call);background:var(--panel-2)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat div{padding:10px 12px;background:var(--panel-2);border-radius:8px}
+.stat span{display:block;font:700 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat b{font:600 16px var(--f-mono)}
+
+/* journal */
+.tr-row{cursor:pointer}
+.tr-row.sel td{background:color-mix(in srgb,var(--accent) 10%,transparent)!important}
+.ex{font:700 9.5px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+
+/* alerts */
+.rule{display:grid;grid-template-columns:1fr auto;gap:4px 14px;padding:12px 0;border-top:1px solid var(--line)}
+.rule:first-child{border-top:0}
+.rule b{font-size:13.5px}
+.rule p{margin:0;color:var(--muted);font-size:12.5px;grid-column:1}
+.sw{position:relative;width:40px;height:22px;border-radius:999px;background:var(--line-2);transition:background .2s;grid-row:1/3;grid-column:2;align-self:center}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--on-solid);transition:transform .2s}
+.sw[aria-checked="true"]{background:var(--put)}
+.sw[aria-checked="true"]::after{transform:translateX(18px)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* blueprint */
+.bp p,.bp li{max-width:72ch;line-height:1.6}
+.bp .tbl td{white-space:normal}
+.bp h2{font:700 18px var(--f-display);margin:0 0 8px}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:stretch}
+.flow div{position:relative;padding:12px;border:1px solid var(--line-2);border-radius:9px;background:var(--panel-2);font-size:12.5px}
+.flow div b{display:block;font-size:13px;margin-bottom:3px}
+.flow div:not(:last-child)::after{content:"→";position:absolute;right:-10px;top:50%;transform:translate(50%,-50%);color:var(--accent);font-weight:700}
+.chk{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.chk:first-child{border-top:0}
+.chk input{width:17px;height:17px;accent-color:var(--put)}
+.chk span{color:var(--muted);font-size:12.5px;grid-column:2}
+.phase{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.phase:first-child{border-top:0}
+.phase b{font:700 12px var(--f-body);color:var(--accent)}
+
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:12px;padding:9px 16px calc(9px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.play{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-solid);flex:none}
+.play svg{width:15px;height:15px}
+.scrub{position:relative;flex:1;height:34px;min-width:80px}
+.scrub .bg,.scrub .av,.scrub .fl{position:absolute;left:0;top:15px;height:4px;border-radius:999px}
+.scrub .bg{right:0;background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 7px)}
+.scrub .av{background:var(--line-2)}
+.scrub .fl{background:var(--accent)}
+.scrub .mk{position:absolute;top:8px;width:2px;height:6px;border-radius:1px;transform:translateX(-1px)}
+.scrub .hr{position:absolute;top:23px;font:500 9.5px var(--f-mono);color:var(--faint);transform:translateX(-50%)}
+.scrub input{position:absolute;inset:0;width:100%;margin:0;opacity:1;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+.scrub input::-webkit-slider-runnable-track{height:34px;background:transparent}
+.scrub input::-moz-range-track{height:34px;background:transparent}
+.scrub input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:10px;border-radius:50%;background:var(--fg);border:3px solid var(--accent)}
+.scrub input::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--fg);border:3px solid var(--accent)}
+.dock .tlab{font:600 13px var(--f-mono);min-width:64px}
+.toasts{position:fixed;top:calc(var(--top) + 6px);right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;width:min(340px,calc(100vw - 32px));pointer-events:none}
+.toast{pointer-events:auto;display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.3);animation:tin .45s cubic-bezier(.2,.8,.2,1)}
+.toast .ic{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font:700 14px var(--f-mono)}
+.toast.up .ic{background:color-mix(in srgb,var(--put) 20%,transparent);color:var(--put)}
+.toast.down .ic{background:color-mix(in srgb,var(--call) 20%,transparent);color:var(--call)}
+.toast.warn .ic,.toast.acc .ic{background:color-mix(in srgb,var(--amber) 20%,transparent);color:var(--amber)}
+.toast b{font-size:12.5px;display:block}
+.toast span{font-size:11.5px;color:var(--muted)}
+.toast.out{animation:tout .35s ease-in forwards}
+@keyframes tin{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(24px)}}
+.cmdk{position:fixed;inset:0;z-index:90;background:rgba(5,8,12,.55);display:grid;place-items:start center;padding:12vh 16px 0}
+.cmdk-box{width:min(560px,100%);background:var(--panel);border:1px solid var(--line-2);border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.4)}
+.cmdk-box input{width:100%;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:transparent;font-size:15px;outline:none}
+.cmdk-box ul{list-style:none;margin:0;padding:6px;max-height:340px;overflow:auto}
+.cmdk-box li{padding:9px 11px;border-radius:7px;display:flex;justify-content:space-between;gap:10px;cursor:pointer;font-size:13.5px}
+.cmdk-box li span{color:var(--faint);font-size:11.5px}
+.cmdk-box li[aria-selected="true"]{background:var(--panel-2)}
+.anim-in{animation:pagein .35s ease-out}
+@keyframes pagein{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+@media (max-width:1100px){
+  .shell{grid-template-columns:64px minmax(0,1fr)}
+  .rail h6,.nav-i span,.nav-i em{display:none}
+  .nav-i{justify-content:center;padding:10px}
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3 .span2{grid-column:1/-1}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .flow div::after{display:none}
+}
+@media (max-width:760px){
+  :root{--top:0px}
+  .shell{display:block}
+  .top{flex-wrap:wrap;gap:8px 10px}
+  .top .hide-s{display:none}
+  .rail{position:static;max-height:none;flex-direction:row;overflow-x:auto;padding:8px 12px;border-bottom:1px solid var(--line);gap:4px}
+  .rail h6{display:none}
+  .nav-i{width:auto;flex:none;padding:8px 10px}
+  .nav-i span{display:inline;font-size:12.5px}
+  main{padding:14px 16px 120px}
+  .g3,.g2{grid-template-columns:minmax(0,1fr)}
+  .span2{grid-column:auto}
+  .sumbar{grid-template-columns:1fr}
+  .sumbar .ps{justify-content:flex-start}
+  .wl{grid-template-columns:1fr 1fr}
+  .wl .trk{grid-column:1/-1;grid-row:2}
+  .dock{gap:8px;padding-left:12px;padding-right:12px}
+  .dock .spd{display:none}
+  .flow{grid-template-columns:minmax(0,1fr)}
+  .toasts{top:auto;bottom:80px}
+}
+@media (prefers-reduced-motion: reduce){
+  .tape-track{animation:none}
+  *{transition-duration:.01ms!important}
+  .feed li.new,.anim-in,.toast{animation:none}
+}
+</style>
+
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="var(--accent)"/><rect x="7" y="12" width="4" height="10" rx="1.5" fill="var(--call)"/><rect x="12.5" y="7" width="4" height="15" rx="1.5" fill="#fff"/><rect x="18" y="10" width="4" height="12" rx="1.5" fill="var(--put)"/></svg>
+      <div>Professor OI<small>Options terminal</small></div>
+    </div>
+    <div class="symsw" id="symsw" aria-label="Symbol">
+      <button data-sym="NIFTY">NIFTY</button>
+      <button data-sym="BANKNIFTY">BANKNIFTY</button>
+      <label class="hide-s" style="display:contents"><select id="stockSel" aria-label="Stock"><option value="">Stocks</option><option>RELIANCE</option><option>HDFCBANK</option><option>INFY</option><option>SBIN</option></select></label>
+    </div>
+    <span class="grow"></span>
+    <span class="demo hide-s" title="Sab numbers simulated hain">Demo data</span>
+    <span class="pill up live" id="status"><span class="dot"></span><span id="statusTxt">Live</span></span>
+    <span class="clock" id="clock">12:00:00</span>
+    <span class="pill hide-s" id="expiry">Exp 13 Oct</span>
+    <button class="ibtn" id="openK" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"/></svg><span class="hide-s">Search</span> <kbd class="hide-s">Ctrl K</kbd></button>
+    <button class="ibtn" id="themeBtn" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+  </header>
+  <div class="tape" aria-label="Ticker"><div class="tape-track" id="tape"></div></div>
+  <nav class="rail" id="rail" aria-label="Pages"></nav>
+  <main id="view" tabindex="-1"></main>
+</div>
+
+<div class="dock" id="dock">
+  <button class="play" id="playBtn" aria-label="Pause"></button>
+  <div class="seg spd" id="speedSeg" aria-label="Replay speed"><button data-s="1">1×</button><button data-s="5">5×</button><button data-s="20">20×</button></div>
+  <div class="scrub" id="scrub">
+    <div class="bg"></div><div class="av" id="scAv"></div><div class="fl" id="scFl"></div>
+    <div id="scMk"></div>
+    <input type="range" id="scIn" min="0" max="375" step="0.25" value="150" aria-label="Session time">
+  </div>
+  <span class="tlab" id="tlab">12:00</span>
+  <button class="ibtn" id="liveBtn">● Live</button>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="cmdk" id="cmdk" hidden><div class="cmdk-box" role="dialog" aria-label="Search"><input id="cmdkIn" placeholder="Page ya symbol likho… (jaise RELIANCE, heatmap)" autocomplete="off"><ul id="cmdkList" role="listbox"></ul></div></div>
+
+<script>
+(() => {
+'use strict';
+/* ================= utils ================= */
+const N = 375;                       // minutes 09:15 → 15:30
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const sq = x => x * x;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inr = n => Math.round(n).toLocaleString('en-IN');
+const inr2 = n => n.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const sgn = (n, f = inr) => (n > 0 ? '+' : n < 0 ? '−' : '') + f(Math.abs(n));
+const pct = (n, d = 2) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(d) + '%';
+const r05 = x => Math.max(0.05, Math.round(x * 20) / 20);
+const pad = n => String(n).padStart(2, '0');
+const tl = t => { const m = 555 + Math.floor(t); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+const tls = t => tl(t) + ':' + pad(Math.floor((t % 1) * 60));
+const argmax = a => { let b = 0; for (let i = 1; i < a.length; i++) if (a[i] > a[b]) b = i; return b; };
+function compact(n) { const a = Math.abs(n), s = n < 0 ? '−' : ''; if (a >= 1e7) return s + (a / 1e7).toFixed(2) + ' Cr'; if (a >= 1e5) return s + (a / 1e5).toFixed(a >= 1e6 ? 1 : 2) + ' L'; if (a >= 1e3) return s + (a / 1e3).toFixed(1) + ' K'; return s + Math.round(a); }
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+function ncdf(x) { const t = 1 / (1 + 0.2316419 * Math.abs(x)), d = 0.3989422804 * Math.exp(-x * x / 2); const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return x > 0 ? 1 - p : p; }
+const npdf = x => 0.3989422804 * Math.exp(-x * x / 2);
+const RATE = 0.065;
+function bs(S, K, T, v, call) {
+  if (T <= 1e-6) return {p: call ? Math.max(0, S - K) : Math.max(0, K - S), d: call ? (S > K ? 1 : 0) : (S < K ? -1 : 0), g: 0, th: 0, ve: 0};
+  const sT = Math.sqrt(T), d1 = (Math.log(S / K) + (RATE + v * v / 2) * T) / (v * sT), d2 = d1 - v * sT, disc = Math.exp(-RATE * T);
+  const p = call ? S * ncdf(d1) - K * disc * ncdf(d2) : K * disc * ncdf(-d2) - S * ncdf(-d1);
+  return {p, d: call ? ncdf(d1) : ncdf(d1) - 1, g: npdf(d1) / (S * v * sT),
+    th: (-(S * npdf(d1) * v) / (2 * sT) - (call ? 1 : -1) * RATE * K * disc * ncdf(call ? d2 : -d2)) / 365, ve: S * npdf(d1) * sT / 100};
+}
+function niceTicks(min, max, n = 4) { const span = (max - min) || 1, s0 = span / n, mag = 10 ** Math.floor(Math.log10(s0)), e = s0 / mag; const st = (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1) * mag; const out = []; for (let v = Math.ceil(min / st) * st; v <= max + 1e-9; v += st) out.push(+v.toFixed(8)); return out; }
+const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function rgba(hex, a) { const h = hex.replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function flash(el, v, txt) { if (!el) return; if (el.textContent !== txt) el.textContent = txt; if (el._v !== undefined && v !== el._v) { el.classList.remove('fu', 'fd'); void el.offsetWidth; el.classList.add(v > el._v ? 'fu' : 'fd'); } el._v = v; }
+const setText = (el, txt) => { if (el && el.textContent !== txt) el.textContent = txt; };
+
+/* ================= simulated market ================= */
+const CFG = {
+  NIFTY:     {sym:'NIFTY', name:'NIFTY 50', kind:'index', spot0:22448, prev:22396, step:50, lot:75, half:15, iv0:0.118, dte:4, exp:'13 Oct', seed:7,  vol:0.00052, bias:0.00005, base:210000, smile:[5,260]},
+  BANKNIFTY: {sym:'BANKNIFTY', name:'NIFTY BANK', kind:'index', spot0:55040, prev:54912, step:100, lot:35, half:15, iv0:0.134, dte:4, exp:'13 Oct', seed:19, vol:0.00064, bias:0.00003, base:62000, smile:[4,220]},
+  RELIANCE:  {sym:'RELIANCE', name:'Reliance Industries', kind:'stock', spot0:1189, prev:1192, step:10, lot:500, half:10, iv0:0.21, dte:18, exp:'28 Oct', seed:31, vol:0.0007, bias:-0.00002, base:16000, smile:[2,30]},
+  HDFCBANK:  {sym:'HDFCBANK', name:'HDFC Bank', kind:'stock', spot0:1712, prev:1704, step:20, lot:550, half:10, iv0:0.18, dte:18, exp:'28 Oct', seed:41, vol:0.0006, bias:0.00002, base:14000, smile:[2,30]},
+  INFY:      {sym:'INFY', name:'Infosys', kind:'stock', spot0:1534, prev:1522, step:20, lot:400, half:10, iv0:0.24, dte:18, exp:'28 Oct', seed:53, vol:0.0008, bias:0.00003, base:12000, smile:[2,30]},
+  SBIN:      {sym:'SBIN', name:'State Bank of India', kind:'stock', spot0:812, prev:806, step:10, lot:750, half:10, iv0:0.23, dte:18, exp:'28 Oct', seed:67, vol:0.0007, bias:0.00001, base:15000, smile:[2,30]},
+};
+const NIFTY50 = ['RELIANCE','HDFCBANK','ICICIBANK','INFY','TCS','BHARTIARTL','ITC','LT','SBIN','AXISBANK','KOTAKBANK','HINDUNILVR','BAJFINANCE','M&M','MARUTI','SUNPHARMA','HCLTECH','TITAN','NTPC','ULTRACEMCO','TATAMOTORS','POWERGRID','ONGC','ADANIPORTS','ASIANPAINT','TATASTEEL','COALINDIA','BAJAJFINSV','NESTLEIND','JSWSTEEL','WIPRO','GRASIM','TECHM','HINDALCO','CIPLA','DRREDDY','SBILIFE','HDFCLIFE','BEL','TRENT','EICHERMOT','BRITANNIA','APOLLOHOSP','INDUSINDBK','SHRIRAMFIN','ADANIENT','HEROMOTOCO','BAJAJ-AUTO','TATACONSUM','JIOFIN'];
+const BANK14 = ['HDFCBANK','ICICIBANK','SBIN','KOTAKBANK','AXISBANK','INDUSINDBK','BANKBARODA','PNB','FEDERALBNK','IDFCFIRSTB','AUBANK','CANBK','YESBANK','UNIONBANK'];
+const DATA = {};
+const getData = sym => DATA[sym] || (DATA[sym] = gen(sym));
+
+function gen(sym) {
+  const c = CFG[sym], r = mulberry32(c.seed * 7919 + 13), K = 2 * c.half + 1, st = c.step;
+  const atm0 = Math.round(c.spot0 / st) * st;
+  const strikes = Array.from({length: K}, (_, i) => atm0 + (i - c.half) * st);
+  const spot = new Float64Array(N + 1), hi = new Float64Array(N + 1), lo = new Float64Array(N + 1);
+  const segs = []; for (let b = 0; b < N;) { const len = 45 + Math.floor(r() * 95); segs.push({end: b + len, mu: c.bias + gauss(r) * c.vol * 0.11}); b += len; }
+  spot[0] = hi[0] = lo[0] = c.spot0;
+  for (let t = 1, si = 0; t <= N; t++) {
+    while (segs[si].end < t) si++;
+    const v = c.vol * (t < 25 ? 1.7 : t > 345 ? 1.3 : 1);
+    spot[t] = spot[t - 1] * (1 + segs[si].mu + v * gauss(r));
+    const w = Math.abs(gauss(r)) * v * spot[t] * 0.6;
+    hi[t] = Math.max(spot[t], spot[t - 1]) + w * r(); lo[t] = Math.min(spot[t], spot[t - 1]) - w * r();
+  }
+  const bonus = strikes.map(x => x % (st * 10) === 0 ? 1.9 : x % (st * 2) === 0 ? 1.25 : 1);
+  const cO = new Float64Array((N + 1) * K), pO = new Float64Array((N + 1) * K), cV = new Float64Array((N + 1) * K), pV = new Float64Array((N + 1) * K);
+  for (let k = 0; k < K; k++) {
+    const x = strikes[k];
+    cO[k] = c.base * (0.16 + 0.84 * Math.exp(-sq((x - (c.spot0 + 4 * st)) / (8 * st)))) * (x < c.spot0 ? 0.5 : 1) * bonus[k] * (0.8 + 0.4 * r());
+    pO[k] = c.base * (0.16 + 0.84 * Math.exp(-sq((x - (c.spot0 - 4 * st)) / (8 * st)))) * (x > c.spot0 ? 0.5 : 1) * bonus[k] * (0.8 + 0.4 * r());
+  }
+  for (let t = 1; t <= N; t++) {
+    const S = spot[t], burst = t < 20 ? 2.4 : t > 340 ? 1.5 : 1;
+    const mom = clamp((S - spot[Math.max(0, t - 15)]) / S * 150, -0.75, 0.75);
+    for (let k = 0; k < K; k++) {
+      const x = strikes[k], i = t * K + k, j = i - K, near = Math.exp(-sq((x - S) / (7 * st)));
+      let wc = c.base * 0.004 * burst * bonus[k] * Math.exp(-sq((x - (S + 2.2 * st)) / (3.6 * st))) * (1 - mom) + c.base * 0.0011 * gauss(r) * near;
+      let wp = c.base * 0.004 * burst * bonus[k] * Math.exp(-sq((x - (S - 2.2 * st)) / (3.6 * st))) * (1 + mom) + c.base * 0.0011 * gauss(r) * near;
+      if (x < S - st) wc -= cO[j] * 0.005 * Math.min(3, (S - x) / (3 * st));
+      if (x > S + st) wp -= pO[j] * 0.005 * Math.min(3, (x - S) / (3 * st));
+      cO[i] = Math.max(200, cO[j] + wc); pO[i] = Math.max(200, pO[j] + wp);
+      cV[i] = cV[j] + Math.abs(wc) * 5 + c.base * 0.03 * burst * (near * 0.9 + 0.1) * (0.5 + r());
+      pV[i] = pV[j] + Math.abs(wp) * 5 + c.base * 0.03 * burst * (near * 0.9 + 0.1) * (0.5 + r());
+    }
+  }
+  const dayHi = new Float64Array(N + 1), dayLo = new Float64Array(N + 1);
+  for (let t = 0; t <= N; t++) { dayHi[t] = Math.max(t ? dayHi[t - 1] : -Infinity, hi[t]); dayLo[t] = Math.min(t ? dayLo[t - 1] : Infinity, lo[t]); }
+  const D = {c, sym, K, strikes, spot, hi, lo, dayHi, dayLo, cO, pO, cV, pV, prevC: new Float64Array(K), prevP: new Float64Array(K), snaps: [], events: []};
+  for (let k = 0; k < K; k++) {
+    const x = strikes[k], m = Math.log(x / c.prev), iv = c.iv0 * 1.03 * (1 - c.smile[0] * m + c.smile[1] * m * m);
+    D.prevC[k] = bs(c.prev, x, (c.dte + 1) / 365, iv, true).p; D.prevP[k] = bs(c.prev, x, (c.dte + 1) / 365, iv * 1.015, false).p;
+  }
+  for (let t = 0; t <= N; t++) D.snaps[t] = snapAt(D, t, spot[t], t);
+  D.ser = {pcr: D.snaps.map(s => s.pcr), gex: D.snaps.map(s => s.gex), mp: D.snaps.map(s => s.maxPain), iv: D.snaps.map(s => s.cIV[s.atmK])};
+  confirmWalls(D); moreEvents(D);
+  if (sym === 'NIFTY') D.stocks = mkStocks(D, NIFTY50);
+  if (sym === 'BANKNIFTY') D.stocks = mkStocks(D, BANK14);
+  return D;
+}
+
+function snapAt(D, tt, S, tOI) {
+  const c = D.c, K = D.K, st = c.step, o = tOI * K, tm = Math.min(tt, N);
+  const T = Math.max(2e-5, (c.dte - tm / N * 0.26) / 365), ivB = c.iv0 * (1 - 0.07 * tm / N);
+  const s = {t: tt, t0: tOI, S, T, K, c};
+  for (const n of ['cOI','pOI','cChg','pChg','cVol','pVol','cP','pP','cCh','pCh','cIV','pIV','cD','pD','cG','pG','cTh','pTh','cVe','pVe','cTV','pTV','revC','revP','pcrK','gexK','pain']) s[n] = new Float64Array(K);
+  let sC = 0, sP = 0, sCc = 0, sPc = 0, gx = 0;
+  for (let k = 0; k < K; k++) {
+    const x = D.strikes[k], m = Math.log(x / S), iv = Math.max(0.05, ivB * (1 - c.smile[0] * m + c.smile[1] * m * m));
+    const bc = bs(S, x, T, iv, true), bp = bs(S, x, T, iv * 1.015, false);
+    s.cOI[k] = D.cO[o + k]; s.pOI[k] = D.pO[o + k]; s.cChg[k] = s.cOI[k] - D.cO[k]; s.pChg[k] = s.pOI[k] - D.pO[k];
+    s.cVol[k] = D.cV[o + k]; s.pVol[k] = D.pV[o + k];
+    s.cP[k] = r05(bc.p); s.pP[k] = r05(bp.p); s.cCh[k] = s.cP[k] - D.prevC[k]; s.pCh[k] = s.pP[k] - D.prevP[k];
+    s.cIV[k] = iv * 100; s.pIV[k] = iv * 101.5; s.cD[k] = bc.d; s.pD[k] = bp.d; s.cG[k] = bc.g; s.pG[k] = bp.g;
+    s.cTh[k] = bc.th; s.pTh[k] = bp.th; s.cVe[k] = bc.ve; s.pVe[k] = bp.ve;
+    s.cTV[k] = Math.max(0, s.cP[k] - Math.max(0, S - x)); s.pTV[k] = Math.max(0, s.pP[k] - Math.max(0, x - S));
+    const strd = s.cP[k] + s.pP[k]; s.revC[k] = Math.round(x - 0.08 * strd); s.revP[k] = Math.round(x - 0.3 * strd);
+    s.pcrK[k] = s.cOI[k] > 0 ? s.pOI[k] / s.cOI[k] : 0;
+    s.gexK[k] = (bc.g * s.cOI[k] - bp.g * s.pOI[k]) * c.lot * S * S * 0.01 / 1e7;
+    sC += s.cOI[k]; sP += s.pOI[k]; sCc += s.cChg[k]; sPc += s.pChg[k]; gx += s.gexK[k];
+  }
+  Object.assign(s, {totC: sC, totP: sP, totCc: sCc, totPc: sPc, pcr: sP / sC, gex: gx});
+  s.atm = Math.round(S / st) * st; s.atmK = clamp(Math.round((s.atm - D.strikes[0]) / st), 0, K - 1);
+  s.majR = argmax(s.cOI); s.majS = argmax(s.pOI);
+  s.rawR = Math.max(...s.cChg) > 0 ? argmax(s.cChg) : s.majR; s.rawS = Math.max(...s.pChg) > 0 ? argmax(s.pChg) : s.majS;
+  let cum = 0; s.flip = null;
+  for (let k = 0; k < K; k++) { const prev = cum; cum += s.gexK[k]; if (prev < 0 && cum >= 0 && s.flip === null) s.flip = D.strikes[k]; }
+  let best = Infinity; s.maxPain = s.atm;
+  for (let j = 0; j < K; j++) { let p = 0; const xj = D.strikes[j]; for (let k = 0; k < K; k++) { const xk = D.strikes[k]; p += s.cOI[k] * Math.max(0, xj - xk) + s.pOI[k] * Math.max(0, xk - xj); } s.pain[j] = p * c.lot / 1e7; if (p < best) { best = p; s.maxPain = xj; } }
+  s.F = s.atm + s.cP[s.atmK] - s.pP[s.atmK];
+  return s;
+}
+
+function confirmWalls(D) {
+  const sn = D.snaps;
+  for (const side of ['S', 'R']) {
+    const raw = t => side === 'S' ? sn[t].rawS : sn[t].rawR;
+    const chg = (t, k) => side === 'S' ? sn[t].pChg[k] : sn[t].cChg[k];
+    const ser = new Int16Array(N + 1), fk = new Int16Array(N + 1).fill(-1), fn = new Int8Array(N + 1);
+    let cur = raw(3), cand = -1, cnt = 0;
+    for (let t = 0; t <= N; t++) {
+      if (t > 3) {
+        const rw = raw(t);
+        if (rw !== cur) {
+          const nv = chg(t, rw), ov = chg(t, cur), need = t < 5 ? 1.3 : 1.02;
+          if (nv > 0 && nv >= Math.max(ov, 0) * need + 1) {
+            if (cand === rw) cnt++; else { cand = rw; cnt = 1; }
+            if (cnt >= 3) {
+              const unw = chg(t, cur) < chg(Math.max(0, t - 10), cur) * 0.97;
+              let second = 0; for (let k = 0; k < D.K; k++) if (k !== rw) second = Math.max(second, chg(t, k));
+              D.events.push({t, sym: D.sym, type: 'shift', side, from: D.strikes[cur], to: D.strikes[rw], kind: unw ? 'old wall unwinding' : 'fresh writing', ratio: second > 0 ? nv / second : 0, tone: D.strikes[rw] > D.strikes[cur] ? 'up' : 'down'});
+              cur = rw; cand = -1; cnt = 0;
+            }
+          } else { cand = -1; cnt = 0; }
+        } else { cand = -1; cnt = 0; }
+      }
+      ser[t] = cur; fk[t] = cand; fn[t] = cnt;
+    }
+    D['wall' + side] = {ser, fk, fn};
+  }
+}
+function moreEvents(D) {
+  const sn = D.snaps, st = D.c.step;
+  let pcrSt = sn[0].pcr > 1.25 ? 1 : sn[0].pcr < 0.8 ? -1 : 0, lastT = {S: -99, R: -99}, lastU = {S: -99, R: -99}, gs = Math.sign(sn[0].gex);
+  for (let t = 1; t <= N; t++) {
+    const s = sn[t];
+    if (s.pcr > 1.25 && pcrSt !== 1) { D.events.push({t, sym: D.sym, type: 'pcr', dir: 1, lvl: '1.25', val: s.pcr, tone: 'up'}); pcrSt = 1; }
+    else if (s.pcr < 0.8 && pcrSt !== -1) { D.events.push({t, sym: D.sym, type: 'pcr', dir: -1, lvl: '0.80', val: s.pcr, tone: 'down'}); pcrSt = -1; }
+    else if (s.pcr > 0.95 && s.pcr < 1.1) pcrSt = 0;
+    for (const side of ['S', 'R']) {
+      const k = D['wall' + side].ser[t], lvl = D.strikes[k];
+      if (Math.abs(s.S - lvl) <= 0.25 * st && t - lastT[side] > 30) { D.events.push({t, sym: D.sym, type: 'test', side, lvl, val: s.S, tone: 'warn'}); lastT[side] = t; }
+      const arr = side === 'S' ? 'pChg' : 'cChg'; let peak = 0; for (let u = Math.max(0, t - 20); u <= t; u++) peak = Math.max(peak, sn[u][arr][k]);
+      const v = s[arr][k];
+      if (peak > 0 && v < peak * 0.88 && t - lastU[side] > 30) { D.events.push({t, sym: D.sym, type: 'unwind', side, lvl, val: (1 - v / peak) * 100, tone: side === 'S' ? 'down' : 'up'}); lastU[side] = t; }
+    }
+    const g = Math.sign(s.gex); if (g !== 0 && g !== gs) { if (t > 5) D.events.push({t, sym: D.sym, type: 'gex', dir: g, val: s.gex, tone: g > 0 ? 'acc' : 'warn'}); gs = g; }
+  }
+  D.events.sort((a, b) => a.t - b.t);
+}
+function mkStocks(D, list) {
+  const r = mulberry32(D.c.seed * 31 + 7);
+  return list.map(s => { const beta = 0.5 + r() * 0.9, p = new Float32Array(N + 1); let id = gauss(r) * 0.55; for (let t = 0; t <= N; t++) { if (t) id += gauss(r) * 0.03; p[t] = beta * (D.spot[t] / D.c.prev - 1) * 100 + id; } return {s, p}; });
+}
+function state(D, tf) {
+  const t0 = Math.min(N, Math.floor(tf)), a = tf - t0, t1 = Math.min(N, t0 + 1);
+  let S = lerp(D.spot[t0], D.spot[t1], a);
+  if (a > 0) S += Math.sin(tf * 173.1) * D.c.spot0 * 0.00003;
+  return snapAt(D, tf, S, t0);
+}
+const wallK = (D, side, t) => D['wall' + side].ser[Math.floor(t)];
+const wallLv = (D, side, t) => D.strikes[wallK(D, side, t)];
+function wallsMsg(D, t) {
+  t = Math.floor(t); const a = Math.max(0, t - 30);
+  const s1 = wallLv(D, 'S', t), r1 = wallLv(D, 'R', t), s0 = wallLv(D, 'S', a), r0 = wallLv(D, 'R', a);
+  if (s1 === r1) return {key: 'same', txt: 'walls on the same strike — decision near', tone: 'warn'};
+  if (s1 > s0 && r1 > r0) return {key: 'up', txt: 'both walls moved up — buyers in control', tone: 'up'};
+  if (s1 < s0 && r1 < r0) return {key: 'down', txt: 'both walls moved down — sellers pressing', tone: 'dn'};
+  if (r1 < r0 && s1 > s0) return {key: 'squeeze', txt: 'ceiling down, floor up — range squeezing', tone: 'warn'};
+  if (r1 > r0 && s1 < s0) return {key: 'spread', txt: 'walls spreading — range day', tone: 'acc'};
+  if (s1 > s0) return {key: 'up', txt: 'floor moved up — buyers stepping in', tone: 'up'};
+  if (s1 < s0) return {key: 'down', txt: 'floor slipped — support weakening', tone: 'dn'};
+  if (r1 > r0) return {key: 'up', txt: 'ceiling lifted — resistance moved up', tone: 'up'};
+  if (r1 < r0) return {key: 'down', txt: 'ceiling pressed down', tone: 'dn'};
+  return {key: 'hold', txt: 'walls holding', tone: ''};
+}
+const WALL_LABEL = {up: 'Walls moving up', down: 'Walls moving down', squeeze: 'Range squeezing', spread: 'Walls spreading', same: 'Walls on one strike', hold: 'Walls holding'};
+function lastShift(D, side, t) { let e = null; for (const x of D.events) { if (x.t > t) break; if (x.type === 'shift' && x.side === side) e = x; } return e; }
+function shiftText(D, t, side) {
+  t = Math.floor(t); const ev = lastShift(D, side, t), f = D['wall' + side], nm = side === 'S' ? 'SUP' : 'RES';
+  let s = ev ? `${nm} ${ev.tone === 'up' ? '▲' : '▼'} ${ev.from} → ${ev.to} @${tl(ev.t)} · ${ev.kind}${ev.ratio ? ` · ${ev.ratio.toFixed(1)}×` : ''}` : `${nm} ${D.strikes[f.ser[t]]} · held all day`;
+  if (f.fk[t] >= 0) s += ` · forming → ${D.strikes[f.fk[t]]} (${f.fn[t]}/3)`;
+  return s;
+}
+function evTitle(e) {
+  switch (e.type) {
+    case 'shift': return `${e.sym} ${e.side === 'S' ? 'support' : 'resistance'} ${e.tone === 'up' ? 'moved up' : 'moved down'} ${e.from} → ${e.to}`;
+    case 'pcr': return `${e.sym} PCR ${e.dir > 0 ? 'crossed above' : 'fell below'} ${e.lvl}`;
+    case 'test': return `${e.sym} spot testing ${e.side === 'S' ? 'support' : 'resistance'} ${e.lvl}`;
+    case 'gex': return `${e.sym} GEX turned ${e.dir > 0 ? 'positive' : 'negative'}`;
+    case 'unwind': return `${e.sym} ${e.side === 'S' ? 'put' : 'call'} wall unwinding at ${e.lvl}`;
+  }
+}
+function evDetail(e) {
+  switch (e.type) {
+    case 'shift': return `${e.kind}${e.ratio ? ` · ${e.ratio.toFixed(1)}× next strike` : ''}`;
+    case 'pcr': return `PCR now ${e.val.toFixed(2)}`;
+    case 'test': return `Spot ${inr2(e.val)}`;
+    case 'gex': return `Net GEX ${sgn(e.val)} Cr`;
+    case 'unwind': return `OI change down ${e.val.toFixed(0)}% from its peak`;
+  }
+}
+const evIcon = e => ({shift: e.tone === 'up' ? '▲' : '▼', pcr: 'P', test: '◎', gex: 'Γ', unwind: '↺'}[e.type]);
+function eventsUpTo(syms, t) { const out = []; for (const s of syms) for (const e of getData(s).events) if (e.t <= t) out.push(e); return out.sort((a, b) => b.t - a.t); }
+
+/* ================= app state ================= */
+const app = {page: 'overview', sym: 'NIFTY', structSym: 'NIFTY', edge: 150, tf: 150, mode: 'live', playing: true, speed: 1, lastMin: -1,
+  rules: {shift: true, test: true, pcr: true, unwind: true, gex: true}, chainRange: 12, chainDesc: true, heatMode: 'net', layers: {walls: true, mp: true, writing: true},
+  oiIv: 3, oiTab: 'all', oiBase: {}, legs: null, legsSym: null, selTrade: 0, alertSym: 'ALL', stdStrike: {}};
+try { const th = localStorage.getItem('poi-theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+
+/* ================= icons / nav ================= */
+const IC = {
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z', table: 'M3 5h18v14H3zM3 10h18M3 15h18M12 5v14', layers: 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5',
+  heat: 'M4 4h4v4H4zM10 4h4v4h-4zM16 4h4v4h-4zM4 10h4v4H4zM10 10h4v4h-4zM16 10h4v4h-4zM4 16h4v4H4zM10 16h4v4h-4zM16 16h4v4h-4z', pulse: 'M3 12h4l2-6 4 12 2-6h6',
+  candles: 'M7 3v4M7 17v4M5 7h4v10H5zM17 3v6M17 15v6M15 9h4v6h-4z', gamma: 'M5 5c4 0 5 6 7 14M19 5c-3 0-5 4-7 9', clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 3',
+  payoff: 'M3 18h6l6-12h6M3 12h18', book: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM9 8h6M9 12h6', bell: 'M6 16v-5a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
+  map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
+};
+const PAGES = [
+  {id: 'overview', label: 'Overview', ic: 'grid', grp: 'Live market'},
+  {id: 'chain', label: 'Option Chain', ic: 'table'},
+  {id: 'oi', label: 'OI Analysis', ic: 'layers'},
+  {id: 'heatmap', label: 'OI Heatmap', ic: 'heat', isNew: 1},
+  {id: 'structure', label: 'Market Structure', ic: 'pulse'},
+  {id: 'chart', label: 'Chart + Walls', ic: 'candles', isNew: 1, grp: 'Deep dive'},
+  {id: 'gex', label: 'GEX & Greeks', ic: 'gamma', isNew: 1},
+  {id: 'straddle', label: 'Straddle & Expiry', ic: 'clock'},
+  {id: 'strategy', label: 'Strategy Builder', ic: 'payoff', isNew: 1},
+  {id: 'journal', label: 'Journal + OI', ic: 'book', isNew: 1, grp: 'Your trading'},
+  {id: 'alerts', label: 'Alerts', ic: 'bell', isNew: 1},
+  {id: 'blueprint', label: 'Blueprint', ic: 'map', grp: 'Plan'},
+];
+const icon = (n, w = 1.7) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+$('#rail').innerHTML = PAGES.map(p => `${p.grp ? `<h6>${p.grp}</h6>` : ''}<button class="nav-i" data-p="${p.id}">${icon(p.ic)}<span>${p.label}</span>${p.isNew ? '<em>New</em>' : ''}</button>`).join('');
+$('#rail').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) go(b.dataset.p); });
+
+/* ================= small renderers ================= */
+function spark(vals, color, zero) {
+  const w = 160, h = 34; let mn = Infinity, mx = -Infinity; for (const v of vals) { if (v < mn) mn = v; if (v > mx) mx = v; }
+  if (zero) { mn = Math.min(mn, 0); mx = Math.max(mx, 0); }
+  if (mx - mn < 1e-9) { mx += 1; mn -= 1; }
+  const n = Math.max(1, vals.length - 1), X = i => i / n * w, Y = v => 2 + (1 - (v - mn) / (mx - mn)) * (h - 4);
+  let d = ''; vals.forEach((v, i) => d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1));
+  const lx = X(vals.length - 1), ly = Y(vals[vals.length - 1]);
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}L${lx},${h}L0,${h}Z" style="fill:${color};fill-opacity:.12;stroke:none"/><path d="${d}" style="fill:none;stroke:${color};stroke-width:1.6" vector-effect="non-scaling-stroke"/><circle cx="${lx}" cy="${ly}" r="2.4" style="fill:${color}"/></svg>`;
+}
+const TT = [[0, '09:15'], [75, '10:30'], [150, '11:45'], [225, '13:00'], [300, '14:15'], [375, '15:30']];
+function svgChart(el, o) {
+  const w = Math.max(260, el.clientWidth || 600), h = o.h || 200, pl = o.pl ?? 56, pr = o.pr ?? 14, pt = 10, pb = o.xt === false ? 8 : 24;
+  const X = v => pl + (v - o.x0) / (o.x1 - o.x0) * (w - pl - pr), Y = v => pt + (1 - (v - o.y0) / (o.y1 - o.y0)) * (h - pt - pb);
+  let g = '';
+  for (const v of niceTicks(o.y0, o.y1, o.yn || 4)) g += `<line class="grid" x1="${pl}" x2="${w - pr}" y1="${Y(v)}" y2="${Y(v)}"/><text class="axl" x="${pl - 7}" y="${Y(v) + 3.5}" text-anchor="end">${(o.yf || compact)(v)}</text>`;
+  if (o.xt !== false) for (const [v, l] of (o.xt || TT)) g += `<text class="axl" x="${X(v)}" y="${h - 7}" text-anchor="${v === o.x0 ? 'start' : v === o.x1 ? 'end' : 'middle'}">${l}</text>`;
+  if (o.zero && o.y0 < 0 && o.y1 > 0) g += `<line x1="${pl}" x2="${w - pr}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--line-2);stroke-width:1"/>`;
+  let b = '';
+  for (const s of o.series) {
+    if (!s.v.length) continue;
+    const xs = s.x || s.v.map((_, i) => i);
+    let d = ''; s.v.forEach((v, i) => d += (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ',' + Y(v).toFixed(1));
+    const fx = X(xs[0]), lx = X(xs[xs.length - 1]), ly = Y(s.v[s.v.length - 1]);
+    if (s.area) b += `<path d="${d}L${lx},${Y(s.base || 0)}L${fx},${Y(s.base || 0)}Z" style="fill:${s.c};fill-opacity:.13;stroke:none"/>`;
+    b += `<path d="${d}" style="fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
+    if (s.dot) b += `<circle cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c};stroke:var(--panel);stroke-width:2"/>`;
+  }
+  const extra = o.extra ? o.extra(X, Y, w, h) : '';
+  el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(o.label || 'chart')}">${g}${b}${extra}</svg>`;
+}
+function pulseChart(el, D, t0, ks, h = 210) {
+  const C = [], P = [];
+  for (let t = 0; t <= t0; t++) { const s = D.snaps[t]; let c = 0, p = 0; for (const k of ks) { c += s.cChg[k]; p += s.pChg[k]; } C.push(-c); P.push(p); }
+  let mn = Math.min(0, ...C, ...P), mx = Math.max(0, ...C, ...P); const padv = (mx - mn) * 0.1 || 1;
+  svgChart(el, {h, x0: 0, x1: N, y0: mn - padv, y1: mx + padv, zero: 1, label: 'Put vs call OI change', series: [{v: P, c: 'var(--put)', area: 1, dot: 1}, {v: C, c: 'var(--call)', area: 1, dot: 1}]});
+}
+function feedHTML(evs, clickable) {
+  if (!evs.length) return '<p class="empty">Abhi tak koi alert nahi. Market chalega to yahan aayenge.</p>';
+  return '<ul class="feed">' + evs.map(e => `<li class="tone-${e.tone}">${clickable ? `<button class="ev" data-t="${e.t}">` : ''}<span class="tm">${tl(e.t)}</span><span><span class="tt">${esc(evTitle(e))}</span><br><span class="dd">${esc(evDetail(e))}</span></span>${clickable ? '</button>' : ''}</li>`).join('') + '</ul>';
+}
+function aiText(D, s) {
+  const c = D.c, st = c.step, sup = wallLv(D, 'S', s.t0), res = wallLv(D, 'R', s.t0), ch = (s.S / c.prev - 1) * 100;
+  const mood = ch > 0.4 ? 'mazboot tezi mein hai' : ch > 0.1 ? 'halki tezi mein hai' : ch < -0.4 ? 'kaafi kamzor hai' : ch < -0.1 ? 'halke dabaav mein hai' : 'lagbhag flat hai';
+  const w = wallsMsg(D, s.t0).key;
+  const wh = {up: 'Support aur resistance upar khisak rahe hain, yaani buyers ka haath upar hai.', down: 'Deewarein neeche aa rahi hain, sellers dabaav bana rahe hain.', squeeze: 'Upar ki deewar neeche aur neeche ki upar aa rahi hai. Range sikud rahi hai, bada move paas ho sakta hai.', spread: 'Deewarein door ja rahi hain, aaj range wala din lag raha hai.', same: 'Support aur resistance ek hi strike par hain, faisla jaldi ho sakta hai.', hold: 'Dono deewarein apni jagah tiki hui hain.'}[w];
+  const near = res - s.S <= st * 0.5 ? `Spot resistance ${res} ke bahut paas hai, yahan rukawat aa sakti hai.` : s.S - sup <= st * 0.5 ? `Spot support ${sup} ke bahut paas hai, yahan sahara mil sakta hai.` : `Spot ${sup} ke support aur ${res} ke resistance ke beech mein hai.`;
+  const pc = s.pcr > 1.2 ? `PCR ${s.pcr.toFixed(2)} hai, puts zyada likhe ja rahe hain, jhukav bullish hai.` : s.pcr < 0.85 ? `PCR ${s.pcr.toFixed(2)} hai, call writing bhaari hai, jhukav bearish hai.` : `PCR ${s.pcr.toFixed(2)} hai, dono taraf lagbhag barabar writing hai.`;
+  const gx = s.gex > 0 ? 'GEX positive hai, isliye bade jhatke kam aur range mein chaal ki umeed zyada hai.' : 'GEX negative hai, chaal tez ho sakti hai, stop loss soch kar rakhein.';
+  return `${c.sym} ${inr2(s.S)} par hai aur din mein ${pct(ch)} ke saath ${mood}. ${near} ${wh} ${pc} ${gx}`;
+}
+
+/* ================= pages ================= */
+const MODS = {};
+const phead = (t, p, tools = '') => `<div class="phead"><div><h1>${t}</h1><p>${p}</p></div><div class="ptools">${tools}</div></div>`;
+const symLabel = () => `<span class="pill acc">${app.sym}</span>`;
+
+/* ---- Overview ---- */
+MODS.overview = {
+  mount(v) {
+    const kpi = (id, lab) => `<div class="card kpi" id="${id}"><span class="lab">${lab}</span><span class="val">—</span><span class="sub">—</span><div class="sp"></div></div>`;
+    const wl = sym => `<div class="wl" id="wl-${sym}"><div class="side"><div class="k">Support</div><div class="lv up">—</div><div class="s2">—</div></div><div class="trk"><span class="nm">${sym}</span><span class="mt">—</span><span class="ln"></span><span class="mk"></span></div><div class="side r"><div class="k">Resistance</div><div class="lv dn">—</div><div class="s2">—</div></div></div>`;
+    v.innerHTML = phead('Market Overview', 'NIFTY aur BANKNIFTY ki poori haalat ek screen par. Har number live update hota hai aur badalne par chamakta hai.') +
+      `<div class="kpis">${kpi('k1', 'NIFTY 50')}${kpi('k2', 'NIFTY BANK')}${kpi('k3', 'PCR · NIFTY')}${kpi('k4', 'Max pain · NIFTY')}${kpi('k5', 'Net GEX · NIFTY')}${kpi('k6', 'India VIX')}</div>
+      <div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>Walls · support to resistance</h3><span class="sub">Spot dono deewaron ke beech kahan hai</span></div><div class="card-b">${wl('NIFTY')}${wl('BANKNIFTY')}</div></section>
+        <section class="card"><div class="card-h"><h3>AI market read</h3><span class="pill acc" style="margin-left:auto">Har 15 min</span></div><div class="card-b"><p class="ai" id="aiTxt"></p><div class="meta" id="aiMeta"></div></div></section>
+        <section class="card span2"><div class="card-h"><h3>OI pulse · NIFTY</h3><span class="sub">Put writing upar, call writing neeche</span></div><div class="card-b"><div class="chart" id="ovPulse"></div><div class="legend"><span><i style="background:var(--put)"></i>Put OI change</span><span><i style="background:var(--call)"></i>Call OI change</span></div></div></section>
+        <section class="card"><div class="card-h"><h3>Live alerts</h3><button class="ibtn" data-go="alerts" style="margin-left:auto">All</button></div><div class="card-b" id="ovFeed"></div></section>
+        <section class="card"><div class="card-h"><h3>Breadth · NIFTY 50</h3></div><div class="card-b" id="ovBreadth"></div></section>
+        <section class="card span2"><div class="card-h"><h3>Biggest writing today · NIFTY</h3><span class="sub">Kis strike par sabse zyada nayi position bani</span></div><div class="card-b grid g2" id="ovWrite"></div></section>
+      </div>`;
+    v.querySelector('[data-go]').onclick = () => go('alerts');
+    this.aiSlot = -1;
+  },
+  update(ctx) {
+    const DN = getData('NIFTY'), DB = getData('BANKNIFTY'), sN = ctx.st('NIFTY'), sB = ctx.st('BANKNIFTY'), t0 = ctx.t0;
+    const setK = (id, val, txt, sub, subCls, series, color, zero) => {
+      const el = $('#' + id); flash(el.querySelector('.val'), val, txt); const sb = el.querySelector('.sub'); setText(sb, sub); sb.className = 'sub ' + (subCls || 'mut');
+      if (ctx.minuteChanged || this.dirty) el.querySelector('.sp').innerHTML = spark(series, color, zero);
+    };
+    for (const [id, D, s] of [['k1', DN, sN], ['k2', DB, sB]]) {
+      const ch = s.S - D.c.prev, c = ch >= 0 ? 'var(--put)' : 'var(--call)';
+      setK(id, s.S, inr2(s.S), `${sgn(ch, inr2)}  ${pct(ch / D.c.prev * 100)}`, ch >= 0 ? 'up' : 'dn', [...D.spot.slice(0, t0 + 1), s.S], c);
+    }
+    setK('k3', +sN.pcr.toFixed(2), sN.pcr.toFixed(2), sN.pcr > 1.2 ? 'Puts heavy · bullish tilt' : sN.pcr < 0.85 ? 'Calls heavy · bearish tilt' : 'Balanced', sN.pcr > 1.2 ? 'up' : sN.pcr < 0.85 ? 'dn' : 'mut', DN.ser.pcr.slice(0, t0 + 1), 'var(--accent)');
+    setK('k4', sN.maxPain, inr(sN.maxPain), `${sgn(sN.S - sN.maxPain)} pts from spot`, 'mut', DN.ser.mp.slice(0, t0 + 1), 'var(--amber)');
+    setK('k5', Math.round(sN.gex), sgn(sN.gex) + ' Cr', sN.gex > 0 ? 'Positive · range bias' : 'Negative · fast moves', sN.gex > 0 ? 'up' : 'dn', DN.ser.gex.slice(0, t0 + 1), 'var(--accent)', 1);
+    const vix = sN.cIV[sN.atmK] * 1.08 + 0.4;
+    setK('k6', +vix.toFixed(2), vix.toFixed(2), vix > 14 ? 'Elevated' : 'Calm', vix > 14 ? 'amb' : 'mut', DN.ser.iv.slice(0, t0 + 1).map(x => x * 1.08 + 0.4), 'var(--amber)');
+    for (const [D, s] of [[DN, sN], [DB, sB]]) {
+      const el = $('#wl-' + D.sym), sk = wallK(D, 'S', t0), rk = wallK(D, 'R', t0), sup = D.strikes[sk], res = D.strikes[rk];
+      const sides = el.querySelectorAll('.side');
+      setText(sides[0].querySelector('.lv'), inr(sup)); setText(sides[1].querySelector('.lv'), inr(res));
+      const es = lastShift(D, 'S', t0), er = lastShift(D, 'R', t0);
+      setText(sides[0].querySelector('.s2'), `${compact(s.pChg[sk])} puts · since ${es ? tl(es.t) : '09:15'}`);
+      setText(sides[1].querySelector('.s2'), `${compact(s.cChg[rk])} calls · since ${er ? tl(er.t) : '09:15'}`);
+      const p = res > sup ? clamp((s.S - sup) / (res - sup), -0.03, 1.03) : 0.5;
+      el.querySelector('.mk').style.left = (p * 100) + '%';
+      const mt = el.querySelector('.mt'); mt.style.left = clamp(p * 100, 12, 88) + '%'; flash(mt, s.S, inr2(s.S));
+    }
+    const slot = Math.floor(t0 / 15);
+    if (slot !== this.aiSlot) {
+      this.aiSlot = slot; const txt = aiText(DN, DN.snaps[t0]), el = $('#aiTxt'); let i = 0;
+      clearInterval(this.ty);
+      setText($('#aiMeta'), `Updated ${tl(t0)} · Demo text. Asli app mein ye Claude API likhega. Ye market ki haalat hai, trade ki salah nahi.`);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) el.textContent = txt;
+      else this.ty = setInterval(() => { i = Math.min(txt.length, i + 3); el.innerHTML = esc(txt.slice(0, i)) + (i < txt.length ? '<span class="cur"></span>' : ''); if (i >= txt.length) clearInterval(this.ty); }, 24);
+    }
+    if (ctx.minuteChanged || this.dirty) {
+      pulseChart($('#ovPulse'), DN, t0, DN.strikes.map((_, k) => k), 200);
+      $('#ovFeed').innerHTML = feedHTML(eventsUpTo(['NIFTY', 'BANKNIFTY'], app.tf).slice(0, 6));
+      const top = (arr, n) => [...arr].map((v, k) => [v, k]).sort((a, b) => b[0] - a[0]).slice(0, n);
+      const tc = top(sN.cChg, 5), tp = top(sN.pChg, 5), mx = Math.max(tc[0][0], tp[0][0], 1);
+      const rows = (list, col) => list.map(([v, k]) => `<div class="wr"><span>${DN.strikes[k]}</span><span class="b"><i style="width:${Math.max(0, v / mx * 100)}%;background:${col}"></i></span><span style="text-align:right">${compact(v)}</span></div>`).join('');
+      $('#ovWrite').innerHTML = `<div><div class="kv"><span class="dn">Call writing (resistance)</span></div>${rows(tc, 'var(--call)')}</div><div><div class="kv"><span class="up">Put writing (support)</span></div>${rows(tp, 'var(--put)')}</div>`;
+    }
+    const a = ctx.tf - t0, t1 = Math.min(N, t0 + 1), st = DN.stocks.map(x => ({s: x.s, p: lerp(x.p[t0], x.p[t1], a)}));
+    const up = st.filter(x => x.p > 0.05).length, dn = st.filter(x => x.p < -0.05).length, fl = st.length - up - dn;
+    if (!this.br || ctx.minuteChanged || this.dirty) {
+      $('#ovBreadth').innerHTML = `<div class="ring"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="50"/><circle class="fg" id="brRing" cx="60" cy="60" r="50" stroke-dasharray="0 400"/></svg><div class="lbl"><b id="brN">0</b><span id="brL">of 50 rising</span></div></div><div class="adbar"><i id="adU" style="background:var(--put)"></i><i id="adF" style="background:var(--faint)"></i><i id="adD" style="background:var(--call)"></i></div><div class="kv"><span class="up" id="adUt"></span><span class="mut" id="adFt"></span><span class="dn" id="adDt"></span></div><div class="mv" id="mvList" style="margin-top:8px"></div>`;
+      this.br = 1;
+    }
+    const bull = up >= dn, n = bull ? up : dn, circ = 2 * Math.PI * 50;
+    const ring = $('#brRing'); ring.setAttribute('stroke-dasharray', `${n / 50 * circ} ${circ}`); ring.style.stroke = bull ? 'var(--put)' : 'var(--call)';
+    setText($('#brN'), String(n)); setText($('#brL'), `of 50 ${bull ? 'rising' : 'falling'}`);
+    $('#adU').style.width = up * 2 + '%'; $('#adF').style.width = fl * 2 + '%'; $('#adD').style.width = dn * 2 + '%';
+    setText($('#adUt'), `${up} up`); setText($('#adFt'), `${fl} flat`); setText($('#adDt'), `${dn} down`);
+    const so = [...st].sort((x, y) => y.p - x.p), g = so.slice(0, 3), l = so.slice(-3).reverse();
+    $('#mvList').innerHTML = [0, 1, 2].map(i => `<div><span>${esc(g[i].s)}</span><b class="up">${pct(g[i].p)}</b></div><div><span>${esc(l[i].s)}</span><b class="dn">${pct(l[i].p)}</b></div>`).join('');
+    this.dirty = false;
+  },
+};
+
+/* ---- Option chain ---- */
+MODS.chain = {
+  mount(v) {
+    const D = this.D = getData(app.sym);
+    v.innerHTML = phead(`${D.c.name} option chain`, 'Har strike par call aur put ka OI, OI change, volume, bhaav, IV aur delta. Sabse badi writing laal/hare box mein, doosri sabse badi peele mein.',
+      `${symLabel()}<div class="seg" id="rng"><button data-r="8">±8</button><button data-r="12">±12</button><button data-r="99">All</button></div>`) +
+      `<div class="sumbar"><div class="cs" id="sumC"></div><div class="tm" id="sumT"></div><div class="ps" id="sumP"></div></div>
+      <section class="card"><div class="tw"><table class="tbl chain"><thead>
+        <tr><th class="cg" colspan="6">Calls</th><th class="sp" id="spH" title="Click: order ulta karo">Strike ⇅</th><th class="pg" colspan="6">Puts</th></tr>
+        <tr><th>IV / Δ</th><th>OI chg</th><th>OI</th><th>Volume</th><th>LTP / chg</th><th>Reversal</th><th class="sp">PCR</th><th class="l">Reversal</th><th class="l">LTP / chg</th><th class="l">Volume</th><th class="l">OI</th><th class="l">OI chg</th><th class="l">IV / Δ</th></tr>
+      </thead><tbody id="cb"></tbody></table></div></section>
+      <p class="note">Reversal = wo spot level jahan market ruk ya palat sakta hai (demo formula). Bars us column ke sabse bade number ke mukable hain.</p>`;
+    $$('#rng button').forEach(b => { b.setAttribute('aria-pressed', +b.dataset.r === app.chainRange); b.onclick = () => { app.chainRange = +b.dataset.r; $$('#rng button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.update(lastCtx); }; });
+    $('#spH').onclick = () => { app.chainDesc = !app.chainDesc; this.build(); this.update(lastCtx); };
+    this.build();
+  },
+  build() {
+    const D = this.D, tb = $('#cb'); tb.innerHTML = '';
+    const bc = side => `<td class="bc ${side} ${side === 'p' ? 'l ps' : 'cs'}"><i class="bar"></i><span class="pc"></span><b class="v"></b></td>`;
+    const order = D.strikes.map((_, k) => k); if (app.chainDesc) order.reverse();
+    this.rows = []; this.order = order;
+    for (const k of order) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="cs"><b class="v"></b><span class="sub"></span></td>${bc('c')}${bc('c')}${bc('c')}<td class="cs"><b class="v"></b><span class="sub"></span></td><td class="cs mut"></td>
+        <td class="sp"><b>${inr(D.strikes[k])}</b><i></i></td>
+        <td class="l ps mut"></td><td class="l ps"><b class="v"></b><span class="sub"></span></td>${bc('p')}${bc('p')}${bc('p')}<td class="l ps"><b class="v"></b><span class="sub"></span></td>`;
+      tb.appendChild(tr);
+      const td = tr.children; this.rows[k] = {tr, td};
+    }
+    this.mid = document.createElement('tr'); this.mid.className = 'mid';
+    this.mid.innerHTML = `<td colspan="13"><div class="mid-in"><span class="sh" id="shR"></span><span class="ctr" id="midC"></span><span class="sh" id="shS"></span></div></td>`;
+  },
+  update(ctx) {
+    const D = this.D, s = ctx.st(app.sym), R = app.chainRange, K = D.K;
+    const vis = k => Math.abs(k - s.atmK) <= R;
+    const tops = arr => { let a = -1, b = -1; for (let k = 0; k < K; k++) { if (!vis(k) || arr[k] <= 0) continue; if (a < 0 || arr[k] > arr[a]) { b = a; a = k; } else if (b < 0 || arr[k] > arr[b]) b = k; } return [a, b, a >= 0 ? arr[a] : 1]; };
+    const T = {cChg: tops(s.cChg), cOI: tops(s.cOI), cVol: tops(s.cVol), pChg: tops(s.pChg), pOI: tops(s.pOI), pVol: tops(s.pVol)};
+    const bar = (td, key, k, side) => {
+      const v = s[key][k], [a, b, mx] = T[key], p = v > 0 ? v / mx * 100 : 0;
+      td.children[0].style.width = (p * 0.96) + '%'; setText(td.children[1], p.toFixed(1) + '%'); flash(td.children[2], Math.round(v), (key.endsWith('Chg') ? sgn(v) : inr(v)));
+      td.classList.toggle(side === 'c' ? 'h1c' : 'h1p', k === a); td.classList.toggle('h2', k === b && v >= 0.75 * mx);
+    };
+    for (let k = 0; k < K; k++) {
+      const {tr, td} = this.rows[k], x = D.strikes[k];
+      tr.hidden = !vis(k); if (tr.hidden) continue;
+      tr.classList.toggle('atm', k === s.atmK); tr.classList.toggle('itmc', x < s.S); tr.classList.toggle('itmp', x > s.S);
+      setText(td[0].children[0], s.cIV[k].toFixed(1)); setText(td[0].children[1], s.cD[k].toFixed(2));
+      bar(td[1], 'cChg', k, 'c'); bar(td[2], 'cOI', k, 'c'); bar(td[3], 'cVol', k, 'c');
+      flash(td[4].children[0], s.cP[k], inr2(s.cP[k])); td[4].children[1].innerHTML = `<i class="${s.cCh[k] >= 0 ? 'up' : 'dn'}">${sgn(s.cCh[k], inr2)}</i> TV ${s.cTV[k].toFixed(1)}`;
+      setText(td[5], inr(s.revC[k]));
+      setText(td[6].children[1], s.pcrK[k].toFixed(2));
+      setText(td[7], inr(s.revP[k]));
+      flash(td[8].children[0], s.pP[k], inr2(s.pP[k])); td[8].children[1].innerHTML = `<i class="${s.pCh[k] >= 0 ? 'up' : 'dn'}">${sgn(s.pCh[k], inr2)}</i> TV ${s.pTV[k].toFixed(1)}`;
+      bar(td[9], 'pVol', k, 'p'); bar(td[10], 'pOI', k, 'p'); bar(td[11], 'pChg', k, 'p');
+      setText(td[12].children[0], s.pIV[k].toFixed(1)); setText(td[12].children[1], s.pD[k].toFixed(2));
+    }
+    // spot line between strikes
+    let before = null;
+    for (const k of this.order) { const x = D.strikes[k]; if (app.chainDesc ? x <= s.S : x > s.S) { before = this.rows[k].tr; break; } }
+    const tb = $('#cb'); if (before) { if (this.mid.nextSibling !== before) tb.insertBefore(this.mid, before); } else if (tb.lastChild !== this.mid) tb.appendChild(this.mid);
+    const w = wallsMsg(D, ctx.t0);
+    $('#midC').innerHTML = `<span>F <b>${inr2(s.F)}</b></span><span>Spot <b class="fl" id="midS">${inr2(s.S)}</b></span><span>F−S <b>${(s.F - s.S).toFixed(1)}</b></span><span>GEX <b class="${s.gex > 0 ? 'up' : 'dn'}">${sgn(s.gex)} Cr</b></span><span>Flip <b>${s.flip ? inr(s.flip) : '—'}</b></span><span class="pill ${w.tone}">${w.txt}</span>`;
+    setText($('#shR'), shiftText(D, ctx.t0, 'R')); setText($('#shS'), shiftText(D, ctx.t0, 'S'));
+    let tvC = 0, tvP = 0, lc = 0, lp = 0, dC = 0, dP = 0;
+    for (let k = 0; k < K; k++) { if (!vis(k)) continue; if (D.strikes[k] < s.S) tvC += s.cTV[k]; else tvP += s.pTV[k]; lc += s.cCh[k]; lp += s.pCh[k]; dC += s.cD[k] * s.cOI[k]; dP += s.pD[k] * s.pOI[k]; }
+    const it = (l, v, cls = '') => `<span><b>${l}</b><span class="${cls}">${v}</span></span>`;
+    $('#sumC').innerHTML = it('TV ITM', tvC.toFixed(0)) + it('LTP chg', sgn(lc, inr), lc >= 0 ? 'up' : 'dn') + it('OI chg', pct(s.totCc / (s.totC - s.totCc) * 100, 1)) + it('Δ CE', compact(dC)) + it('(CE) R', inr(D.strikes[s.majR]));
+    $('#sumP').innerHTML = it('(PE) S', inr(D.strikes[s.majS])) + it('Δ PE', compact(dP)) + it('OI chg', pct(s.totPc / (s.totP - s.totPc) * 100, 1)) + it('LTP chg', sgn(lp, inr), lp >= 0 ? 'up' : 'dn') + it('TV ITM', tvP.toFixed(0));
+    setText($('#sumT'), tls(ctx.tf));
+  },
+};
+
+/* ---- OI analysis ---- */
+MODS.oi = {
+  mount(v) {
+    const D = this.D = getData(app.sym), st = D.c.step;
+    if (app.oiBase[app.sym] == null) app.oiBase[app.sym] = clamp(wallK(D, 'S', app.tf), 0, D.K - 3);
+    const opts = D.strikes.slice(0, D.K - 2).map((x, k) => `<option value="${k}" ${k === app.oiBase[app.sym] ? 'selected' : ''}>${inr(x)}</option>`).join('');
+    v.innerHTML = phead('OI Analysis', 'Teen strikes ka hisaab, strike ladder aur din bhar ka Change in OI. Yahan se samjho writers kis taraf jhuk rahe hain.', symLabel()) +
+      `<div class="grid g3">
+        <section class="card"><div class="card-h"><h3>Snapshot</h3></div><div class="card-b" id="oiSnap"></div></section>
+        <section class="card span2"><div class="card-h"><h3>Strike ladder</h3><span class="sub">P − C = put OI minus call OI</span></div><div class="tw" id="oiLad"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Three strike range</h3><div class="tools"><label class="mut" for="oiBaseSel" style="font-size:12px">From</label><select class="sel" id="oiBaseSel">${opts}</select></div></div><div class="tw" id="oi3"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Change in OI · intraday</h3><span class="sub">Teen chuni hui strikes, naya upar</span><div class="tools"><div class="seg" id="oiIv"><button data-i="3">3 min</button><button data-i="5">5 min</button><button data-i="15">15 min</button></div></div></div><div class="tw" id="oiIntra" style="max-height:440px;overflow:auto"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Call vs put OI change</h3><div class="tools"><div class="seg" id="oiTab"><button data-t="all">All strikes</button><button data-t="three">Three strikes</button><button data-t="atm">ATM</button></div></div></div><div class="card-b"><div class="chart" id="oiChart"></div><div class="legend"><span><i style="background:var(--put)"></i>Put OI change</span><span><i style="background:var(--call)"></i>Call OI change (neeche)</span></div></div></section>
+      </div>`;
+    $('#oiBaseSel').onchange = e => { app.oiBase[app.sym] = +e.target.value; this.dirty = true; this.update(lastCtx); };
+    $$('#oiIv button').forEach(b => { b.setAttribute('aria-pressed', +b.dataset.i === app.oiIv); b.onclick = () => { app.oiIv = +b.dataset.i; $$('#oiIv button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    $$('#oiTab button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.t === app.oiTab); b.onclick = () => { app.oiTab = b.dataset.t; $$('#oiTab button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+  },
+  update(ctx) {
+    const D = this.D, s = ctx.st(app.sym), t0 = ctx.t0, sn = D.snaps[t0];
+    const sup = wallLv(D, 'S', t0), res = wallLv(D, 'R', t0), ch = s.S - D.c.prev;
+    $('#oiSnap').innerHTML = `<div class="bigv fl" id="oiSpot">${inr2(s.S)}</div><div class="${ch >= 0 ? 'up' : 'dn'} mono" style="margin-bottom:10px">${sgn(ch, inr2)} (${pct(ch / D.c.prev * 100)})</div>
+      <div class="kv"><span>PCR</span><b>${s.pcr.toFixed(2)}</b></div><div class="kv"><span>Support (writing)</span><b class="up">${inr(sup)}</b></div><div class="kv"><span>Resistance (writing)</span><b class="dn">${inr(res)}</b></div>
+      <div class="kv"><span>Major support (OI)</span><b>${inr(D.strikes[s.majS])}</b></div><div class="kv"><span>Major resistance (OI)</span><b>${inr(D.strikes[s.majR])}</b></div><div class="kv"><span>Max pain</span><b>${inr(s.maxPain)}</b></div>
+      <div style="margin-top:10px"><span class="pill ${wallsMsg(D, t0).tone}">${wallsMsg(D, t0).txt}</span></div>`;
+    if (!ctx.minuteChanged && !this.dirty) return;
+    const K = D.K, st = D.c.step;
+    // ladder
+    const lo = Math.max(0, s.atmK - 6), hi = Math.min(K - 1, s.atmK + 6), ks = []; for (let k = hi; k >= lo; k--) ks.push(k);
+    const net = k => sn.pChg[k] - sn.cChg[k], noi = k => sn.pOI[k] - sn.cOI[k];
+    const mN = Math.max(...ks.map(k => Math.abs(net(k))), 1), mO = Math.max(...ks.map(k => Math.abs(noi(k))), 1), mCv = Math.max(...ks.map(k => sn.cVol[k])), mPv = Math.max(...ks.map(k => sn.pVol[k]));
+    const cell = (v, m, solid) => `<td class="bc ${v >= 0 ? 'p' : ''} ${solid ? (v >= 0 ? 'h1p' : 'h1c') : ''}"><i class="bar" style="width:${Math.abs(v) / m * 96}%;${v >= 0 ? 'left:2px;right:auto;background:color-mix(in srgb,var(--put) 24%,transparent)' : ''}"></i><b class="v">${sgn(v)}</b></td>`;
+    let rows = '', spotDone = false;
+    for (const k of ks) {
+      if (!spotDone && D.strikes[k] <= s.S) { rows += `<tr><td colspan="5" style="padding:2px 8px;border-top:1px solid var(--accent);text-align:right"><span class="pill acc">Spot ${inr2(s.S)}</span></td></tr>`; spotDone = true; }
+      rows += `<tr class="${k === s.atmK ? 'atm' : ''}"><td class="l"><b>${inr(D.strikes[k])}</b></td>${cell(net(k), mN, Math.abs(net(k)) === mN)}${cell(noi(k), mO)}<td class="bc ${sn.cVol[k] === mCv ? 'h1c' : ''}"><i class="bar" style="width:${sn.cVol[k] / mCv * 96}%"></i><b class="v">${inr(sn.cVol[k])}</b></td><td class="bc p ${sn.pVol[k] === mPv ? 'h1p' : ''}"><i class="bar" style="width:${sn.pVol[k] / mPv * 96}%"></i><b class="v">${inr(sn.pVol[k])}</b></td></tr>`;
+    }
+    $('#oiLad').innerHTML = `<table class="tbl"><thead><tr><th class="l">Strike</th><th>Net OI chg (P−C)</th><th>Net OI (P−C)</th><th>Call volume</th><th>Put volume</th></tr></thead><tbody>${rows}</tbody></table>`;
+    // three strike
+    const b0 = app.oiBase[app.sym], three = [b0, b0 + 1, b0 + 2];
+    const verdict = (c, p) => p > 0 && p > Math.abs(Math.min(c, 0)) * 0 + Math.max(c, 0) * 1.5 ? ['Strong support', 'up'] : p > c ? ['Support', 'up'] : c > 0 && c > Math.max(p, 0) * 1.5 ? ['Strong resistance', 'dn'] : c > p ? ['Resistance', 'dn'] : ['Neutral', ''];
+    let tc = 0, tp = 0;
+    const r3 = three.map(k => { tc += sn.cChg[k]; tp += sn.pChg[k]; const [vt, cl] = verdict(sn.cChg[k], sn.pChg[k]); return `<tr><td class="l"><b>${inr(D.strikes[k])}</b></td><td class="${sn.cChg[k] >= 0 ? 'dn' : 'mut'}">${sgn(sn.cChg[k])}</td><td class="${sn.pChg[k] >= 0 ? 'up' : 'mut'}">${sgn(sn.pChg[k])}</td><td class="c"><span class="pill ${cl}">${vt}</span></td></tr>`; }).join('');
+    const [vt, cl] = verdict(tc, tp);
+    $('#oi3').innerHTML = `<table class="tbl"><thead><tr><th class="l">Strike</th><th>Call OI chg</th><th>Put OI chg</th><th class="c">Verdict</th></tr></thead><tbody>${r3}<tr><td class="l mut">Total</td><td>${sgn(tc)}</td><td>${sgn(tp)}</td><td class="c"><span class="pill ${cl}">${vt} · net ${sgn(tp - tc)}</span></td></tr></tbody></table>`;
+    // intraday
+    const times = []; for (let t = t0; t >= 0 && times.length < 60; t -= app.oiIv) times.push(t);
+    const rowsD = times.map(t => { const x = D.snaps[t]; let c = 0, p = 0; for (const k of three) { c += x.cChg[k]; p += x.pChg[k]; } return {t, x, c, p, d: p - c}; });
+    rowsD.forEach((r, i) => { r.ch = i < rowsD.length - 1 ? r.d - rowsD[i + 1].d : 0; });
+    rowsD.forEach((r, i) => { const nx = rowsD[i + 1]; r.sig = nx && nx.ch && r.ch && Math.sign(r.ch) !== Math.sign(nx.ch) && Math.abs(r.ch) > 0.04 * Math.abs(r.d || 1) ? (r.ch > 0 ? 'Bullish turn' : 'Bearish turn') : ''; });
+    const mxc = Math.max(1, ...rowsD.flatMap(r => three.map(k => Math.abs(r.x.cChg[k])))), mxp = Math.max(1, ...rowsD.flatMap(r => three.map(k => Math.abs(r.x.pChg[k]))));
+    const mxD = Math.max(1, ...rowsD.map(r => Math.abs(r.ch)));
+    const head = three.map(k => `<th colspan="2" class="c">${inr(D.strikes[k])}</th>`).join('');
+    const body = rowsD.map(r => `<tr><td class="l">${tl(r.t)}</td>${three.map(k => `<td class="bc"><i class="bar" style="width:${Math.abs(r.x.cChg[k]) / mxc * 96}%"></i><b class="v">${sgn(r.x.cChg[k])}</b></td><td class="bc p"><i class="bar" style="width:${Math.abs(r.x.pChg[k]) / mxp * 96}%"></i><b class="v">${sgn(r.x.pChg[k])}</b></td>`).join('')}<td class="dn">${sgn(r.c)}</td><td class="up">${sgn(r.p)}</td><td style="color:var(--accent);font-weight:700">${sgn(r.d)}</td><td class="bc ${r.ch >= 0 ? 'p' : ''}"><i class="bar" style="width:${Math.abs(r.ch) / mxD * 96}%;${r.ch >= 0 ? 'left:2px;right:auto' : ''}"></i><b class="v ${r.ch >= 0 ? 'up' : 'dn'}">${sgn(r.ch)}</b></td><td class="c">${r.sig ? `<span class="pill ${r.sig[0] === 'B' && r.sig[1] === 'u' ? 'up' : 'dn'}">${r.sig}</span>` : ''}</td></tr>`).join('');
+    $('#oiIntra').innerHTML = `<table class="tbl" style="min-width:980px"><thead><tr><th class="l" rowspan="2">Time</th>${head}<th rowspan="2">Call OI chg</th><th rowspan="2">Put OI chg</th><th rowspan="2">Difference</th><th rowspan="2">Change in diff</th><th rowspan="2" class="c">Signal</th></tr><tr>${three.map(() => '<th>Call</th><th>Put</th>').join('')}</tr></thead><tbody>${body}</tbody></table>`;
+    const ksC = app.oiTab === 'all' ? D.strikes.map((_, k) => k) : app.oiTab === 'three' ? three : [s.atmK];
+    pulseChart($('#oiChart'), D, t0, ksC, 230);
+    this.dirty = false;
+  },
+};
+
+/* ---- Heatmap ---- */
+MODS.heatmap = {
+  mount(v) {
+    this.D = getData(app.sym);
+    v.innerHTML = phead('OI Heatmap', 'Poore din ki writing ek grid mein. Har dabba = 5 minute × ek strike. Safed line spot hai, outline wale dabbe us waqt ka support (hara) aur resistance (laal).', symLabel()) +
+      `<section class="card"><div class="card-h"><h3>Writing by strike and time</h3><div class="tools"><div class="seg" id="hmMode"><button data-m="net">Net (P−C)</button><button data-m="calls">Calls</button><button data-m="puts">Puts</button><button data-m="oi">Total OI</button></div></div></div>
+      <div class="card-b"><div class="cvwrap" id="hmWrap"><canvas id="hmCv"></canvas><div class="tip" id="hmTip" hidden></div></div>
+      <div class="legend" id="hmLeg"></div></div></section>
+      <p class="note">Kaise padhein: ek hi strike par lagatar gehra hara = wahan puts likhe ja rahe hain (support ban raha). Gehra laal = call writing (resistance). Rang ka badalna = writers ka mann badalna.</p>`;
+    $$('#hmMode button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.m === app.heatMode); b.onclick = () => { app.heatMode = b.dataset.m; $$('#hmMode button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.draw(lastCtx); }; });
+    const cv = $('#hmCv');
+    cv.onmousemove = e => this.hover(e); cv.onmouseleave = () => { $('#hmTip').hidden = true; };
+  },
+  update(ctx) { if (ctx.minuteChanged || this.dirty) { this.draw(ctx); this.dirty = false; } },
+  draw(ctx) {
+    const D = this.D, cv = $('#hmCv'), wrap = $('#hmWrap'), dpr = window.devicePixelRatio || 1;
+    const W = wrap.clientWidth, K = D.K, ch = W < 600 ? 13 : 16, lw = 54, top = 4, H = K * ch + 30, cols = 75, cw = (W - lw - 6) / cols;
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const cPut = tok('--put'), cCall = tok('--call'), cFg = tok('--fg'), cFaint = tok('--faint'), cLine = tok('--line'), cAcc = tok('--accent');
+    const t0 = ctx.t0, mode = app.heatMode, vals = [];
+    let mx = 1;
+    for (let b = 0; b < cols; b++) {
+      const a = b * 5, z = Math.min((b + 1) * 5, t0); if (a >= t0 && b > 0) { vals.push(null); continue; }
+      const A = D.snaps[a], Z = D.snaps[Math.max(z, a)], col = [];
+      for (let k = 0; k < K; k++) {
+        const dc = Z.cOI[k] - A.cOI[k], dp = Z.pOI[k] - A.pOI[k];
+        const v = mode === 'net' ? dp - dc : mode === 'calls' ? dc : mode === 'puts' ? dp : Z.cOI[k] + Z.pOI[k];
+        col.push({v, dc, dp, oi: Z.cOI[k] + Z.pOI[k]}); mx = Math.max(mx, Math.abs(v));
+      }
+      vals.push(col);
+    }
+    this.L = {lw, top, ch, cw, cols, K, vals};
+    const y = k => top + (K - 1 - k) * ch;
+    g.font = '500 10px ' + tok('--f-mono');
+    for (let k = 0; k < K; k++) {
+      g.fillStyle = k === D.snaps[t0].atmK ? cAcc : cFaint; g.textAlign = 'right'; g.textBaseline = 'middle';
+      if (K <= 21 || k % 2 === (D.K % 4 === 3 ? 1 : 0) || true) g.fillText(String(D.strikes[k]), lw - 8, y(k) + ch / 2);
+    }
+    for (let b = 0; b < cols; b++) {
+      const x = lw + b * cw, col = vals[b];
+      for (let k = 0; k < K; k++) {
+        if (!col) { g.fillStyle = rgba(cLine, 0.35); g.fillRect(x + 0.5, y(k) + 0.5, cw - 1, ch - 1); continue; }
+        const v = col[k].v, a = 0.07 + 0.88 * Math.sqrt(Math.abs(v) / mx);
+        const base = mode === 'net' ? (v >= 0 ? cPut : cCall) : mode === 'calls' ? (v >= 0 ? cCall : cFaint) : mode === 'puts' ? (v >= 0 ? cPut : cFaint) : cAcc;
+        g.fillStyle = rgba(base, mode === 'oi' ? 0.06 + 0.9 * (v / mx) ** 1.5 : a); g.fillRect(x + 0.5, y(k) + 0.5, cw - 1, ch - 1);
+      }
+      if (col) {
+        const z = Math.min((b + 1) * 5, t0), sk = wallK(D, 'S', z), rk = wallK(D, 'R', z);
+        g.lineWidth = 1.5; g.strokeStyle = cPut; g.strokeRect(x + 1, y(sk) + 1, cw - 2, ch - 2); g.strokeStyle = cCall; g.strokeRect(x + 1, y(rk) + 1, cw - 2, ch - 2);
+      }
+    }
+    // spot path
+    const ys = S => top + (D.strikes[K - 1] - S) / D.c.step * ch + ch / 2;
+    g.beginPath(); g.lineWidth = 2; g.strokeStyle = cFg;
+    for (let t = 0; t <= t0; t++) { const x = lw + t / 5 * cw; t ? g.lineTo(x, ys(D.spot[t])) : g.moveTo(x, ys(D.spot[t])); }
+    g.stroke();
+    const lx = lw + t0 / 5 * cw; g.fillStyle = cFg; g.beginPath(); g.arc(lx, ys(D.spot[t0]), 3.5, 0, 7); g.fill();
+    g.fillStyle = cFaint; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    for (const [t, l] of TT) g.fillText(l, clamp(lw + t / 5 * cw, lw + 16, W - 20), H - 8);
+    const lg = mode === 'net' ? `<span><i style="background:var(--put)"></i>Put writing zyada</span><span><i style="background:var(--call)"></i>Call writing zyada</span>` : mode === 'oi' ? `<span><i style="background:var(--accent)"></i>Total OI (gehra = zyada)</span>` : `<span><i style="background:var(--${mode === 'calls' ? 'call' : 'put'})"></i>Nayi writing</span><span><i style="background:var(--faint)"></i>Unwinding</span>`;
+    $('#hmLeg').innerHTML = lg + `<span><i style="background:var(--fg)"></i>Spot</span><span>Max 5-min value ${compact(mx)}</span>`;
+  },
+  hover(e) {
+    const L = this.L, D = this.D; if (!L) return; const r = e.target.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    const b = Math.floor((x - L.lw) / L.cw), row = Math.floor((y - L.top) / L.ch), k = L.K - 1 - row, tip = $('#hmTip');
+    if (b < 0 || b >= L.cols || k < 0 || k >= L.K || !L.vals[b]) { tip.hidden = true; return; }
+    const c = L.vals[b][k];
+    tip.innerHTML = `<b>${D.strikes[k]}</b> · ${tl(b * 5)}–${tl(Math.min(b * 5 + 5, N))}<br><span class="dn">Calls ${sgn(c.dc)}</span><br><span class="up">Puts ${sgn(c.dp)}</span><br>Total OI ${compact(c.oi)}`;
+    tip.hidden = false; tip.style.left = clamp(x + 14, 0, r.width - 170) + 'px'; tip.style.top = (y + 14) + 'px';
+  },
+};
+
+/* ---- Market structure ---- */
+MODS.structure = {
+  mount(v) {
+    const D = this.D = getData(app.structSym);
+    v.innerHTML = phead(`${D.c.name} structure`, 'Index ke apne stocks kitne upar, kitne neeche. Saath mein option chain se key levels aur writing ka heatmap.',
+      `<div class="seg" id="stSym"><button data-s="NIFTY">NIFTY 50</button><button data-s="BANKNIFTY">NIFTY BANK</button></div>`) +
+      `<div class="grid g3">
+        <section class="card"><div class="card-h"><h3>Spot</h3></div><div class="card-b" id="stSpot"></div></section>
+        <section class="card"><div class="card-h"><h3>Market structure</h3></div><div class="card-b" id="stVer"></div></section>
+        <section class="card"><div class="card-h"><h3>Strength</h3></div><div class="card-b" id="stRing"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Score breakdown</h3><span class="sub" id="stCnt"></span></div><div class="card-b"><div class="tiles" id="stTiles"></div></div></section>
+        <section class="card"><div class="card-h"><h3>Key levels</h3></div><div class="card-b" id="stLv"></div></section>
+        <section class="card span2"><div class="card-h"><h3>OI change by strike</h3><span class="sub">Calls baayein, puts daayein</span></div><div class="card-b" id="stHb"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Call vs put OI change</h3></div><div class="card-b"><div class="chart" id="stCh"></div></div></section>
+      </div>`;
+    $$('#stSym button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.s === app.structSym); b.onclick = () => { app.structSym = b.dataset.s; mount(); }; });
+    this.hc = {};
+  },
+  verdict(t) { const D = this.D; let r = 0, f = 0; for (const x of D.stocks) { const v = x.p[t]; if (v > 0.05) r++; else if (v < -0.05) f++; } const n = D.stocks.length; return {r, f, fl: n - r - f, n, key: r / n >= 0.6 ? 'BULLISH' : f / n >= 0.6 ? 'BEARISH' : 'SIDEWAYS'}; },
+  update(ctx) {
+    const D = this.D, s = ctx.st(D.sym), t0 = ctx.t0, a = ctx.tf - t0, t1 = Math.min(N, t0 + 1);
+    const ch = s.S - D.c.prev;
+    $('#stSpot').innerHTML = `<div class="bigv">${inr2(s.S)}</div><div class="${ch >= 0 ? 'up' : 'dn'} mono" style="margin-bottom:10px">${sgn(ch, inr2)} (${pct(ch / D.c.prev * 100)})</div><div class="kv"><span>Day high</span><b>${inr2(Math.max(D.dayHi[t0], s.S))}</b></div><div class="kv"><span>Day low</span><b>${inr2(Math.min(D.dayLo[t0], s.S))}</b></div><div class="kv"><span>Prev close</span><b>${inr2(D.c.prev)}</b></div><div class="kv"><span>ATM</span><b>${inr(s.atm)}</b></div>`;
+    const vd = this.verdict(t0);
+    if (this.hc.t !== t0) { let h = t0; while (h > 0 && this.verdict(h - 1).key === vd.key) h--; this.hc = {t: t0, since: h}; }
+    const held = t0 - this.hc.since, col = vd.key === 'BULLISH' ? 'up' : vd.key === 'BEARISH' ? 'dn' : 'amb';
+    $('#stVer').innerHTML = `<div class="verdict ${col}">${vd.key}</div><div class="adbar"><i style="width:${vd.r / vd.n * 100}%;background:var(--put)"></i><i style="width:${vd.fl / vd.n * 100}%;background:var(--faint)"></i><i style="width:${vd.f / vd.n * 100}%;background:var(--call)"></i></div><div class="kv"><span>Rising stocks</span><b class="up">${vd.r} / ${vd.n}</b></div><div class="kv"><span>Falling stocks</span><b class="dn">${vd.f} / ${vd.n}</b></div><div class="kv"><span>Flat (±0.05%)</span><b>${vd.fl} / ${vd.n}</b></div><div class="kv"><span>Held for</span><b>${Math.floor(held / 60)}h ${held % 60}m</b></div>`;
+    if (!$('#stRingSvg')) $('#stRing').innerHTML = `<div class="ring"><svg id="stRingSvg" viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="50"/><circle class="fg" cx="60" cy="60" r="50" stroke-dasharray="0 400"/></svg><div class="lbl"><b></b><span></span></div></div><p class="note" style="text-align:center">Bullish ${'<b class="up" id="stB"></b>'} · Bearish <b class="dn" id="stR"></b> · Sideways <b id="stF"></b></p>`;
+    const n = Math.max(vd.r, vd.f), circ = 2 * Math.PI * 50, fg = $('#stRingSvg .fg');
+    fg.setAttribute('stroke-dasharray', `${n / vd.n * circ} ${circ}`); fg.style.stroke = vd.r >= vd.f ? 'var(--put)' : 'var(--call)';
+    setText($('#stRing .lbl b'), String(n)); setText($('#stRing .lbl span'), `of ${vd.n} stocks`); setText($('#stB'), String(vd.r)); setText($('#stR'), String(vd.f)); setText($('#stF'), String(vd.fl));
+    const live = D.stocks.map(x => ({s: x.s, p: lerp(x.p[t0], x.p[t1], a)}));
+    if (ctx.minuteChanged || this.dirty || !this.tiles) {
+      const sorted = [...live].sort((x, y) => y.p - x.p);
+      $('#stTiles').innerHTML = sorted.map(x => `<div class="tile" data-s="${esc(x.s)}"><span>${esc(x.s)}</span><b></b></div>`).join('');
+      this.tiles = {}; $$('#stTiles .tile').forEach(el => this.tiles[el.dataset.s] = el);
+      setText($('#stCnt'), `${vd.r} up · ${vd.f} down · ${vd.fl} flat`);
+    }
+    for (const x of live) {
+      const el = this.tiles[x.s]; if (!el) continue; const i = clamp(Math.abs(x.p) / 2.5, 0.08, 0.85), c = x.p > 0.05 ? '--put' : x.p < -0.05 ? '--call' : '--faint';
+      el.style.background = `color-mix(in srgb,var(${c}) ${Math.round(i * 60)}%,var(--panel))`; el.style.borderColor = `color-mix(in srgb,var(${c}) 40%,transparent)`;
+      flash(el.querySelector('b'), +x.p.toFixed(2), pct(x.p));
+    }
+    if (!ctx.minuteChanged && !this.dirty) return;
+    const sup = wallLv(D, 'S', t0), res = wallLv(D, 'R', t0), mS = D.strikes[s.majS], mR = D.strikes[s.majR];
+    $('#stLv').innerHTML = `<div class="lvls"><div><span>Major resistance (OI)</span><b class="dn">${inr(mR)}</b></div><div><span>Resistance (writing)</span><b class="dn">${inr(res)}</b></div><div class="atm"><span>ATM</span><b>${inr(s.atm)}</b></div><div><span>Support (writing)</span><b class="up">${inr(sup)}</b></div><div><span>Major support (OI)</span><b class="up">${inr(mS)}</b></div></div><p class="note">${Math.max(0, Math.round(res - s.S))} pts to the ceiling · ${Math.max(0, Math.round(s.S - sup))} pts to the floor</p>`;
+    const lo = Math.max(0, s.atmK - 6), hi = Math.min(D.K - 1, s.atmK + 6); let mx = 1; for (let k = lo; k <= hi; k++) mx = Math.max(mx, Math.abs(s.cChg[k]), Math.abs(s.pChg[k]));
+    let hb = ''; for (let k = hi; k >= lo; k--) hb += `<div class="hb ${k === s.atmK ? 'atm' : ''}"><div class="c" title="${sgn(s.cChg[k])}"><i style="width:${Math.max(0, s.cChg[k]) / mx * 100}%"></i></div><span class="k">${D.strikes[k]}</span><div class="p" title="${sgn(s.pChg[k])}"><i style="width:${Math.max(0, s.pChg[k]) / mx * 100}%"></i></div></div>`;
+    $('#stHb').innerHTML = hb;
+    pulseChart($('#stCh'), D, t0, D.strikes.map((_, k) => k), 220);
+    this.dirty = false;
+  },
+};
+
+/* ---- Chart + walls ---- */
+MODS.chart = {
+  mount(v) {
+    this.D = getData(app.sym);
+    v.innerHTML = phead('Chart + Walls', '5-minute candles ke saath support aur resistance ki deewarein, max pain line aur har 5 minute ki net writing. Deewar kab aur kahan khiski, seedha chart par dikhta hai.', symLabel() +
+      `<div class="seg" id="lay"><button data-l="walls">Walls</button><button data-l="mp">Max pain</button><button data-l="writing">Writing bars</button></div>`) +
+      `<section class="card"><div class="card-b"><div class="cvwrap" id="chWrap"><canvas id="chCv"></canvas><div class="tip" id="chTip" hidden></div></div>
+      <div class="legend"><span><i style="background:var(--put)"></i>Support wall</span><span><i style="background:var(--call)"></i>Resistance wall</span><span><i style="background:var(--amber)"></i>Max pain</span><span>Neeche ke bars: net writing (hara = puts, laal = calls)</span></div></div></section>`;
+    $$('#lay button').forEach(b => { b.setAttribute('aria-pressed', app.layers[b.dataset.l]); b.onclick = () => { app.layers[b.dataset.l] = !app.layers[b.dataset.l]; b.setAttribute('aria-pressed', app.layers[b.dataset.l]); this.draw(lastCtx); }; });
+    const cv = $('#chCv'); cv.onmousemove = e => { const r = cv.getBoundingClientRect(); this.mx = e.clientX - r.left; this.draw(lastCtx); }; cv.onmouseleave = () => { this.mx = null; $('#chTip').hidden = true; this.draw(lastCtx); };
+  },
+  update(ctx) { this.draw(ctx); },
+  draw(ctx) {
+    const D = this.D, cv = $('#chCv'), wrap = $('#chWrap'), dpr = window.devicePixelRatio || 1, W = wrap.clientWidth, H = W < 600 ? 340 : 460;
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const C = {put: tok('--put'), call: tok('--call'), fg: tok('--fg'), faint: tok('--faint'), line: tok('--line'), amb: tok('--amber'), acc: tok('--accent'), panel: tok('--panel'), mono: tok('--f-mono')};
+    const t0 = ctx.t0, S = ctx.st(app.sym).S, pl = 6, pr = 70, pt = 12, hH = app.layers.writing ? H * 0.17 : 0, pb = 24, mainH = H - pt - pb - hH - (hH ? 10 : 0), slot = (W - pl - pr) / 75;
+    const candles = [];
+    for (let b = 0; b * 5 < Math.max(t0, 1); b++) {
+      const m0 = b * 5, m1 = Math.min(b * 5 + 5, t0), o = D.spot[m0]; let h = o, l = o;
+      for (let m = m0 + 1; m <= m1; m++) { h = Math.max(h, D.hi[m]); l = Math.min(l, D.lo[m]); }
+      const c = m1 >= t0 ? S : D.spot[m1]; h = Math.max(h, c); l = Math.min(l, c);
+      candles.push({o, h, l, c, m0, m1});
+    }
+    let mn = Math.min(...candles.map(c => c.l)), mx = Math.max(...candles.map(c => c.h));
+    if (app.layers.walls) { mn = Math.min(mn, wallLv(D, 'S', t0)); mx = Math.max(mx, wallLv(D, 'R', t0)); }
+    const padv = (mx - mn) * 0.08; mn -= padv; mx += padv;
+    const Y = v => pt + (1 - (v - mn) / (mx - mn)) * mainH, X = t => pl + t / 5 * slot;
+    g.font = `500 10.5px ${C.mono}`; g.textBaseline = 'middle';
+    for (const v of niceTicks(mn, mx, 6)) { g.strokeStyle = C.line; g.lineWidth = 1; g.beginPath(); g.moveTo(pl, Y(v)); g.lineTo(W - pr, Y(v)); g.stroke(); g.fillStyle = C.faint; g.textAlign = 'left'; g.fillText(inr(v), W - pr + 8, Y(v)); }
+    g.textAlign = 'center'; g.fillStyle = C.faint; for (const [t, l] of TT) g.fillText(l, clamp(X(t), pl + 18, W - pr - 18), H - 10);
+    const step = (ser, color) => { g.beginPath(); g.strokeStyle = color; g.lineWidth = 2; for (let t = 0; t <= t0; t++) { const y = Y(D.strikes[ser[t]]); if (!t) g.moveTo(X(t), y); else { g.lineTo(X(t), Y(D.strikes[ser[t - 1]])); g.lineTo(X(t), y); } } g.stroke(); };
+    if (app.layers.walls) { g.save(); g.globalAlpha = 0.9; step(D.wallS.ser, C.put); step(D.wallR.ser, C.call); g.restore(); }
+    if (app.layers.mp) { g.save(); g.setLineDash([5, 4]); g.beginPath(); g.strokeStyle = C.amb; g.lineWidth = 1.5; for (let t = 0; t <= t0; t++) { const y = Y(D.ser.mp[t]); t ? g.lineTo(X(t), y) : g.moveTo(X(t), y); } g.stroke(); g.restore(); }
+    const cw = Math.max(2, slot * 0.62);
+    for (const [i, c] of candles.entries()) {
+      const x = pl + i * slot + slot / 2, up = c.c >= c.o, col = up ? C.put : C.call;
+      g.strokeStyle = col; g.lineWidth = 1; g.beginPath(); g.moveTo(x, Y(c.h)); g.lineTo(x, Y(c.l)); g.stroke();
+      g.fillStyle = col; const y1 = Y(Math.max(c.o, c.c)), y2 = Y(Math.min(c.o, c.c)); g.fillRect(x - cw / 2, y1, cw, Math.max(1.2, y2 - y1));
+    }
+    if (hH) {
+      const base = pt + mainH + 10 + hH / 2, vals = candles.map(c => { const A = D.snaps[c.m0], Z = D.snaps[c.m1]; return (Z.totPc - A.totPc) - (Z.totCc - A.totCc); });
+      const m = Math.max(1, ...vals.map(Math.abs));
+      g.strokeStyle = C.line; g.beginPath(); g.moveTo(pl, base); g.lineTo(W - pr, base); g.stroke();
+      vals.forEach((v, i) => { g.fillStyle = rgba(v >= 0 ? C.put : C.call, 0.75); const h = v / m * (hH / 2 - 2); g.fillRect(pl + i * slot + slot / 2 - cw / 2, base - Math.max(h, 0), cw, Math.abs(h)); });
+      g.fillStyle = C.faint; g.textAlign = 'left'; g.fillText('Net writing', W - pr + 8, base);
+    }
+    const tag = (v, col, txt) => { const y = clamp(Y(v), pt + 8, pt + mainH - 8); g.fillStyle = col; g.fillRect(W - pr + 2, y - 9, pr - 4, 18); g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = `700 10.5px ${C.mono}`; g.fillText(txt, W - pr + 6, y); g.font = `500 10.5px ${C.mono}`; };
+    if (app.layers.walls) { tag(wallLv(D, 'R', t0), C.call, 'R ' + wallLv(D, 'R', t0)); tag(wallLv(D, 'S', t0), C.put, 'S ' + wallLv(D, 'S', t0)); }
+    g.setLineDash([2, 3]); g.strokeStyle = C.acc; g.beginPath(); g.moveTo(pl, Y(S)); g.lineTo(W - pr, Y(S)); g.stroke(); g.setLineDash([]);
+    tag(S, C.acc, inr2(S));
+    const tip = $('#chTip');
+    if (this.mx != null && this.mx < W - pr) {
+      const i = clamp(Math.floor((this.mx - pl) / slot), 0, candles.length - 1), c = candles[i], x = pl + i * slot + slot / 2;
+      g.strokeStyle = C.faint; g.beginPath(); g.moveTo(x, pt); g.lineTo(x, H - pb); g.stroke();
+      tip.innerHTML = `<b>${tl(c.m0)}–${tl(c.m0 + 5)}</b><br>O ${inr2(c.o)}  H ${inr2(c.h)}<br>L ${inr2(c.l)}  C ${inr2(c.c)}<br><span class="up">Support ${wallLv(D, 'S', c.m1)}</span> · <span class="dn">Res ${wallLv(D, 'R', c.m1)}</span><br><span class="amb">Max pain ${D.ser.mp[c.m1]}</span>`;
+      tip.hidden = false; tip.style.left = clamp(x + 12, 0, W - 200) + 'px'; tip.style.top = '12px';
+    } else tip.hidden = true;
+  },
+};
+
+/* ---- GEX & Greeks ---- */
+MODS.gex = {
+  mount(v) {
+    this.D = getData(app.sym);
+    v.innerHTML = phead('GEX & Greeks', 'Option writers ki hedging se market thamta hai ya tez bhaagta hai, ye GEX batata hai. Saath mein IV smile aur max pain ka poora curve.', symLabel()) +
+      `<div class="grid g3">
+        <section class="card"><div class="card-h"><h3>Gamma regime</h3></div><div class="card-b" id="gxReg"></div></section>
+        <section class="card span2"><div class="card-h"><h3>Net GEX by strike</h3><span class="sub">Crore mein · neela = thamne wala, peela = tez karne wala</span></div><div class="card-b"><div class="chart" id="gxBars"></div></div></section>
+        <section class="card span2"><div class="card-h"><h3>IV smile</h3></div><div class="card-b"><div class="chart" id="gxIv"></div><div class="legend"><span><i style="background:var(--call)"></i>Call IV</span><span><i style="background:var(--put)"></i>Put IV</span><span><i style="background:var(--accent)"></i>Spot</span></div></div></section>
+        <section class="card"><div class="card-h"><h3>Max pain curve</h3></div><div class="card-b"><div class="chart" id="gxMp"></div><p class="note">Har bar = us level par expiry hone par option buyers ko kitna milega (Cr). Sabse chhota bar = max pain.</p></div></section>
+      </div>`;
+  },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return; this.dirty = false;
+    const D = this.D, s = ctx.st(app.sym), K = D.K, st = D.c.step;
+    const pos = s.gex > 0, dist = s.flip ? s.S - s.flip : null;
+    $('#gxReg').innerHTML = `<div class="bigv ${pos ? 'acc' : 'amb'}">${sgn(s.gex)} Cr</div><div style="margin:6px 0 12px"><span class="pill ${pos ? 'acc' : 'warn'}">${pos ? 'Positive gamma · range bias' : 'Negative gamma · fast moves'}</span></div>
+      <div class="kv"><span>Flip level</span><b>${s.flip ? inr(s.flip) : 'none in range'}</b></div><div class="kv"><span>Spot vs flip</span><b>${dist == null ? '—' : sgn(dist) + ' pts'}</b></div><div class="kv"><span>ATM IV</span><b>${s.cIV[s.atmK].toFixed(2)}%</b></div><div class="kv"><span>Max pain</span><b>${inr(s.maxPain)}</b></div>
+      <p class="note">${pos ? 'Positive GEX mein writers girte market mein khareedte aur badhte mein bechte hain, isliye market thama rehta hai.' : 'Negative GEX mein writers move ke saath hi trade karte hain, isliye chaal tez ho sakti hai.'}</p>`;
+    const lo = Math.max(0, s.atmK - 10), hi = Math.min(K - 1, s.atmK + 10), ks = []; for (let k = hi; k >= lo; k--) ks.push(k);
+    const el = $('#gxBars'), w = Math.max(260, el.clientWidth), rh = 19, h = ks.length * rh + 12, lw = 58, cx = lw + (w - lw - 60) / 2, m = Math.max(1, ...ks.map(k => Math.abs(s.gexK[k]))), half = (w - lw - 60) / 2;
+    let svg = `<line x1="${cx}" x2="${cx}" y1="0" y2="${h}" style="stroke:var(--line-2)"/>`;
+    ks.forEach((k, i) => { const v = s.gexK[k], y = 6 + i * rh, bw = Math.abs(v) / m * half; svg += `<text class="axl" x="${lw - 8}" y="${y + rh / 2 + 3}" text-anchor="end" style="${k === s.atmK ? 'fill:var(--accent);font-weight:700' : ''}">${D.strikes[k]}</text><rect x="${v >= 0 ? cx : cx - bw}" y="${y + 3}" width="${bw}" height="${rh - 6}" rx="3" style="fill:var(${v >= 0 ? '--accent' : '--amber'});fill-opacity:.8"/><text class="axl" x="${v >= 0 ? cx + bw + 5 : cx - bw - 5}" y="${y + rh / 2 + 3}" text-anchor="${v >= 0 ? 'start' : 'end'}">${compact(v * 1e7).replace(' Cr', '')}</text>`; });
+    const yS = 6 + (D.strikes[hi] - s.S) / st * rh + rh / 2;
+    svg += `<line x1="${lw}" x2="${w}" y1="${yS}" y2="${yS}" style="stroke:var(--fg);stroke-dasharray:4 3"/><text class="axl" x="${w - 2}" y="${yS - 4}" text-anchor="end" style="fill:var(--fg)">Spot ${inr2(s.S)}</text>`;
+    if (s.flip && s.flip >= D.strikes[lo] && s.flip <= D.strikes[hi]) { const yF = 6 + (D.strikes[hi] - s.flip) / st * rh + rh / 2; svg += `<line x1="${lw}" x2="${w}" y1="${yF}" y2="${yF}" style="stroke:var(--amber);stroke-dasharray:2 3"/><text class="axl" x="${w - 2}" y="${yF + 12}" text-anchor="end" style="fill:var(--amber)">Flip ${s.flip}</text>`; }
+    el.innerHTML = `<svg width="${w}" height="${h}" role="img" aria-label="GEX by strike">${svg}</svg>`;
+    const xs = [...D.strikes], ivC = [...s.cIV], ivP = [...s.pIV], all = [...ivC, ...ivP];
+    const xt = [0, Math.floor(K / 4), Math.floor(K / 2), Math.floor(3 * K / 4), K - 1].map(k => [D.strikes[k], inr(D.strikes[k])]);
+    svgChart($('#gxIv'), {h: 220, x0: xs[0], x1: xs[K - 1], y0: Math.min(...all) - 0.5, y1: Math.max(...all) + 0.5, yf: v => v.toFixed(1) + '%', pl: 48, xt, label: 'IV smile',
+      series: [{v: ivC, x: xs, c: 'var(--call)'}, {v: ivP, x: xs, c: 'var(--put)'}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/>`});
+    const mpEl = $('#gxMp'), mw = Math.max(240, mpEl.clientWidth), mh = 200, lo2 = Math.max(0, s.atmK - 8), hi2 = Math.min(K - 1, s.atmK + 8), n = hi2 - lo2 + 1, bw = (mw - 10) / n, pm = Math.max(...Array.from({length: n}, (_, i) => s.pain[lo2 + i]));
+    let ms = '';
+    for (let i = 0; i < n; i++) { const k = lo2 + i, v = s.pain[k], bh = v / pm * (mh - 40), isMp = D.strikes[k] === s.maxPain; ms += `<rect x="${5 + i * bw + 1}" y="${mh - 22 - bh}" width="${bw - 2}" height="${bh}" rx="2" style="fill:var(${isMp ? '--amber' : '--line-2'})"/>`; if (i % 4 === 0 || isMp) ms += `<text class="axl" x="${5 + i * bw + bw / 2}" y="${mh - 8}" text-anchor="middle" style="${isMp ? 'fill:var(--amber);font-weight:700' : ''}">${D.strikes[k]}</text>`; }
+    mpEl.innerHTML = `<svg width="${mw}" height="${mh}" role="img" aria-label="Max pain curve">${ms}</svg>`;
+  },
+};
+
+/* ---- Straddle & expiry ---- */
+const FII = [['FII', -293988, 13121, 9.6, -246818, 540492], ['DII', 31930, -4320, 74.8, 86995, 61472], ['Pro', 32535, 9069, 67, 201087, 20037], ['Client', 229523, -17870, 82.4, 58735, -631001]];
+MODS.straddle = {
+  mount(v) {
+    const D = this.D = getData(app.sym), s = state(D, app.tf);
+    if (app.stdStrike[app.sym] == null) app.stdStrike[app.sym] = s.atmK;
+    const opts = D.strikes.map((x, k) => Math.abs(k - s.atmK) <= 6 ? `<option value="${k}" ${k === app.stdStrike[app.sym] ? 'selected' : ''}>${inr(x)}${k === s.atmK ? ' (ATM)' : ''}</option>` : '').join('');
+    v.innerHTML = phead('Straddle & Expiry', 'Ek strike ka call + put din bhar kaise chala, market expiry tak kitni range price kar raha hai, aur FII/DII kya kar rahe hain.', symLabel() + `<label class="mut" for="stdSel" style="font-size:12px">Strike</label><select class="sel" id="stdSel">${opts}</select>`) +
+      `<div class="grid g3">
+        <section class="card"><div class="card-h"><h3 id="stdTitle">Straddle</h3></div><div class="card-b" id="stdA"></div></section>
+        <section class="card"><div class="card-h"><h3>Range to expiry</h3></div><div class="card-b" id="stdB"></div></section>
+        <section class="card"><div class="card-h"><h3>Expiry watch</h3></div><div class="card-b" id="stdC"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Straddle through the day</h3></div><div class="card-b"><div class="chart" id="stdCh"></div><div class="legend"><span><i style="background:var(--fg)"></i>Straddle</span><span><i style="background:var(--accent)"></i>VWAP</span></div></div></section>
+        <section class="card span3"><div class="card-h"><h3>FII / DII positions · index derivatives</h3><span class="sub">Example numbers. Asli app NSE ki end-of-day file se lega.</span></div><div class="tw"><table class="tbl"><thead><tr><th class="l">Participant</th><th>Index futures net</th><th>Change</th><th>Long %</th><th>Index calls net</th><th>Index puts net</th></tr></thead><tbody>${FII.map(r => `<tr><td class="l"><b>${r[0]}</b></td><td class="${r[1] >= 0 ? 'up' : 'dn'}">${sgn(r[1])}</td><td class="${r[2] >= 0 ? 'up' : 'dn'}">${sgn(r[2])}</td><td>${r[3]}%</td><td class="${r[4] >= 0 ? 'up' : 'dn'}">${sgn(r[4])}</td><td class="${r[5] >= 0 ? 'up' : 'dn'}">${sgn(r[5])}</td></tr>`).join('')}</tbody></table></div></section>
+      </div>`;
+    $('#stdSel').onchange = e => { app.stdStrike[app.sym] = +e.target.value; this.dirty = true; this.update(lastCtx); };
+  },
+  update(ctx) {
+    const D = this.D, s = ctx.st(app.sym), t0 = ctx.t0, k = app.stdStrike[app.sym], x = D.strikes[k];
+    const ser = [], vw = []; let pv = 0, vv = 0;
+    for (let t = 0; t <= t0; t++) { const a = D.snaps[t], p = a.cP[k] + a.pP[k], vol = t ? (a.cVol[k] - D.snaps[t - 1].cVol[k]) + (a.pVol[k] - D.snaps[t - 1].pVol[k]) : 1; pv += p * vol; vv += vol; ser.push(p); vw.push(pv / vv); }
+    const now = s.cP[k] + s.pP[k], open = ser[0], vwap = vw[vw.length - 1], ch = now - open;
+    setText($('#stdTitle'), `${x} straddle`);
+    $('#stdA').innerHTML = `<div class="bigv fl" id="stdNow">${inr2(now)}</div><div class="${ch >= 0 ? 'up' : 'dn'} mono" style="margin-bottom:10px">${sgn(ch, inr2)} (${pct(ch / open * 100)}) since the open</div><div class="kv"><span>Open</span><b>${inr2(open)}</b></div><div class="kv"><span>High</span><b>${inr2(Math.max(...ser, now))}</b></div><div class="kv"><span>Low</span><b>${inr2(Math.min(...ser, now))}</b></div><div class="kv"><span>VWAP</span><b>${inr2(vwap)}</b></div><div style="margin-top:8px"><span class="pill ${now < vwap ? 'dn' : 'up'}">${now < vwap ? 'Below VWAP · premium being sold' : 'Above VWAP · premium being bought'}</span></div>`;
+    const atmS = s.cP[s.atmK] + s.pP[s.atmK], daysLeft = D.c.dte - 0.26 * t0 / N;
+    $('#stdB').innerHTML = `<div class="bigv">${inr(s.S - atmS)} – ${inr(s.S + atmS)}</div><p class="note" style="margin-top:4px">Spot ± ATM straddle = jitna move options market expiry tak price kar raha hai.</p><div class="kv"><span>Spot</span><b>${inr2(s.S)}</b></div><div class="kv"><span>ATM straddle</span><b>± ${inr(atmS)}</b></div><div class="kv"><span>Expiry</span><b>${D.c.exp}</b></div><div class="kv"><span>Time left</span><b>${daysLeft.toFixed(1)} days</b></div>`;
+    const b15 = D.snaps[Math.max(0, t0 - 15)], oi15 = ((s.totC + s.totP) / (b15.totC + b15.totP) - 1) * 100, st15 = (now / (b15.cP[k] + b15.pP[k]) - 1) * 100;
+    const watch = oi15 < -0.5 && st15 > 1 ? ['Unwinding + premium up', 'warn'] : oi15 > 0.5 && st15 < -1 ? ['Writers adding', 'acc'] : ['Normal', ''];
+    $('#stdC').innerHTML = `<div class="verdict" style="font-size:24px">${watch[0]}</div><p class="note" style="margin-top:4px">Chain OI aur straddle 15 minute mein kis taraf chale.</p><div class="kv"><span>Chain OI, 15 min</span><b class="${oi15 >= 0 ? 'up' : 'dn'}">${pct(oi15)}</b></div><div class="kv"><span>Straddle, 15 min</span><b class="${st15 >= 0 ? 'up' : 'dn'}">${pct(st15)}</b></div><div class="kv"><span>Max pain</span><b>${inr(s.maxPain)}</b></div><div class="kv"><span>OI chg calls / puts</span><b>${compact(s.totCc)} / ${compact(s.totPc)}</b></div>`;
+    if (ctx.minuteChanged || this.dirty) {
+      const all = [...ser, ...vw], mn = Math.min(...all), mx = Math.max(...all), p = (mx - mn) * 0.1 || 1;
+      svgChart($('#stdCh'), {h: 230, x0: 0, x1: N, y0: mn - p, y1: mx + p, yf: v => inr(v), label: 'Straddle vs VWAP', series: [{v: vw, c: 'var(--accent)', dash: 1}, {v: ser, c: 'var(--fg)', dot: 1}]});
+      this.dirty = false;
+    }
+  },
+};
+
+/* ---- Strategy builder ---- */
+const PRESETS = {'Iron Condor': [['S', 'CE', 3], ['B', 'CE', 6], ['S', 'PE', -3], ['B', 'PE', -6]], 'Short Strangle': [['S', 'CE', 4], ['S', 'PE', -4]], 'Long Straddle': [['B', 'CE', 0], ['B', 'PE', 0]], 'Bull Call Spread': [['B', 'CE', 0], ['S', 'CE', 3]], 'Bear Put Spread': [['B', 'PE', 0], ['S', 'PE', -3]]};
+MODS.strategy = {
+  mount(v) {
+    const D = this.D = getData(app.sym);
+    if (!app.legs || app.legsSym !== app.sym) this.preset('Iron Condor');
+    v.innerHTML = phead('Strategy Builder', 'Legs chuno, payoff turant dekho. Bhaav live chain se aate hain, yaani "abhi entry karun to kya hoga".', symLabel()) +
+      `<div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>Payoff</h3><span class="sub">Solid = expiry par · dashed = aaj (T+0)</span></div><div class="card-b"><div class="chart" id="sgCh"></div></div></section>
+        <section class="card"><div class="card-h"><h3>Numbers</h3></div><div class="card-b"><div class="stat" id="sgStat"></div></div></section>
+        <section class="card span3"><div class="card-h"><h3>Legs</h3><div class="tools presets">${Object.keys(PRESETS).map(p => `<button class="ibtn" data-pre="${p}">${p}</button>`).join('')}<button class="ibtn" id="sgAdd" style="color:var(--accent)">+ Add leg</button></div></div><div class="tw"><table class="tbl legs"><thead><tr><th class="l">Side</th><th class="l">Type</th><th class="l">Strike</th><th class="l">Lots</th><th>LTP</th><th>Δ</th><th>IV</th><th></th></tr></thead><tbody id="sgLegs"></tbody></table></div></section>
+      </div>`;
+    v.querySelectorAll('[data-pre]').forEach(b => b.onclick = () => { this.preset(b.dataset.pre); this.renderLegs(); this.update(lastCtx); });
+    $('#sgAdd').onclick = () => { const s = state(D, app.tf); app.legs.push({side: 'B', type: 'CE', strike: D.strikes[s.atmK], lots: 1}); this.renderLegs(); this.update(lastCtx); };
+    const tb = $('#sgLegs');
+    tb.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const i = +b.dataset.i; if (b.dataset.a === 'side') app.legs[i].side = app.legs[i].side === 'B' ? 'S' : 'B'; if (b.dataset.a === 'del') app.legs.splice(i, 1); this.renderLegs(); this.update(lastCtx); });
+    tb.addEventListener('change', e => { const el = e.target, i = +el.dataset.i, f = el.dataset.f; if (f === 'lots') app.legs[i].lots = clamp(Math.round(+el.value || 1), 1, 100); else if (f === 'strike') app.legs[i].strike = +el.value; else app.legs[i][f] = el.value; this.renderLegs(); this.update(lastCtx); });
+    this.renderLegs();
+  },
+  preset(name) { const D = this.D, s = state(D, app.tf); app.legs = PRESETS[name].map(([side, type, o]) => ({side, type, strike: D.strikes[clamp(s.atmK + o, 0, D.K - 1)], lots: 1})); app.legsSym = app.sym; },
+  renderLegs() {
+    const D = this.D;
+    $('#sgLegs').innerHTML = app.legs.length ? app.legs.map((L, i) => `<tr><td class="l"><button class="bs ${L.side}" data-a="side" data-i="${i}">${L.side === 'B' ? 'BUY' : 'SELL'}</button></td><td class="l"><select id="lg-t-${i}" data-i="${i}" data-f="type"><option ${L.type === 'CE' ? 'selected' : ''}>CE</option><option ${L.type === 'PE' ? 'selected' : ''}>PE</option></select></td><td class="l"><select id="lg-k-${i}" data-i="${i}" data-f="strike">${D.strikes.map(x => `<option value="${x}" ${x === L.strike ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td class="l"><input id="lg-l-${i}" type="number" min="1" max="100" value="${L.lots}" data-i="${i}" data-f="lots"></td><td><b class="v" id="lg-p-${i}"></b></td><td id="lg-d-${i}" class="mut"></td><td id="lg-v-${i}" class="mut"></td><td><button class="x" data-a="del" data-i="${i}" aria-label="Remove leg">✕</button></td></tr>`).join('') : `<tr><td colspan="8" class="l empty">Koi leg nahi. Upar se preset chuno ya "+ Add leg" dabao.</td></tr>`;
+  },
+  update(ctx) {
+    const D = this.D, s = ctx.st(app.sym), lot = D.c.lot, legs = app.legs, idx = x => D.strikes.indexOf(x);
+    legs.forEach((L, i) => { const k = idx(L.strike), p = L.type === 'CE' ? s.cP[k] : s.pP[k]; flash($('#lg-p-' + i), p, inr2(p)); setText($('#lg-d-' + i), (L.type === 'CE' ? s.cD[k] : s.pD[k]).toFixed(2)); setText($('#lg-v-' + i), (L.type === 'CE' ? s.cIV[k] : s.pIV[k]).toFixed(1) + '%'); });
+    if (!legs.length) { $('#sgCh').innerHTML = '<p class="empty">Legs add karo, payoff yahan dikhega.</p>'; $('#sgStat').innerHTML = ''; return; }
+    const priced = legs.map(L => { const k = idx(L.strike); return {...L, k, price: L.type === 'CE' ? s.cP[k] : s.pP[k], iv: (L.type === 'CE' ? s.cIV[k] : s.pIV[k]) / 100, sg: (L.side === 'B' ? 1 : -1) * L.lots * lot}; });
+    const atExp = x => priced.reduce((a, L) => a + L.sg * ((L.type === 'CE' ? Math.max(0, x - L.strike) : Math.max(0, L.strike - x)) - L.price), 0);
+    const now = x => priced.reduce((a, L) => a + L.sg * (bs(x, L.strike, s.T, L.iv, L.type === 'CE').p - L.price), 0);
+    const rf = D.c.kind === 'index' ? 0.045 : 0.1, x0 = s.S * (1 - rf), x1 = s.S * (1 + rf), n = 160, xs = [], ex = [], t0v = [];
+    for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n; xs.push(x); ex.push(atExp(x)); t0v.push(now(x)); }
+    const all = [...ex, ...t0v, 0], mn = Math.min(...all), mx = Math.max(...all), p = (mx - mn) * 0.1 || 100;
+    const bes = []; for (let i = 1; i <= n; i++) if (Math.sign(ex[i]) !== Math.sign(ex[i - 1]) && ex[i] !== 0) bes.push(xs[i - 1] + (xs[i] - xs[i - 1]) * (-ex[i - 1]) / (ex[i] - ex[i - 1]));
+    const step = Math.round((x1 - x0) / 4 / D.c.step) * D.c.step || D.c.step, xt = []; for (let v = Math.ceil(x0 / step) * step; v <= x1; v += step) xt.push([v, inr(v)]);
+    svgChart($('#sgCh'), {h: 280, x0, x1, y0: mn - p, y1: mx + p, zero: 1, xt, pl: 60, label: 'Strategy payoff', series: [],
+      extra: (X, Y, w, h) => {
+        const path = (vals, f) => vals.map((v, i) => (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ',' + Y(f(v)).toFixed(1)).join('');
+        const area = f => path(ex, f) + `L${X(x1)},${Y(0)}L${X(x0)},${Y(0)}Z`;
+        let o = `<path d="${area(v => Math.max(v, 0))}" style="fill:var(--put);fill-opacity:.16"/><path d="${area(v => Math.min(v, 0))}" style="fill:var(--call);fill-opacity:.16"/>`;
+        o += `<path d="${path(t0v, v => v)}" style="fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:5 4"/><path d="${path(ex, v => v)}" style="fill:none;stroke:var(--fg);stroke-width:2"/>`;
+        o += `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent)"/><text class="axl" x="${X(s.S) + 4}" y="20" style="fill:var(--accent)">Spot ${inr2(s.S)}</text>`;
+        for (const b of bes) o += `<circle cx="${X(b)}" cy="${Y(0)}" r="4" style="fill:var(--amber);stroke:var(--panel);stroke-width:2"/>`;
+        return o;
+      }});
+    const far = atExp(s.S * 3) - atExp(s.S * 2.9), lowv = atExp(0.01);
+    const maxP = far > 1 ? 'Unlimited' : '₹' + inr(Math.max(...ex, lowv)), maxL = far < -1 ? 'Unlimited' : '₹' + inr(Math.min(...ex, lowv));
+    const net = priced.reduce((a, L) => a - L.sg * L.price, 0);
+    const sig = s.cIV[s.atmK] / 100 * Math.sqrt(s.T); let pop = 0, tot = 0;
+    for (let i = 0; i <= 400; i++) { const z = -4 + 8 * i / 400, x = s.S * Math.exp(z * sig - sig * sig / 2), w = npdf(z); tot += w; if (atExp(x) > 0) pop += w; }
+    const G = f => priced.reduce((a, L) => a + L.sg * (L.type === 'CE' ? s['c' + f][L.k] : s['p' + f][L.k]), 0);
+    const it = (l, v, c = '') => `<div><span>${l}</span><b class="${c}">${v}</b></div>`;
+    $('#sgStat').innerHTML = it(net >= 0 ? 'Net credit' : 'Net debit', '₹' + inr(Math.abs(net)), net >= 0 ? 'up' : 'dn') + it('Max profit', maxP, 'up') + it('Max loss', maxL, 'dn') + it('Breakevens', bes.length ? bes.map(b => inr(b)).join(' · ') : '—') + it('Chance of profit', (pop / tot * 100).toFixed(0) + '%', 'acc') + it('Net Δ', G('D').toFixed(1)) + it('Net Γ', G('G').toFixed(3)) + it('Θ per day', '₹' + inr(G('Th')), G('Th') >= 0 ? 'up' : 'dn') + it('Vega per 1%', '₹' + inr(G('Ve')));
+  },
+};
+
+/* ---- Journal + OI ---- */
+const TODAY = [
+  {sym: 'NIFTY', side: 'BUY', opt: 'CE', rel: 0, en: 24, ex: 61, lots: 2, setup: 'Support bounce'},
+  {sym: 'NIFTY', side: 'SELL', opt: 'CE', rel: 3, en: 70, ex: 128, lots: 1, setup: 'Resistance fade'},
+  {sym: 'BANKNIFTY', side: 'BUY', opt: 'PE', rel: 0, en: 88, ex: 112, lots: 2, setup: 'Breakdown try'},
+  {sym: 'NIFTY', side: 'BUY', opt: 'PE', rel: -1, en: 118, ex: 141, lots: 2, setup: 'Top picking'},
+  {sym: 'BANKNIFTY', side: 'BUY', opt: 'CE', rel: 1, en: 130, ex: 146, lots: 1, setup: 'Breakout'},
+];
+const PAST = [['08 Oct', 'NIFTY', 'BUY', '22450 CE', 'Near support', 'Walls moving up', 4875], ['08 Oct', 'NIFTY', 'BUY', '22500 PE', 'Near support', 'Walls moving up', -3150], ['07 Oct', 'BANKNIFTY', 'BUY', '55000 CE', 'Near support', 'Walls holding', 2380], ['07 Oct', 'NIFTY', 'SELL', '22650 CE', 'Near resistance', 'Walls holding', 2625], ['07 Oct', 'NIFTY', 'BUY', '22600 CE', 'Near resistance', 'Walls spreading', -4200], ['06 Oct', 'BANKNIFTY', 'BUY', '55500 PE', 'Mid-range', 'Walls moving down', 3570], ['06 Oct', 'NIFTY', 'BUY', '22400 CE', 'Mid-range', 'Range squeezing', -2475], ['06 Oct', 'NIFTY', 'SELL', '22300 PE', 'Near support', 'Walls moving up', 1950], ['03 Oct', 'NIFTY', 'BUY', '22350 PE', 'Mid-range', 'Walls holding', -1875], ['03 Oct', 'BANKNIFTY', 'BUY', '54800 CE', 'Near support', 'Walls moving up', 5110], ['03 Oct', 'NIFTY', 'BUY', '22450 CE', 'Near resistance', 'Range squeezing', -3600], ['01 Oct', 'NIFTY', 'SELL', '22500 CE', 'Near resistance', 'Walls moving down', 3300], ['01 Oct', 'BANKNIFTY', 'BUY', '55200 PE', 'Mid-range', 'Walls spreading', -2240], ['30 Sep', 'NIFTY', 'BUY', '22300 CE', 'Near support', 'Walls holding', 2850], ['30 Sep', 'NIFTY', 'BUY', '22400 PE', 'Near resistance', 'Walls moving down', 2100], ['29 Sep', 'BANKNIFTY', 'BUY', '55100 CE', 'Mid-range', 'Walls spreading', -1960]];
+function posCtx(D, t) { const s = D.snaps[t], st = D.c.step, sup = wallLv(D, 'S', t), res = wallLv(D, 'R', t); return s.S - sup <= 0.6 * st ? 'Near support' : res - s.S <= 0.6 * st ? 'Near resistance' : 'Mid-range'; }
+MODS.journal = {
+  mount(v) {
+    this.trades = TODAY.map((T, i) => {
+      const D = getData(T.sym), a = D.snaps[T.en], b = D.snaps[T.ex], k = clamp(a.atmK + T.rel, 0, D.K - 1), strike = D.strikes[k];
+      const ep = T.opt === 'CE' ? a.cP[k] : a.pP[k], xp = T.opt === 'CE' ? b.cP[k] : b.pP[k], pnl = (xp - ep) * (T.side === 'BUY' ? 1 : -1) * T.lots * D.c.lot;
+      return {...T, i, k, strike, ep, xp, pnl, pos: posCtx(D, T.en), walls: WALL_LABEL[wallsMsg(D, T.en).key], date: 'Today'};
+    });
+    v.innerHTML = phead('Journal + OI', 'Har trade ke saath us waqt ki market ki tasveer apne aap save hoti hai. Phir pata chalta hai kis haalat mein aap jeette ho aur kis mein haarte ho.', '<span class="ex">Example trades</span>') +
+      `<div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>Today's trades</h3><span class="sub">Row par click karo, us waqt ka OI dekho</span></div><div class="tw"><table class="tbl" id="jTbl"><thead><tr><th class="l">Time</th><th class="l">Symbol</th><th class="l">Trade</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th class="l">Where</th></tr></thead><tbody></tbody></table></div></section>
+        <section class="card"><div class="card-h"><h3>Market at entry</h3></div><div class="card-b" id="jSnap"></div></section>
+        <section class="card span3"><div class="card-h"><h3>Your edge by market context</h3><span class="sub">Aaj ke ${TODAY.length} + pichhle ${PAST.length} example trades</span></div><div class="card-b grid g2" id="jEdge"></div></section>
+      </div>`;
+    const tb = $('#jTbl tbody');
+    tb.innerHTML = this.trades.map(T => `<tr class="tr-row" data-i="${T.i}" tabindex="0"><td class="l">${tl(T.en)}</td><td class="l">${T.sym}</td><td class="l"><span class="${T.side === 'BUY' ? 'up' : 'dn'}">${T.side}</span> ${T.strike} ${T.opt} × ${T.lots}<br><span class="mut" style="font-family:var(--f-body);font-size:11px">${T.setup}</span></td><td>${inr2(T.ep)}</td><td>${inr2(T.xp)}</td><td class="${T.pnl >= 0 ? 'up' : 'dn'}"><b>${sgn(T.pnl)}</b></td><td class="l"><span class="pill">${T.pos}</span></td></tr>`).join('');
+    const pick = i => { app.selTrade = i; $$('.tr-row').forEach(r => r.classList.toggle('sel', +r.dataset.i === i)); this.snap(); };
+    tb.onclick = e => { const r = e.target.closest('tr'); if (r) pick(+r.dataset.i); };
+    tb.onkeydown = e => { if (e.key === 'Enter') { const r = e.target.closest('tr'); if (r) pick(+r.dataset.i); } };
+    pick(app.selTrade);
+    const all = [...this.trades.map(T => ({pos: T.pos, walls: T.walls, pnl: T.pnl})), ...PAST.map(r => ({pos: r[4], walls: r[5], pnl: r[6]}))];
+    const table = (key, title) => {
+      const g = {}; for (const x of all) (g[x[key]] = g[x[key]] || []).push(x.pnl);
+      const rows = Object.entries(g).map(([k, a]) => ({k, n: a.length, w: a.filter(x => x > 0).length / a.length * 100, avg: a.reduce((s, x) => s + x, 0) / a.length})).sort((a, b) => b.avg - a.avg);
+      return `<div><div class="kv" style="margin-bottom:4px"><b style="font-family:var(--f-body)">${title}</b></div><table class="tbl"><thead><tr><th class="l">Context</th><th>Trades</th><th class="l">Win rate</th><th>Avg P&amp;L</th></tr></thead><tbody>${rows.map(r => `<tr><td class="l">${r.k}</td><td>${r.n}</td><td class="l"><div class="wr" style="grid-template-columns:1fr 44px;padding:0"><span class="b"><i style="width:${r.w}%;background:var(${r.w >= 50 ? '--put' : '--call'})"></i></span><span>${r.w.toFixed(0)}%</span></div></td><td class="${r.avg >= 0 ? 'up' : 'dn'}">${sgn(r.avg)}</td></tr>`).join('')}</tbody></table></div>`;
+    };
+    $('#jEdge').innerHTML = table('pos', 'Spot kahan tha jab entry li') + table('walls', 'Deewarein kya kar rahi thi') + `<p class="note span3" style="grid-column:1/-1">Example insight: "Near support" wale trades sabse achhe chal rahe hain, "Range squeezing" mein entry lene se bachna chahiye. Asli app ye aapke apne trades se nikalega.</p>`;
+  },
+  snap() {
+    const T = this.trades[app.selTrade], D = getData(T.sym), s = D.snaps[T.en], st = D.c.step, w = wallsMsg(D, T.en);
+    const lo = Math.max(0, s.atmK - 4), hi = Math.min(D.K - 1, s.atmK + 4); let mx = 1; for (let k = lo; k <= hi; k++) mx = Math.max(mx, s.cChg[k], s.pChg[k]);
+    let hb = ''; for (let k = hi; k >= lo; k--) hb += `<div class="hb ${k === T.k ? 'atm' : ''}"><div class="c"><i style="width:${Math.max(0, s.cChg[k]) / mx * 100}%"></i></div><span class="k">${D.strikes[k]}</span><div class="p"><i style="width:${Math.max(0, s.pChg[k]) / mx * 100}%"></i></div></div>`;
+    $('#jSnap').innerHTML = `<div class="kv"><span>${T.sym} at ${tl(T.en)}</span><b>${inr2(s.S)}</b></div><div class="kv"><span>Support / Resistance</span><b><span class="up">${wallLv(D, 'S', T.en)}</span> / <span class="dn">${wallLv(D, 'R', T.en)}</span></b></div><div class="kv"><span>PCR</span><b>${s.pcr.toFixed(2)}</b></div><div class="kv"><span>GEX</span><b class="${s.gex > 0 ? 'up' : 'dn'}">${sgn(s.gex)} Cr</b></div>
+      <div style="margin:8px 0"><span class="pill ${w.tone}">${w.txt}</span></div><div style="margin-top:6px">${hb}</div>
+      <button class="ibtn" id="jReplay" style="margin-top:12px;width:100%;justify-content:center;color:var(--accent)">▶ Replay this moment in the chain</button>`;
+    $('#jReplay').onclick = () => { app.sym = T.sym; app.mode = 'replay'; app.playing = false; app.tf = T.en; syncSym(); go('chain'); };
+  },
+  update() {},
+};
+
+/* ---- Alerts ---- */
+const RULES = [
+  {id: 'shift', name: 'Support / resistance shift', d: 'Sabse badi writing nayi strike par 3 minute tak tik jaaye.'},
+  {id: 'test', name: 'Spot testing a wall', d: 'Spot support ya resistance ke chauthai step ke andar aa jaaye.'},
+  {id: 'pcr', name: 'PCR extremes', d: 'PCR 1.25 ke upar jaaye ya 0.80 ke neeche aaye.'},
+  {id: 'unwind', name: 'Wall unwinding', d: 'Deewar wali strike ka OI change apne peak se 12% gire.'},
+  {id: 'gex', name: 'GEX regime flip', d: 'Net GEX positive se negative ya negative se positive ho.'},
+];
+MODS.alerts = {
+  mount(v) {
+    v.innerHTML = phead('Alerts', 'Aap chart ke saamne na ho tab bhi koi badi baat chhoote nahi. Rules on/off karo, feed mein kisi alert par click karke us waqt par replay karo.') +
+      `<div class="grid g3">
+        <section class="card"><div class="card-h"><h3>Rules</h3></div><div class="card-b">${RULES.map(r => `<div class="rule"><b id="rl-${r.id}">${r.name}</b><p>${r.d}</p><button class="sw" role="switch" aria-labelledby="rl-${r.id}" aria-checked="${app.rules[r.id]}" data-r="${r.id}"></button></div>`).join('')}
+          <div class="card-h" style="padding:14px 0 8px;border:0"><h3>Kahan bhejein</h3></div>
+          <div class="chips"><span class="pill up">In-app · on</span><span class="pill">Telegram · Phase 3</span><span class="pill">Phone push · Phase 3</span><span class="pill">Email digest · Phase 4</span></div></div></section>
+        <section class="card span2"><div class="card-h"><h3>Alert feed</h3><div class="tools"><div class="seg" id="alSym"><button data-s="ALL">All</button><button data-s="NIFTY">NIFTY</button><button data-s="BANKNIFTY">BANKNIFTY</button></div></div></div><div class="card-b" id="alFeed" style="max-height:620px;overflow:auto"></div></section>
+      </div>`;
+    v.querySelectorAll('.sw').forEach(b => b.onclick = () => { const k = b.dataset.r; app.rules[k] = !app.rules[k]; b.setAttribute('aria-checked', app.rules[k]); this.dirty = true; this.update(lastCtx); });
+    $$('#alSym button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.s === app.alertSym); b.onclick = () => { app.alertSym = b.dataset.s; $$('#alSym button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    $('#alFeed').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; app.mode = 'replay'; app.playing = false; app.tf = +b.dataset.t; render(true); });
+  },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return; this.dirty = false;
+    const syms = app.alertSym === 'ALL' ? ['NIFTY', 'BANKNIFTY'] : [app.alertSym];
+    const evs = eventsUpTo(syms, ctx.tf).filter(e => app.rules[e.type]);
+    $('#alFeed').innerHTML = feedHTML(evs, true);
+  },
+};
+
+/* ---- Blueprint ---- */
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context (naya)'], ['Alerts', 'Rules, feed, click-to-replay, Telegram/push (naya)'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+MODS.blueprint = {
+  mount(v) {
+    let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
+    v.innerHTML = phead('Blueprint', 'Ye poore project ka naksha hai. Har page dekho, pasand aaye to tick karo, aur chat mein batao kya badalna hai.') +
+      `<div class="grid g2 bp">
+        <section class="card"><div class="card-h"><h3>Pages · approve karo</h3><span class="sub" id="bpCnt"></span></div><div class="card-b">${BP_PAGES.map((p, i) => `<label class="chk"><input type="checkbox" id="bp-${i}" ${saved[i] ? 'checked' : ''}><b>${p[0]}</b><span>${p[1]}</span></label>`).join('')}<p class="note">Ticks sirf aapke browser mein save hote hain. Final faisla chat mein bata dena.</p></div></section>
+        <section class="card"><div class="card-h"><h3>Abhi kya demo hai, kya asli banega</h3></div><div class="card-b">
+          <p><b>Demo mein:</b> sab data ek simulator bana raha hai (ek din ka NIFTY, BANKNIFTY aur 4 stocks). Numbers asli market ke nahi hain. Live feel dikhane ke liye 1 minute = 2 second.</p>
+          <p><b>Asli app mein:</b> data broker API (Upstox / Dhan / Fyers / Angel One / Kite) ke WebSocket se aayega, har tick par update hoga, aur purane din replay ke liye database mein save honge.</p>
+          <p><b>Dhyan rahe:</b> agar ye app dusron ko bechni hai to NSE se data redistribution license lagega. Apne use ke liye broker API kaafi hai.</p></div></section>
+        <section class="card span3" style="grid-column:1/-1"><div class="card-h"><h3>Architecture</h3></div><div class="card-b"><div class="flow">
+          <div><b>Broker WebSocket</b>Option chain ticks, spot, OI</div><div><b>Ingest service</b>Python FastAPI · OI, Greeks, GEX, walls calculate</div><div><b>Redis + TimescaleDB</b>Live cache + har minute ki history</div><div><b>API + WS gateway</b>Browser ko live push · alerts engine</div><div><b>Next.js app</b>Ye UI · React, Tailwind, Framer Motion, charts</div>
+        </div></div></section>
+        <section class="card"><div class="card-h"><h3>Phases</h3></div><div class="card-b">
+          <div class="phase"><b>Phase 1</b><span>Broker API jodna, NIFTY live chain, flash animation, login</span></div>
+          <div class="phase"><b>Phase 2</b><span>OI Analysis, Structure, Straddle, BANKNIFTY + stocks (IndexOI ke barabar)</span></div>
+          <div class="phase"><b>Phase 3</b><span>Heatmap, Chart + Walls, GEX, Replay database, Telegram/push alerts</span></div>
+          <div class="phase"><b>Phase 4</b><span>Strategy builder, Journal + OI, AI market read (Claude API), mobile PWA</span></div>
+        </div></section>
+        <section class="card"><div class="card-h"><h3>Tech stack</h3></div><div class="card-b"><table class="tbl"><tbody>
+          <tr><td class="l mut">Frontend</td><td class="l">Next.js · React · TypeScript · Tailwind</td></tr><tr><td class="l mut">Animation</td><td class="l">Framer Motion · CSS transitions</td></tr><tr><td class="l mut">Charts</td><td class="l">TradingView Lightweight Charts · Canvas heatmap</td></tr><tr><td class="l mut">Backend</td><td class="l">Python FastAPI (ya Node.js)</td></tr><tr><td class="l mut">Data</td><td class="l">Redis (live) · PostgreSQL + TimescaleDB (history)</td></tr><tr><td class="l mut">Hosting</td><td class="l">Vercel (UI) · VPS / Railway (backend)</td></tr>
+        </tbody></table></div></section>
+      </div>`;
+    const cnt = () => setText($('#bpCnt'), `${$$('.chk input:checked').length} / ${BP_PAGES.length} approved`);
+    v.querySelectorAll('.chk input').forEach((c, i) => c.onchange = () => { saved[i] = c.checked; try { localStorage.setItem('poi-approve', JSON.stringify(saved)); } catch (e) {} cnt(); });
+    cnt();
+  },
+  update() {},
+};
+
+/* ================= chrome: header, tape, dock, toasts, cmdk ================= */
+const SYM_PAGES = new Set(['chain', 'oi', 'heatmap', 'chart', 'gex', 'straddle', 'strategy']);
+function syncSym() {
+  $$('#symsw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.sym === app.sym));
+  const sel = $('#stockSel'); sel.value = CFG[app.sym].kind === 'stock' ? app.sym : ''; sel.classList.toggle('on', CFG[app.sym].kind === 'stock');
+  const D = getData(app.sym); setText($('#expiry'), `${app.sym} · Exp ${D.c.exp}`);
+}
+function setSym(s) { app.sym = s; syncSym(); if (SYM_PAGES.has(app.page)) mount(); else render(true); }
+$('#symsw').addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (b) setSym(b.dataset.sym); });
+$('#stockSel').onchange = e => { if (e.target.value) setSym(e.target.value); };
+
+const TAPE = ['NIFTY', 'BANKNIFTY', 'VIX', 'PCR', 'RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ITC', 'LT', 'BHARTIARTL', 'AXISBANK'];
+$('#tape').innerHTML = [0, 1].map(() => TAPE.map(n => `<span class="ti" data-tk="${n}"><b>${esc(n)}</b><span class="a"></span><span class="b"></span></span>`).join('')).join('');
+function updateTape(ctx) {
+  const sN = ctx.st('NIFTY'), sB = ctx.st('BANKNIFTY'), DN = getData('NIFTY'), a = ctx.tf - ctx.t0, t1 = Math.min(N, ctx.t0 + 1);
+  const vals = {NIFTY: [inr2(sN.S), (sN.S / DN.c.prev - 1) * 100], BANKNIFTY: [inr2(sB.S), (sB.S / getData('BANKNIFTY').c.prev - 1) * 100], VIX: [(sN.cIV[sN.atmK] * 1.08 + 0.4).toFixed(2), null], PCR: [sN.pcr.toFixed(2), null]};
+  for (const x of DN.stocks) if (TAPE.includes(x.s)) vals[x.s] = ['', lerp(x.p[ctx.t0], x.p[t1], a)];
+  $$('#tape .ti').forEach(el => { const v = vals[el.dataset.tk]; if (!v) return; setText(el.children[1], v[0]); const b = el.children[2]; if (v[1] != null) { setText(b, pct(v[1])); b.className = 'b ' + (v[1] >= 0 ? 'up' : 'dn'); } });
+}
+const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l12 7-12 7z"/></svg>', PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+function updateChrome(ctx) {
+  const closed = app.edge >= N, st = $('#status');
+  st.className = 'pill ' + (app.mode === 'live' ? (closed ? '' : 'up live') : 'warn');
+  setText($('#statusTxt'), app.mode === 'live' ? (closed ? 'Market closed' : 'Live') : 'Replay');
+  setText($('#clock'), tls(Math.min(app.tf, N)) + ' IST');
+  const isPlaying = app.mode === 'live' ? !closed : app.playing;
+  const pb = $('#playBtn'); if (pb._p !== isPlaying) { pb.innerHTML = isPlaying ? PAUSE : PLAY; pb.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play'); pb._p = isPlaying; }
+  $('#scAv').style.width = (app.edge / N * 100) + '%'; $('#scFl').style.width = (app.tf / N * 100) + '%';
+  const inp = $('#scIn'); if (document.activeElement !== inp) inp.value = app.tf;
+  setText($('#tlab'), tl(app.tf));
+  $('#liveBtn').style.color = app.mode === 'live' ? 'var(--put)' : 'var(--muted)';
+  $$('#speedSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.s === app.speed));
+  if (ctx.minuteChanged) {
+    const evs = getData(SYM_PAGES.has(app.page) ? app.sym : 'NIFTY').events.filter(e => e.t <= app.edge && e.type === 'shift');
+    $('#scMk').innerHTML = evs.map(e => `<span class="mk" style="left:${e.t / N * 100}%;background:var(${e.tone === 'up' ? '--put' : '--call'})" title="${esc(evTitle(e))}"></span>`).join('') + TT.slice(1, -1).map(([t, l]) => `<span class="hr" style="left:${t / N * 100}%">${l}</span>`).join('');
+  }
+  updateTape(ctx);
+}
+$('#playBtn').onclick = () => {
+  if (app.mode === 'live') { app.mode = 'replay'; app.playing = false; }
+  else { app.playing = !app.playing; if (app.playing && app.tf >= app.edge - 0.01) { app.mode = 'live'; } }
+  render(true);
+};
+$('#liveBtn').onclick = () => { app.mode = 'live'; app.tf = app.edge; render(true); };
+$('#speedSeg').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { app.speed = +b.dataset.s; render(); } };
+$('#scIn').addEventListener('input', e => { app.mode = 'replay'; app.tf = clamp(+e.target.value, 0, app.edge); e.target.value = app.tf; if (app.tf >= app.edge - 0.01) app.mode = 'live'; render(); });
+
+function toast(e) {
+  const box = $('#toasts'), el = document.createElement('div');
+  el.className = 'toast ' + e.tone; el.innerHTML = `<span class="ic">${evIcon(e)}</span><div><b>${esc(evTitle(e))}</b><span>${tl(e.t)} · ${esc(evDetail(e))}</span></div>`;
+  box.prepend(el); while (box.children.length > 3) box.lastChild.remove();
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 6000);
+}
+function fireToasts(a, b) {
+  if (Math.floor(a) === Math.floor(b)) return;
+  const syms = ['NIFTY', 'BANKNIFTY']; if (CFG[app.sym].kind === 'stock') syms.push(app.sym);
+  for (const s of syms) for (const e of getData(s).events) if (e.t > Math.floor(a) && e.t <= Math.floor(b) && app.rules[e.type]) toast(e);
+}
+
+const cmdItems = () => [...PAGES.map(p => ({l: p.label, h: 'Page', run: () => go(p.id)})), ...Object.keys(CFG).map(s => ({l: `${s} option chain`, h: CFG[s].name, run: () => { app.sym = s; syncSym(); go('chain'); }})),
+  {l: 'Jump to live', h: 'Replay', run: () => $('#liveBtn').click()}, {l: 'Replay from 09:15 at 20×', h: 'Replay', run: () => { app.mode = 'replay'; app.tf = 0; app.playing = true; app.speed = 20; render(true); }}, {l: 'Toggle light / dark', h: 'Theme', run: () => $('#themeBtn').click()}];
+let cmdSel = 0, cmdList = [];
+function openCmd() { $('#cmdk').hidden = false; const i = $('#cmdkIn'); i.value = ''; drawCmd(); i.focus(); }
+function closeCmd() { $('#cmdk').hidden = true; }
+function drawCmd() { const q = $('#cmdkIn').value.toLowerCase().trim(); cmdList = cmdItems().filter(x => !q || (x.l + ' ' + x.h).toLowerCase().includes(q)); cmdSel = clamp(cmdSel, 0, Math.max(0, cmdList.length - 1)); $('#cmdkList').innerHTML = cmdList.map((x, i) => `<li role="option" data-i="${i}" aria-selected="${i === cmdSel}">${esc(x.l)}<span>${esc(x.h)}</span></li>`).join('') || '<li>Kuch nahi mila</li>'; }
+$('#openK').onclick = openCmd;
+$('#cmdkIn').oninput = () => { cmdSel = 0; drawCmd(); };
+$('#cmdkIn').onkeydown = e => { if (e.key === 'ArrowDown') { cmdSel++; drawCmd(); e.preventDefault(); } else if (e.key === 'ArrowUp') { cmdSel--; drawCmd(); e.preventDefault(); } else if (e.key === 'Enter' && cmdList[cmdSel]) { closeCmd(); cmdList[cmdSel].run(); } else if (e.key === 'Escape') closeCmd(); };
+$('#cmdkList').onclick = e => { const li = e.target.closest('[data-i]'); if (li) { closeCmd(); cmdList[+li.dataset.i].run(); } };
+$('#cmdk').onclick = e => { if (e.target.id === 'cmdk') closeCmd(); };
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#cmdk').hidden ? openCmd() : closeCmd(); } else if (e.key === 'Escape' && !$('#cmdk').hidden) closeCmd(); });
+$('#themeBtn').onclick = () => {
+  const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark'; try { localStorage.setItem('poi-theme', r.dataset.theme); } catch (e) {}
+  MODS[app.page].dirty = true; render(true);
+};
+
+/* ================= routing + loop ================= */
+let lastCtx = null;
+function makeCtx(force) {
+  const t0 = Math.min(N, Math.floor(app.tf)), cache = {};
+  const ctx = {tf: Math.min(app.tf, N), t0, minuteChanged: force || t0 !== app.lastMin, st: sym => cache[sym] || (cache[sym] = state(getData(sym), Math.min(app.tf, N)))};
+  app.lastMin = t0; return ctx;
+}
+function render(force) {
+  const ctx = lastCtx = makeCtx(force);
+  updateChrome(ctx);
+  const m = MODS[app.page]; if (m.update) m.update(ctx);
+}
+function mount() {
+  const v = $('#view'), m = MODS[app.page];
+  v.innerHTML = ''; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
+  m.mount(v); m.dirty = true; m.tiles = null; m.br = 0;
+  $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
+  render(true);
+}
+function go(p) { if (!MODS[p]) return; app.page = p; try { history.replaceState(null, '', '#' + p); } catch (e) {} mount(); window.scrollTo(0, 0); }
+
+const TICK = 400, MIN_MS = 2000;
+setInterval(() => {
+  if (document.hidden) return;
+  const prev = app.edge;
+  app.edge = Math.min(N, app.edge + TICK / MIN_MS);
+  if (app.mode === 'live') app.tf = app.edge;
+  else if (app.playing) { app.tf = Math.min(app.edge, app.tf + TICK / MIN_MS * app.speed); if (app.tf >= app.edge - 1e-6) { app.mode = 'live'; app.tf = app.edge; } }
+  fireToasts(prev, app.edge);
+  if (app.mode === 'live' && prev >= N && app.edge >= N) return;
+  render();
+}, TICK);
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
+
+getData('NIFTY'); getData('BANKNIFTY');
+syncSym();
+const h0 = (location.hash || '').slice(1);
+go(MODS[h0] ? h0 : 'overview');
+})();
+</script>
+</body>
+</html>
