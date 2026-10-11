@@ -17,7 +17,10 @@ Demo chalane ka tarika
 - Agar computer mein Python hai, to ye local server par chalega.
 - Python nahi hai, to bhi chalega: file seedha browser mein khul jaayegi.
 - Ya bas "index.html" par double-click kar do, wo bhi kaafi hai.
-- Band karna ho to kaali (terminal) window close kar do.
+- Band karna ho to kaali (terminal) window close kar do,
+  ya "Stop-Professor-OI.bat" chalao (sab Professor OI windows ek saath band).
+- Purana folder delete nahi ho raha? Pehle Stop-Professor-OI.bat chalao
+  ya saari kaali windows aur Notepad band karo. Chalta hua program folder ko lock rakhta hai.
 
 Andar kya hai (21 pages)
 ------------------------
