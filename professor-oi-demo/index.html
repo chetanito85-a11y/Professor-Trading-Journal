@@ -7,14 +7,14 @@
 <title>Professor OI Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
 /* Layout: trading-terminal shell — sticky header + ticker tape, left rail nav, dense card grid, replay dock fixed at bottom */
 :root{
-  --bg:#0A0E14; --panel:#0F151E; --panel-2:#151D29; --line:#1D2734; --line-2:#2A3647;
+  --bg:#070A10; --panel:#0E141D; --glass:rgba(14,20,29,.8); --glow1:#2EE6D6; --glow2:#5B8CFF; --glow3:#A06BFF; --panel-2:#151D29; --line:#1D2734; --line-2:#2A3647;
   --fg:#E4E9F0; --muted:#8693A5; --faint:#566274;
   --accent:#5B8CFF; --call:#F0565A; --put:#1FBF88; --amber:#E2A72E; --on-solid:#FFFFFF; --on-amber:#1D1400;
-  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-display:'Unbounded','Segoe UI',system-ui,sans-serif;
   --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --top:94px; --shadow:0 1px 0 rgba(0,0,0,.25);
@@ -22,14 +22,14 @@
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
+    --bg:#EEF2F8; --panel:#FFFFFF; --glass:rgba(255,255,255,.8); --glow1:#0FB5A8; --glow2:#2F62E0; --glow3:#7B4DFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
     --fg:#111823; --muted:#556173; --faint:#8994A4;
     --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
     color-scheme:light;
   }
 }
 :root[data-theme="light"]{
-  --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
+  --bg:#EEF2F8; --panel:#FFFFFF; --glass:rgba(255,255,255,.8); --glow1:#0FB5A8; --glow2:#2F62E0; --glow3:#7B4DFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
   --fg:#111823; --muted:#556173; --faint:#8994A4;
   --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
   color-scheme:light;
@@ -90,7 +90,7 @@ main{min-width:0;padding:18px 20px 120px}
 
 /* ---------- page parts ---------- */
 .phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
-.phead h1{margin:0;font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;text-wrap:balance}
+.phead h1{margin:0;font:600 23px/1.2 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
 .phead p{margin:5px 0 0;color:var(--muted);max-width:68ch}
 .ptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0;box-shadow:var(--shadow)}
@@ -396,6 +396,63 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 .ob li{display:grid;grid-template-columns:44px 1fr auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;align-items:center}
 .ob li:first-child{border-top:0}
 
+/* ---- quantum flow layer ---- */
+#flow{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.aurora{position:fixed;z-index:0;pointer-events:none;width:64vmax;height:64vmax;border-radius:50%;animation:drift 30s ease-in-out infinite alternate}
+.aurora.a1{top:-26vmax;left:-18vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--glow2) 20%,transparent),transparent)}
+.aurora.a2{bottom:-32vmax;right:-22vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--glow3) 17%,transparent),transparent);animation-duration:38s;animation-direction:alternate-reverse}
+@keyframes drift{to{transform:translate(9vmax,7vmax) scale(1.12)}}
+.shell{position:relative;z-index:1}
+.card{position:relative;isolation:isolate;background:var(--glass)}
+.card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),var(--glow1),color-mix(in srgb,var(--glow3) 70%,transparent) 38%,transparent 70%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(440px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--glow2) 10%,transparent),transparent 60%)}
+.card:hover::before,.card:hover::after{opacity:1}
+.brand>div{background:linear-gradient(90deg,var(--fg) 0%,var(--glow1) 28%,var(--glow3) 52%,var(--fg) 78%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flowtxt 9s linear infinite}
+.brand small{color:var(--muted)}
+.brand svg{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--glow2) 65%,transparent))}
+@keyframes flowtxt{to{background-position:-260% 0}}
+.top::after,.dock::before{content:"";position:absolute;left:0;right:0;height:1px;pointer-events:none;opacity:.75;background:linear-gradient(90deg,transparent,var(--glow1),var(--glow2),var(--glow3),transparent);background-size:200% 100%;animation:flowline 7s linear infinite}
+.top::after{bottom:-1px}.dock::before{top:-1px}
+@keyframes flowline{to{background-position:200% 0}}
+.tape{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.nav-i{transition:background .25s,color .25s,box-shadow .25s}
+.nav-i[aria-current="page"]{background:linear-gradient(90deg,color-mix(in srgb,var(--glow2) 22%,transparent),color-mix(in srgb,var(--glow3) 6%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--glow2) 32%,transparent)}
+.nav-i[aria-current="page"] svg{color:var(--glow1);filter:drop-shadow(0 0 6px var(--glow1))}
+.pill.live{box-shadow:0 0 16px color-mix(in srgb,var(--put) 35%,transparent)}
+.play{background:linear-gradient(135deg,var(--glow1),var(--glow2) 50%,var(--glow3));box-shadow:0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}
+.play.on{animation:ring 2.2s ease-out infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow1) 55%,transparent),0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}100%{box-shadow:0 0 0 12px transparent,0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}}
+.scrub .fl{background:linear-gradient(90deg,var(--glow1),var(--glow2),var(--glow3));box-shadow:0 0 10px color-mix(in srgb,var(--glow2) 60%,transparent)}
+.scrub input::-webkit-slider-thumb{box-shadow:0 0 12px var(--glow1)}
+.kpi .val{align-self:flex-start}
+.rd{display:inline-block;animation:rdu .45s cubic-bezier(.2,.8,.2,1)}
+.rd.d{animation-name:rdd}
+@keyframes rdu{from{transform:translateY(60%);opacity:0;filter:blur(2px)}to{transform:none;opacity:1;filter:none}}
+@keyframes rdd{from{transform:translateY(-60%);opacity:0;filter:blur(2px)}to{transform:none;opacity:1;filter:none}}
+.anim-in .card,.anim-in .cat{animation:cardin .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 42ms)}
+@keyframes cardin{from{opacity:.3;transform:translateY(12px) scale(.985);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.chart path.ln{filter:drop-shadow(0 0 4px var(--gc))}
+.chart path.draw{stroke-dasharray:5000;stroke-dashoffset:5000;animation:draw 1.6s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.phead h1{background:linear-gradient(90deg,var(--fg) 55%,color-mix(in srgb,var(--glow2) 80%,var(--fg)));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mini5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.mini5 .mini{min-width:0}
+.mini5 .kv b{font-family:var(--f-mono)}
+.ivt{padding:7px 8px;border-radius:7px;text-align:left;font:600 10.5px var(--f-body);border:1px solid color-mix(in srgb,var(--glow3) 25%,transparent);transition:transform .2s}
+.ivt:hover{transform:translateY(-2px)}
+.ivt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivt b{font:600 12px var(--f-mono)}
+.ivt i{font:500 10.5px var(--f-mono);font-style:normal;margin-left:4px}
+@media (max-width:1100px){.mini5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.mini5{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion: reduce){
+  #flow,.aurora{display:none}
+  .anim-in .card,.anim-in .cat,.rd,.play.on,.brand>div,.top::after,.dock::before{animation:none}
+  .chart path.draw{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
+}
+
 @media (max-width:1100px){
   .shell{grid-template-columns:64px minmax(0,1fr)}
   .rail h6,.nav-i span,.nav-i em{display:none}
@@ -435,6 +492,7 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 
 </head>
 <body>
+<canvas id="flow" aria-hidden="true"></canvas><div class="aurora a1"></div><div class="aurora a2"></div>
 <div class="shell">
   <header class="top">
     <div class="brand">
@@ -780,6 +838,7 @@ const IC = {
   payoff: 'M3 18h6l6-12h6M3 12h18', book: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM9 8h6M9 12h6', bell: 'M6 16v-5a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
   map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
   radar: 'M12 12l6-6M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5', flask: 'M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M7.5 15h9',
+  wave: 'M2 12c2.5-6 5.5-6 8 0s5.5 6 8 0 3-4 4-4M2 18h20',
   wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-4v4M16 13h2',
 };
 const PAGES = [
@@ -791,6 +850,7 @@ const PAGES = [
   {id: 'structure', label: 'Market Structure', ic: 'pulse'},
   {id: 'chart', label: 'Chart + Walls', ic: 'candles', isNew: 1, grp: 'Deep dive'},
   {id: 'gex', label: 'GEX & Greeks', ic: 'gamma', isNew: 1},
+  {id: 'vol', label: 'Volatility Lab', ic: 'wave', isNew: 1},
   {id: 'straddle', label: 'Straddle & Expiry', ic: 'clock'},
   {id: 'strategy', label: 'Strategy Builder', ic: 'payoff', isNew: 1},
   {id: 'backtest', label: 'Signal Backtest', ic: 'flask', isNew: 1},
@@ -815,7 +875,7 @@ function spark(vals, color, zero) {
 }
 const TT = [[0, '09:15'], [75, '10:30'], [150, '11:45'], [225, '13:00'], [300, '14:15'], [375, '15:30']];
 function svgChart(el, o) {
-  const w = Math.max(260, el.clientWidth || 600), h = o.h || 200, pl = o.pl ?? 56, pr = o.pr ?? 14, pt = 10, pb = o.xt === false ? 8 : 24;
+  const w = Math.max(o.minW || 260, el.clientWidth || 600), h = o.h || 200, pl = o.pl ?? 56, pr = o.pr ?? 14, pt = 10, pb = o.xt === false ? 8 : 24;
   const X = v => pl + (v - o.x0) / (o.x1 - o.x0) * (w - pl - pr), Y = v => pt + (1 - (v - o.y0) / (o.y1 - o.y0)) * (h - pt - pb);
   let g = '';
   for (const v of niceTicks(o.y0, o.y1, o.yn || 4)) g += `<line class="grid" x1="${pl}" x2="${w - pr}" y1="${Y(v)}" y2="${Y(v)}"/><text class="axl" x="${pl - 7}" y="${Y(v) + 3.5}" text-anchor="end">${(o.yf || compact)(v)}</text>`;
@@ -828,17 +888,17 @@ function svgChart(el, o) {
     let d = ''; s.v.forEach((v, i) => d += (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ',' + Y(v).toFixed(1));
     const fx = X(xs[0]), lx = X(xs[xs.length - 1]), ly = Y(s.v[s.v.length - 1]);
     if (s.area) b += `<path d="${d}L${lx},${Y(s.base || 0)}L${fx},${Y(s.base || 0)}Z" style="fill:${s.c};fill-opacity:.13;stroke:none"/>`;
-    b += `<path d="${d}" style="fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
+    b += `<path class="ln${o.anim && !s.dash ? ' draw' : ''}" d="${d}" style="--gc:${s.c};fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
     if (s.dot) b += `<circle cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c};stroke:var(--panel);stroke-width:2"/>`;
   }
   const extra = o.extra ? o.extra(X, Y, w, h) : '';
   el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(o.label || 'chart')}">${g}${b}${extra}</svg>`;
 }
-function pulseChart(el, D, t0, ks, h = 210) {
+function pulseChart(el, D, t0, ks, h = 210, anim = false) {
   const C = [], P = [];
   for (let t = 0; t <= t0; t++) { const s = D.snaps[t]; let c = 0, p = 0; for (const k of ks) { c += s.cChg[k]; p += s.pChg[k]; } C.push(-c); P.push(p); }
   let mn = Math.min(0, ...C, ...P), mx = Math.max(0, ...C, ...P); const padv = (mx - mn) * 0.1 || 1;
-  svgChart(el, {h, x0: 0, x1: N, y0: mn - padv, y1: mx + padv, zero: 1, label: 'Put vs call OI change', series: [{v: P, c: 'var(--put)', area: 1, dot: 1}, {v: C, c: 'var(--call)', area: 1, dot: 1}]});
+  svgChart(el, {h, anim, x0: 0, x1: N, y0: mn - padv, y1: mx + padv, zero: 1, label: 'Put vs call OI change', series: [{v: P, c: 'var(--put)', area: 1, dot: 1}, {v: C, c: 'var(--call)', area: 1, dot: 1}]});
 }
 function feedHTML(evs, clickable) {
   if (!evs.length) return '<p class="empty">Abhi tak koi alert nahi. Market chalega to yahan aayenge.</p>';
@@ -951,7 +1011,7 @@ MODS.overview = {
   update(ctx) {
     const DN = getData('NIFTY'), DB = getData('BANKNIFTY'), sN = ctx.st('NIFTY'), sB = ctx.st('BANKNIFTY'), t0 = ctx.t0;
     const setK = (id, val, txt, sub, subCls, series, color, zero) => {
-      const el = $('#' + id); flash(el.querySelector('.val'), val, txt); const sb = el.querySelector('.sub'); setText(sb, sub); sb.className = 'sub ' + (subCls || 'mut');
+      const el = $('#' + id); roll(el.querySelector('.val'), val, txt); const sb = el.querySelector('.sub'); setText(sb, sub); sb.className = 'sub ' + (subCls || 'mut');
       if (ctx.minuteChanged || this.dirty) el.querySelector('.sp').innerHTML = spark(series, color, zero);
     };
     for (const [id, D, s] of [['k1', DN, sN], ['k2', DB, sB]]) {
@@ -983,7 +1043,7 @@ MODS.overview = {
       else this.ty = setInterval(() => { i = Math.min(txt.length, i + 3); el.innerHTML = esc(txt.slice(0, i)) + (i < txt.length ? '<span class="cur"></span>' : ''); if (i >= txt.length) clearInterval(this.ty); }, 24);
     }
     if (ctx.minuteChanged || this.dirty) {
-      pulseChart($('#ovPulse'), DN, t0, DN.strikes.map((_, k) => k), 200);
+      pulseChart($('#ovPulse'), DN, t0, DN.strikes.map((_, k) => k), 200, this.dirty);
       $('#ovFeed').innerHTML = feedHTML(eventsUpTo(['NIFTY', 'BANKNIFTY'], app.tf).slice(0, 6));
       const top = (arr, n) => [...arr].map((v, k) => [v, k]).sort((a, b) => b[0] - a[0]).slice(0, n);
       const tc = top(sN.cChg, 5), tp = top(sN.pChg, 5), mx = Math.max(tc[0][0], tp[0][0], 1);
@@ -1099,6 +1159,7 @@ MODS.oi = {
         <section class="card span3"><div class="card-h"><h3>Three strike range</h3><div class="tools"><label class="mut" for="oiBaseSel" style="font-size:12px">From</label><select class="sel" id="oiBaseSel">${opts}</select></div></div><div class="tw" id="oi3"></div></section>
         <section class="card span3"><div class="card-h"><h3>Change in OI · intraday</h3><span class="sub">Teen chuni hui strikes, naya upar</span><div class="tools"><div class="seg" id="oiIv"><button data-i="3">3 min</button><button data-i="5">5 min</button><button data-i="15">15 min</button></div></div></div><div class="tw" id="oiIntra" style="max-height:440px;overflow:auto"></div></section>
         <section class="card span3"><div class="card-h"><h3>Call vs put OI change</h3><div class="tools"><div class="seg" id="oiTab"><button data-t="all">All strikes</button><button data-t="three">Three strikes</button><button data-t="atm">ATM</button></div></div></div><div class="card-b"><div class="chart" id="oiChart"></div><div class="legend"><span><i style="background:var(--put)"></i>Put OI change</span><span><i style="background:var(--call)"></i>Call OI change (neeche)</span></div></div></section>
+        <section class="card span3"><div class="card-h"><h3>OI trend by strike</h3><span class="sub">ATM ke aas paas 5 strikes · hara = put OI change, laal = call OI change · tag = pichhle 30 min ka jhukav</span></div><div class="card-b"><div class="mini5" id="oiTrend"></div></div></section>
       </div>`;
     $('#oiBaseSel').onchange = e => { app.oiBase[app.sym] = +e.target.value; this.dirty = true; this.update(lastCtx); };
     $$('#oiIv button').forEach(b => { b.setAttribute('aria-pressed', +b.dataset.i === app.oiIv); b.onclick = () => { app.oiIv = +b.dataset.i; $$('#oiIv button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
@@ -1142,7 +1203,18 @@ MODS.oi = {
     const body = rowsD.map(r => `<tr><td class="l">${tl(r.t)}</td>${three.map(k => `<td class="bc"><i class="bar" style="width:${Math.abs(r.x.cChg[k]) / mxc * 96}%"></i><b class="v">${sgn(r.x.cChg[k])}</b></td><td class="bc p"><i class="bar" style="width:${Math.abs(r.x.pChg[k]) / mxp * 96}%"></i><b class="v">${sgn(r.x.pChg[k])}</b></td>`).join('')}<td class="dn">${sgn(r.c)}</td><td class="up">${sgn(r.p)}</td><td style="color:var(--accent);font-weight:700">${sgn(r.d)}</td><td class="bc ${r.ch >= 0 ? 'p' : ''}"><i class="bar" style="width:${Math.abs(r.ch) / mxD * 96}%;${r.ch >= 0 ? 'left:2px;right:auto' : ''}"></i><b class="v ${r.ch >= 0 ? 'up' : 'dn'}">${sgn(r.ch)}</b></td><td class="c">${r.sig ? `<span class="pill ${r.sig[0] === 'B' && r.sig[1] === 'u' ? 'up' : 'dn'}">${r.sig}</span>` : ''}</td></tr>`).join('');
     $('#oiIntra').innerHTML = `<table class="tbl" style="min-width:980px"><thead><tr><th class="l" rowspan="2">Time</th>${head}<th rowspan="2">Call OI chg</th><th rowspan="2">Put OI chg</th><th rowspan="2">Difference</th><th rowspan="2">Change in diff</th><th rowspan="2" class="c">Signal</th></tr><tr>${three.map(() => '<th>Call</th><th>Put</th>').join('')}</tr></thead><tbody>${body}</tbody></table>`;
     const ksC = app.oiTab === 'all' ? D.strikes.map((_, k) => k) : app.oiTab === 'three' ? three : [s.atmK];
-    pulseChart($('#oiChart'), D, t0, ksC, 230);
+    const tk = []; for (let k = Math.max(0, s.atmK - 2); k <= Math.min(D.K - 1, s.atmK + 2); k++) tk.push(k);
+    const trw = $('#oiTrend');
+    if (trw.dataset.k !== tk.join()) { trw.innerHTML = tk.map(k => `<div class="mini"><div class="kv"><b>${inr(D.strikes[k])}${k === s.atmK ? ' · ATM' : ''}</b><span class="tag"></span></div><div class="chart"></div></div>`).join(''); trw.dataset.k = tk.join(); }
+    tk.forEach((k, i) => {
+      const box = trw.children[i], P = [], C = []; for (let t = 0; t <= t0; t++) { P.push(D.snaps[t].pChg[k]); C.push(D.snaps[t].cChg[k]); }
+      const a = Math.max(0, t0 - 30), dp = P[t0] - P[a], dc = C[t0] - C[a];
+      const tg = dp > 0 && dp > dc * 1.3 ? ['Support building', 'up'] : dc > 0 && dc > dp * 1.3 ? ['Resistance building', 'dn'] : dp < 0 && dc < 0 ? ['Unwinding', 'warn'] : ['Balanced', ''];
+      box.querySelector('.tag').innerHTML = `<span class="pill ${tg[1]}">${tg[0]}</span>`;
+      const all = [...P, ...C, 0], mn = Math.min(...all), mx = Math.max(...all), pd = (mx - mn) * 0.1 || 1;
+      svgChart(box.querySelector('.chart'), {h: 120, minW: 120, x0: 0, x1: N, y0: mn - pd, y1: mx + pd, yn: 2, pl: 44, pr: 6, xt: false, zero: 1, anim: this.dirty, label: `OI trend ${D.strikes[k]}`, series: [{v: P, c: 'var(--put)', dot: 1}, {v: C, c: 'var(--call)', dot: 1}]});
+    });
+    pulseChart($('#oiChart'), D, t0, ksC, 230, this.dirty);
     this.dirty = false;
   },
 };
@@ -1269,7 +1341,7 @@ MODS.structure = {
     const lo = Math.max(0, s.atmK - 6), hi = Math.min(D.K - 1, s.atmK + 6); let mx = 1; for (let k = lo; k <= hi; k++) mx = Math.max(mx, Math.abs(s.cChg[k]), Math.abs(s.pChg[k]));
     let hb = ''; for (let k = hi; k >= lo; k--) hb += `<div class="hb ${k === s.atmK ? 'atm' : ''}"><div class="c" title="${sgn(s.cChg[k])}"><i style="width:${Math.max(0, s.cChg[k]) / mx * 100}%"></i></div><span class="k">${D.strikes[k]}</span><div class="p" title="${sgn(s.pChg[k])}"><i style="width:${Math.max(0, s.pChg[k]) / mx * 100}%"></i></div></div>`;
     $('#stHb').innerHTML = hb;
-    pulseChart($('#stCh'), D, t0, D.strikes.map((_, k) => k), 220);
+    pulseChart($('#stCh'), D, t0, D.strikes.map((_, k) => k), 220, this.dirty);
     this.dirty = false;
   },
 };
@@ -1405,7 +1477,7 @@ MODS.straddle = {
     $('#stdC').innerHTML = `<div class="verdict" style="font-size:24px">${watch[0]}</div><p class="note" style="margin-top:4px">Chain OI aur straddle 15 minute mein kis taraf chale.</p><div class="kv"><span>Chain OI, 15 min</span><b class="${oi15 >= 0 ? 'up' : 'dn'}">${pct(oi15)}</b></div><div class="kv"><span>Straddle, 15 min</span><b class="${st15 >= 0 ? 'up' : 'dn'}">${pct(st15)}</b></div><div class="kv"><span>Max pain</span><b>${inr(s.maxPain)}</b></div><div class="kv"><span>OI chg calls / puts</span><b>${compact(s.totCc)} / ${compact(s.totPc)}</b></div>`;
     if (ctx.minuteChanged || this.dirty) {
       const all = [...ser, ...vw], mn = Math.min(...all), mx = Math.max(...all), p = (mx - mn) * 0.1 || 1;
-      svgChart($('#stdCh'), {h: 230, x0: 0, x1: N, y0: mn - p, y1: mx + p, yf: v => inr(v), label: 'Straddle vs VWAP', series: [{v: vw, c: 'var(--accent)', dash: 1}, {v: ser, c: 'var(--fg)', dot: 1}]});
+      svgChart($('#stdCh'), {h: 230, anim: this.dirty, x0: 0, x1: N, y0: mn - p, y1: mx + p, yf: v => inr(v), label: 'Straddle vs VWAP', series: [{v: vw, c: 'var(--accent)', dash: 1}, {v: ser, c: 'var(--fg)', dot: 1}]});
       this.dirty = false;
     }
   },
@@ -1636,7 +1708,7 @@ MODS.paper = {
     const lk = $('#pt-lock'); if (lk._t !== lockTxt) { lk.innerHTML = lockTxt ? `<div class="lock">${lockTxt}</div>` : ''; lk._t = lockTxt; }
     $('#pt-go').disabled = !!lockTxt;
     const st = paperStats();
-    [[0, paper.start], [0, st.avail], [0, st.used], [1, paper.realized], [1, st.unreal], [1, st.day]].forEach(([pl, val], i) => { const el = $('#ptk' + i); flash(el, Math.round(val), pl ? sgn(val) : '₹' + inr(val)); if (pl) { el.classList.toggle('up', val > 0); el.classList.toggle('dn', val < 0); } });
+    [[0, paper.start], [0, st.avail], [0, st.used], [1, paper.realized], [1, st.unreal], [1, st.day]].forEach(([pl, val], i) => { const el = $('#ptk' + i); roll(el, Math.round(val), pl ? sgn(val) : '₹' + inr(val)); if (pl) { el.classList.toggle('up', val > 0); el.classList.toggle('dn', val < 0); } });
     if (ctx.minuteChanged || this.dirty) $('#ptSp').innerHTML = spark(paper.hist.length > 1 ? paper.hist.map(x => x[1]) : [0, 0], st.day >= 0 ? 'var(--put)' : 'var(--call)', 1);
     const sig = paper.pos.map(p => p.id).join(',');
     if (sig !== this.sig) { this.sig = sig; this.renderPos(); }
@@ -1738,6 +1810,47 @@ MODS.backtest = {
   },
 };
 
+/* ---- Volatility lab ---- */
+MODS.vol = {
+  mount(v) {
+    app.volSort = app.volSort || 'iv';
+    v.innerHTML = phead('Volatility Lab', 'IV kitna mehenga ya sasta hai, din bhar kaise badla, aur kis stock mein IV sabse zyada uchhla. Option khareedne ya bechne se pehle ye dekhna zaroori hai.', symLabel()) +
+      `<div class="kpis" id="vlK"></div>
+      <div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>IV vs HV · ${esc(app.sym)}</h3><span class="sub">IV = options ka andaza · HV = asli chaal (30 min)</span></div><div class="card-b"><div class="chart" id="vlIvhv"></div><div class="legend"><span><i style="background:var(--glow3)"></i>ATM IV</span><span><i style="background:var(--glow1)"></i>HV, realized</span></div></div></section>
+        <section class="card"><div class="card-h"><h3>Reading</h3></div><div class="card-b" id="vlRead"></div></section>
+        <section class="card span3"><div class="card-h"><h3>IV smile · 09:15 vs abhi</h3><span class="sub">Smile ka upar-neeche hona = poori chain mehengi ya sasti hui</span></div><div class="card-b"><div class="chart" id="vlSmile"></div><div class="legend"><span><i style="background:var(--faint)"></i>09:15</span><span><i style="background:var(--glow3)"></i>Abhi</span><span><i style="background:var(--accent)"></i>Spot</span></div></div></section>
+        <section class="card span3"><div class="card-h"><h3>IV grid · ${UL.length} F&amp;O stocks</h3><div class="tools"><div class="seg" id="vlSort"><button data-s="iv">Highest IV</button><button data-s="ivc">Biggest IV jump</button><button data-s="ivd">Biggest IV drop</button></div></div></div><div class="card-b"><div class="tiles" id="vlGrid"></div><p class="note">Tile par click = us stock ki option chain. Rang jitna gehra, IV utna zyada.</p></div></section>
+      </div>`;
+    $$('#vlSort button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.s === app.volSort); b.onclick = () => { app.volSort = b.dataset.s; $$('#vlSort button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    $('#vlGrid').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSymGo(b.dataset.s, 'chain'); };
+  },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return;
+    const D = getData(app.sym), s = ctx.st(app.sym), t0 = ctx.t0, iv = D.ser.iv.slice(0, t0 + 1), hv = [], hx = [];
+    for (let t = 30; t <= t0; t++) { let m = 0, q = 0; for (let u = t - 29; u <= t; u++) { const r = Math.log(D.spot[u] / D.spot[u - 1]); m += r; q += r * r; } const vr = q / 30 - sq(m / 30); hv.push(Math.sqrt(Math.max(0, vr) * 375 * 252) * 100); hx.push(t); }
+    const ivNow = s.cIV[s.atmK], hvNow = hv.length ? hv[hv.length - 1] : null, ivCh = ivNow - iv[0];
+    const k = (lab, val, sub, cls = 'mut') => `<div class="card kpi"><span class="lab">${lab}</span><span class="val">${val}</span><span class="sub ${cls}">${sub}</span></div>`;
+    $('#vlK').innerHTML = k('ATM IV', ivNow.toFixed(2) + '%', `${sgn(ivCh, x => x.toFixed(2))} since open`, ivCh >= 0 ? 'up' : 'dn') + k('HV · 30 min', hvNow == null ? '—' : hvNow.toFixed(2) + '%', 'Spot ki asli chaal') +
+      k('IV − HV', hvNow == null ? '—' : sgn(ivNow - hvNow, x => x.toFixed(2)), hvNow == null ? '09:45 ke baad' : ivNow > hvNow ? 'Options mehenge' : 'Options saste', hvNow != null && ivNow > hvNow ? 'amb' : 'up') +
+      k('Straddle', inr2(s.cP[s.atmK] + s.pP[s.atmK]), `ATM ${inr(s.atm)}`) + k('Days to expiry', (D.c.dte - 0.26 * t0 / N).toFixed(1), `Exp ${D.c.exp}`);
+    $$('#vlK .card').forEach((c, i) => c.style.setProperty('--i', i));
+    const all = [...iv, ...hv], lo = Math.min(...all) - 0.6, hi = Math.max(...all) + 0.6;
+    svgChart($('#vlIvhv'), {h: 230, x0: 0, x1: N, y0: lo, y1: hi, yf: x => x.toFixed(1) + '%', pl: 48, anim: this.dirty, label: 'IV vs HV', series: [{v: hv, x: hx, c: 'var(--glow1)', dot: 1}, {v: iv, c: 'var(--glow3)', dot: 1, w: 2}]});
+    const read = hvNow == null ? 'HV ke liye 30 minute ka data chahiye. 09:45 ke baad dikhega.' : ivNow > hvNow * 1.15 ? 'Options mehenge hain: IV, asli chaal (HV) se kaafi upar hai. Option bechne walon ke liye premium achha hai, khareedne wale dhyan se.' : ivNow < hvNow * 0.85 ? 'Options saste hain: market jitna hil raha hai, options utna price nahi kar rahe. Khareedne walon ke liye behtar haalat.' : 'IV aur HV paas-paas hain. Options lagbhag sahi bhaav par hain.';
+    $('#vlRead').innerHTML = `<p class="ai" style="min-height:0;font-size:14px">${read} ${ivCh > 0.3 ? 'Subah se IV badha hai, yaani darr ya demand badh rahi hai.' : ivCh < -0.3 ? 'Subah se IV gira hai, premium pighal raha hai (IV crush).' : 'Subah se IV lagbhag wahi hai.'}</p><p class="meta">Ye market ki haalat hai, trade ki salah nahi.</p>`;
+    const S0 = D.snaps[0], xs = [...D.strikes], a1 = [...S0.cIV], a2 = [...s.cIV], ys = [...a1, ...a2];
+    const xt = [0, Math.floor(D.K / 4), Math.floor(D.K / 2), Math.floor(3 * D.K / 4), D.K - 1].map(i => [D.strikes[i], inr(D.strikes[i])]);
+    svgChart($('#vlSmile'), {h: 220, x0: xs[0], x1: xs[D.K - 1], y0: Math.min(...ys) - 0.4, y1: Math.max(...ys) + 0.4, yf: x => x.toFixed(1) + '%', pl: 48, xt, anim: this.dirty, label: 'IV smile open vs now',
+      series: [{v: a1, x: xs, c: 'var(--faint)', dash: 1}, {v: a2, x: xs, c: 'var(--glow3)', w: 2}], extra: (X, Y, w, h) => `<line x1="${X(s.S)}" x2="${X(s.S)}" y1="8" y2="${h - 24}" style="stroke:var(--accent);stroke-dasharray:4 3"/>`});
+    const rows = scanRows(ctx.tf), key = app.volSort;
+    rows.sort((a, b) => key === 'iv' ? b.iv - a.iv : key === 'ivc' ? b.ivc - a.ivc : a.ivc - b.ivc);
+    const ivs = rows.map(r => r.iv), mn = Math.min(...ivs), mx = Math.max(...ivs);
+    $('#vlGrid').innerHTML = rows.map(r => `<button class="ivt" data-s="${esc(r.s)}" style="background:color-mix(in srgb,var(--glow3) ${Math.round(6 + (r.iv - mn) / (mx - mn || 1) * 46)}%,var(--panel))"><span>${esc(r.s)}</span><b>${r.iv.toFixed(1)}%</b><i class="${r.ivc >= 0 ? 'up' : 'dn'}">${sgn(r.ivc, x => x.toFixed(1))}</i></button>`).join('');
+    this.dirty = false;
+  },
+};
+
 /* ---- Journal + OI ---- */
 const TODAY = [
   {sym: 'NIFTY', side: 'BUY', opt: 'CE', rel: 0, en: 24, ex: 61, lots: 2, setup: 'Support bounce'},
@@ -1824,7 +1937,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Light / Dark / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag: support/resistance building (naya)'], ['Quantum flow UI', 'Chalti lehron wala background, glass cards, glow, number roll, draw-in charts (naya)'], ['Light / Dark / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
@@ -1856,7 +1969,7 @@ MODS.blueprint = {
 };
 
 /* ================= chrome: header, tape, dock, toasts, cmdk ================= */
-const SYM_PAGES = new Set(['chain', 'oi', 'heatmap', 'chart', 'gex', 'straddle', 'strategy']);
+const SYM_PAGES = new Set(['chain', 'oi', 'heatmap', 'chart', 'gex', 'vol', 'straddle', 'strategy']);
 function syncSym() {
   const D = getData(app.sym), st = isStock(app.sym);
   $$('#symsw [data-sym]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sym === app.sym));
@@ -1903,7 +2016,7 @@ function updateChrome(ctx) {
   setText($('#statusTxt'), app.mode === 'live' ? (closed ? 'Market closed' : 'Live') : 'Replay');
   setText($('#clock'), tls(Math.min(app.tf, N)) + ' IST');
   const isPlaying = app.mode === 'live' ? !closed : app.playing;
-  const pb = $('#playBtn'); if (pb._p !== isPlaying) { pb.innerHTML = isPlaying ? PAUSE : PLAY; pb.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play'); pb._p = isPlaying; }
+  const pb = $('#playBtn'); pb.classList.toggle('on', isPlaying); if (pb._p !== isPlaying) { pb.innerHTML = isPlaying ? PAUSE : PLAY; pb.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play'); pb._p = isPlaying; }
   $('#scAv').style.width = (app.edge / N * 100) + '%'; $('#scFl').style.width = (app.tf / N * 100) + '%';
   const inp = $('#scIn'); if (document.activeElement !== inp) inp.value = app.tf;
   setText($('#tlab'), tl(app.tf));
@@ -1962,9 +2075,53 @@ $('#cmdkIn').onkeydown = e => { if (e.key === 'ArrowDown') { cmdSel++; drawCmd()
 $('#cmdkList').onclick = e => { const li = e.target.closest('[data-i]'); if (li) { closeCmd(); cmdList[+li.dataset.i].run(); } };
 $('#cmdk').onclick = e => { if (e.target.id === 'cmdk') closeCmd(); };
 document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#cmdk').hidden ? openCmd() : closeCmd(); } else if (e.key === 'Escape') { closeCmd(); closePicker(); } });
-function setTheme(m) { THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
+function setTheme(m) { setTimeout(() => refreshFlow(), 0); THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
 $('#themeSeg').onclick = e => { const b = e.target.closest('[data-th]'); if (!b) return; setTheme(b.dataset.th); MODS[app.page].dirty = true; render(true); };
 setTheme(THEME);
+
+/* ================= quantum flow: background field, card spotlight, digit roll ================= */
+let refreshFlow = () => {};
+function startFlow() {
+  const cv = $('#flow'); if (!cv || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const g = cv.getContext('2d'); let W = 0, H = 0, P = [], cols = [], light = false, t = 0, skip = false;
+  const spawn = () => ({x: Math.random() * W, y: Math.random() * H, l: 60 + Math.random() * 260, c: Math.floor(Math.random() * 3), s: 0.6 + Math.random() * 0.9});
+  const size = () => { const d = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); P = Array.from({length: Math.round(clamp(W * H / 5200, 90, 320))}, spawn); };
+  refreshFlow = () => { light = getComputedStyle(document.documentElement).colorScheme === 'light'; cols = ['--glow1', '--glow2', '--glow3'].map(tok); g.clearRect(0, 0, W, H); };
+  const frame = () => {
+    requestAnimationFrame(frame); if (document.hidden || (skip = !skip)) return; t += 2;
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = 'rgba(0,0,0,0.07)'; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = light ? 'source-over' : 'lighter'; g.lineWidth = 1.15;
+    for (let c = 0; c < 3; c++) {
+      g.strokeStyle = rgba(cols[c], light ? 0.2 : 0.3); g.beginPath();
+      for (const p of P) {
+        if (p.c !== c) continue;
+        const a = Math.sin(p.x * 0.0023 + t * 0.004) * 1.7 + Math.cos(p.y * 0.0027 - t * 0.003) * 1.7 + Math.sin((p.x + p.y) * 0.0009 + t * 0.001);
+        const nx = p.x + Math.cos(a) * p.s * 2.4, ny = p.y + Math.sin(a) * p.s * 2.4;
+        g.moveTo(p.x, p.y); g.lineTo(nx, ny); p.x = nx; p.y = ny;
+        if ((p.l -= 2) < 0 || nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) Object.assign(p, spawn());
+      }
+      g.stroke();
+    }
+  };
+  size(); refreshFlow(); addEventListener('resize', () => { size(); refreshFlow(); }); frame();
+}
+let spotRaf = 0, spotE = null;
+document.addEventListener('pointermove', e => {
+  spotE = e; if (spotRaf) return;
+  spotRaf = requestAnimationFrame(() => { spotRaf = 0; const c = spotE.target.closest && spotE.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (spotE.clientX - r.left) + 'px'); c.style.setProperty('--my', (spotE.clientY - r.top) + 'px'); });
+}, {passive: true});
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function roll(el, v, txt) {
+  if (!el) return;
+  const prev = el._s;
+  if (prev !== txt) {
+    if (prev === undefined || REDUCE || prev.length !== txt.length) el.textContent = txt;
+    else { const d = v < (el._v ?? v) ? ' d' : ''; let h = ''; for (let i = 0; i < txt.length; i++) h += txt[i] !== prev[i] ? `<span class="rd${d}">${esc(txt[i])}</span>` : esc(txt[i]); el.innerHTML = h; }
+    el._s = txt;
+  }
+  if (el._v !== undefined && v !== el._v) { el.classList.remove('fu', 'fd'); void el.offsetWidth; el.classList.add(v > el._v ? 'fu' : 'fd'); }
+  el._v = v;
+}
 
 /* ================= routing + loop ================= */
 let lastCtx = null;
@@ -1982,6 +2139,7 @@ function mount() {
   const v = $('#view'), m = MODS[app.page];
   v.innerHTML = ''; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
   m.mount(v); m.dirty = true; m.tiles = null; m.br = 0;
+  $$('#view .card, #view .cat').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 14)));
   $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
   render(true);
 }
@@ -2001,7 +2159,7 @@ setInterval(() => {
 }, TICK);
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
-getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
+getData('NIFTY'); getData('BANKNIFTY'); buildUniverse(); startFlow();
 syncSym();
 const h0 = (location.hash || '').slice(1);
 go(MODS[h0] ? h0 : 'overview');
