@@ -8,16 +8,11 @@ py -3 --version >nul 2>&1 && set PY=py -3
 if not defined PY python --version >nul 2>&1 && set PY=python
 if not defined PY goto nopy
 
-if exist "connector\config.json" goto run
-copy "connector\config.example.json" "connector\config.json" >nul
 echo.
-echo   Pehli baar: connector\config.json ban gaya hai.
-echo   Notepad khulega. "broker" set karo, usi broker ki keys bharo,
-echo   Save karo aur Notepad band karo. Phir connector shuru hoga.
+echo   Professor OI browser mein khul raha hai: http://127.0.0.1:8765
+echo   Broker page par apne broker ke "Connect" par click karo aur details bharo.
+echo   Band karna ho to ye window close karo.
 echo.
-notepad "connector\config.json"
-
-:run
 %PY% connector\server.py
 echo.
 echo   Connector ruk gaya. Upar likha message padho.

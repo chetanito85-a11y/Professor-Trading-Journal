@@ -3,7 +3,7 @@ Requests are signed with sha256(timestamp + body + secret), same as the breeze-c
 import base64, json, time, urllib.parse
 from datetime import datetime, timezone
 from core import AuthError, BrokerError, http, leg, next_weekdays, sha256, today_ist
-from . import Adapter
+from . import Adapter, F
 
 API = 'https://api.icicidirect.com/breezeapi/api/v1/'
 CODE = {'NIFTY': 'NIFTY', 'BANKNIFTY': 'CNXBAN'}
@@ -14,6 +14,8 @@ class Breeze(Adapter):
     name = 'ICICI Direct Breeze'
     gap = 0.8                      # 100 calls per minute; each chain needs 2 (calls + puts)
     needs = ('api_key', 'api_secret')
+    fields = (F('api_key', 'API key'), F('api_secret', 'API secret', secret=True))
+    redirect_needed = True
     symbols = tuple(CODE)
 
     def __init__(self, cfg, redirect_url):

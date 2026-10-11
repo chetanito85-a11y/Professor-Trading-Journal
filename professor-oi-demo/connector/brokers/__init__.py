@@ -11,6 +11,9 @@ class Adapter:
     gap = 1.0            # seconds to wait between API calls (broker rate limits)
     symbols = ('NIFTY', 'BANKNIFTY')
     needs = ()           # config keys that must be filled in
+    # what the Broker page form asks for: k, label, secret (hide while typing), optional, group, help
+    fields = ()
+    redirect_needed = False   # True when the broker's app must have our /callback as its redirect URL
 
     def __init__(self, cfg, redirect_url):
         self.cfg = cfg or {}
@@ -52,8 +55,27 @@ class Adapter:
         raise NotImplementedError
 
 
+class NoBroker(Adapter):
+    id = 'none'
+    name = 'No broker selected'
+    login_kind = 'none'
+    symbols = ('NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY')
+
+    def missing(self):
+        return ['broker']
+
+
+ALL = ('kite', 'dhan', 'upstox', 'angel', 'fyers', 'breeze', 'demo')
+
+
+def F(k, label, secret=False, optional=False, group=None, help=''):
+    return {'k': k, 'label': label, 'secret': secret, 'optional': optional, 'group': group, 'help': help}
+
+
 def load(broker_id):
-    broker_id = (broker_id or 'demo').strip().lower()
+    broker_id = (broker_id or '').strip().lower()
+    if broker_id in ('', 'none'):
+        return NoBroker
     if broker_id == 'demo':
         from .demo import Demo as A
     elif broker_id in ('kite', 'zerodha'):

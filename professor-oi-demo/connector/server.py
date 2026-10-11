@@ -4,10 +4,11 @@
 Runs on your own PC. It logs in to your broker, polls the option chain, and
 streams it to the Professor OI app at http://127.0.0.1:8765.
 
-Your API key and secret stay in connector/config.json on this PC. They are
-never sent to the web page; the page only sees option-chain numbers.
+Pick your broker on the app's Broker page and type its details there. They
+are sent only to this program on 127.0.0.1 and saved in connector/config.json
+on this PC; the page never reads them back. The page only gets chain numbers.
 
-    python server.py                 start with config.json
+    python server.py                 start (opens the app in your browser)
     python server.py --broker demo   try it without any keys
 """
 import argparse, json, os, queue, shutil, sys, threading, time, traceback, urllib.parse, webbrowser
@@ -34,39 +35,111 @@ def load_config(path):
         ex = os.path.join(HERE, 'config.example.json')
         if os.path.exists(ex):
             shutil.copy(ex, path)
-            log('Created connector/config.json from the example. Fill in your broker keys there.')
+            log('Created connector/config.json. Choose your broker on the Broker page.')
     try:
         with open(path, encoding='utf-8-sig') as f:
             return json.load(f)
     except FileNotFoundError:
-        return {'broker': 'demo'}
+        return {'broker': ''}
     except ValueError as e:
         sys.exit(f'config.json has a typo: {e}\nCheck commas and quotes near that line, then start again.')
 
 
 class Hub:
-    """Shared state: login status, latest chains, minute history, and the SSE clients."""
+    """Shared state: config, the active broker, login status, latest chains,
+    minute history and the SSE clients. The broker can be switched at runtime."""
 
-    def __init__(self, adapter, syms):
-        self.a, self.syms = adapter, syms
+    def __init__(self, cfg, cfg_path, redirect):
+        self.cfg, self.cfg_path, self.redirect = cfg, cfg_path, redirect
         self.lock = threading.Lock()
         self.alock = threading.RLock()            # one broker call at a time
         self.clients = []
-        self.chains, self.hist = {}, {}
         self.state, self.msg = 'starting', ''
         self.calls = self.errors = 0
         self.started = time.time()
         self.wake = threading.Event()
-        day = today_ist().isoformat()
-        for s in syms:
-            self.hist[s] = load_json(self.hist_path(s, day), []) or []
+        self.a = None
+
+    def use(self, bid):
+        """Make `bid` the active broker (reads its section from config) and log in if possible."""
+        A = brokers.load(bid)
+        with self.alock:
+            self.a = A(self.cfg.get(A.id) or {}, self.redirect)
+            self.syms = [s for s in (self.cfg.get('symbols') or ['NIFTY', 'BANKNIFTY']) if s in A.symbols] or ['NIFTY']
+            self.chains, self.hist = {}, {}
+            day = today_ist().isoformat()
+            for s in self.syms:
+                self.hist[s] = load_json(self.hist_path(s, day), []) or []
+            self.base = core.OIBase(A.id)
+            self.calls = self.errors = 0
+        self.boot()
+        self.wake.set()
+
+    def boot(self):
+        a = self.a
+        if a.id == 'none':
+            return self.set('need_setup', 'Pick your broker below and click Connect.')
+        if a.missing():
+            return self.set('need_config', f'Enter your {a.name} details: click Connect on the {a.name} card.')
+        if self.restore():
+            return
+        if a.login_kind == 'direct' and not a.direct_fields():
+            try:
+                with self.alock:
+                    a.direct_login({})
+                return self.logged_in('direct')
+            except Exception as e:
+                a.token = None
+                return self.set('need_login', str(e))
+        self.set('need_login', f'Click "Login with {a.name}".')
+
+    def setup(self, bid, values, clear):
+        """Save details typed on the Broker page into config.json, then switch to that broker."""
+        A = brokers.load(bid)
+        allowed = {f['k'] for f in A.fields}
+        sec = dict(self.cfg.get(A.id) or {})
+        for k, v in (values or {}).items():
+            v = str(v if v is not None else '').strip()
+            if k in allowed and v:
+                if len(v) > 800:
+                    raise ValueError(f'{k} is too long')
+                sec[k] = v
+        for k in clear or []:
+            if k in allowed:
+                sec[k] = ''
+        if A.id != 'none':
+            self.cfg[A.id] = sec
+        self.cfg['broker'] = A.id
+        self.save_config()
+        if self.a and self.a.id == A.id:          # same broker, new details: drop the old login
+            try:
+                os.remove(SESSION)
+            except OSError:
+                pass
+        log(f'Saved {A.name} details to config.json.')
+        self.use(A.id)
+
+    def save_config(self):
+        tmp = self.cfg_path + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump(self.cfg, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, self.cfg_path)
+
+    def catalog(self):
+        """Broker list with field specs for the setup form. Saved values are never sent, only whether they exist."""
+        out = []
+        for bid in brokers.ALL:
+            A = brokers.load(bid)
+            sec = self.cfg.get(A.id) or {}
+            out.append({'id': A.id, 'name': A.name, 'redirect': A.redirect_needed, 'fields': [dict(f, saved=bool(str(sec.get(f['k'], '')).strip())) for f in A.fields]})
+        return {'current': self.a.id, 'redirect_url': self.redirect, 'brokers': out}
 
     def hist_path(self, sym, day):
         return cache_path(f'hist-{self.a.id}-{day}-{sym}.json')
 
     def status(self):
         a = self.a
-        return {'app': 'professor-oi-connector', 'version': VERSION, 'broker': a.id, 'broker_name': a.name,
+        return {'app': 'professor-oi-connector', 'version': VERSION, 'broker': a.id, 'broker_name': a.name, 'setup': True,
                 'login_kind': a.login_kind, 'state': self.state, 'msg': self.msg, 'user': a.user,
                 'missing': a.missing(), 'fields': a.direct_fields() if a.login_kind == 'direct' else [],
                 'symbols': self.syms, 'redirect_url': a.redirect_url, 'market_open': core.market_open(),
@@ -151,43 +224,43 @@ class Poller(threading.Thread):
         self.hub, self.n, self.slow = hub, n, slow
 
     def run(self):
-        h, a = self.hub, self.hub.a
+        h = self.hub
         backoff = 0
         while True:
+            a, syms, base = h.a, list(h.syms), h.base
             if not a.logged_in:
                 h.wake.wait(2)
                 h.wake.clear()
                 continue
-            for sym in h.syms:
-                if not a.logged_in:
+            for sym in syms:
+                if h.a is not a or not a.logged_in:
                     break
                 try:
                     with h.alock:
+                        if h.a is not a:
+                            break
                         raw = a.chain(sym, self.n)
                     h.calls += 1
-                    c = normalise(sym, raw, self.n, self.base, a.id)
-                    h.publish(c)
-                    h.set('live', '')
+                    c = normalise(sym, raw, self.n, base, a.id)
+                    if h.a is a:
+                        h.publish(c)
+                        h.set('live', '')
                     backoff = 0
                 except AuthError as e:
                     h.errors += 1
-                    h.logout(f'Login expired or rejected: {e}. Log in again.')
+                    if h.a is a:
+                        h.logout(f'Login expired or rejected: {e}. Log in again.')
                     break
                 except Exception as e:
                     h.errors += 1
                     backoff = min(60, backoff * 2 or 3)
                     msg = str(e) if isinstance(e, BrokerError) else f'{type(e).__name__}: {e}'
-                    h.set('error', f'{sym}: {msg} (retrying in {backoff}s)')
+                    if h.a is a:
+                        h.set('error', f'{sym}: {msg} (retrying in {backoff}s)')
                     if not isinstance(e, BrokerError):
                         traceback.print_exc()
                     time.sleep(backoff)
                 time.sleep(a.gap if core.market_open() else max(a.gap, self.slow))
-
-    @property
-    def base(self):
-        if not hasattr(self, '_base'):
-            self._base = core.OIBase(self.hub.a.id)
-        return self._base
 
 
 PAGE = '''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -206,7 +279,6 @@ def page(ok, body, to='livechain'):
 def make_handler(hub, port):
     hosts = {f'127.0.0.1:{port}', f'localhost:{port}'}
     origins = {f'http://{h}' for h in hosts}
-    a = hub.a
 
     class H(BaseHTTPRequestHandler):
         server_version = 'ProfessorOI/' + VERSION
@@ -255,6 +327,7 @@ def make_handler(hub, port):
             return dict(urllib.parse.parse_qsl(raw))
 
         def finish_login(self, params):
+            a = hub.a
             try:
                 with hub.alock:
                     a.finish_login(params)
@@ -269,6 +342,7 @@ def make_handler(hub, port):
             p, q = u.path, dict(urllib.parse.parse_qsl(u.query))
             if not self.guard(api=p.startswith('/api/')):
                 return
+            a = hub.a
             if p in ('/', '/index.html'):
                 try:
                     with open(APP, 'rb') as f:
@@ -282,8 +356,10 @@ def make_handler(hub, port):
                 return self.out(200, c) if c else self.out(404, {'error': 'no data yet'})
             if p == '/api/history':
                 return self.out(200, hub.hist.get(q.get('sym', 'NIFTY'), []))
+            if p == '/api/brokers':
+                return self.out(200, hub.catalog())
             if p == '/api/login':
-                if a.missing():
+                if a.id == 'none' or a.missing():
                     return self.redirect('/#broker')
                 if a.login_kind == 'direct':
                     if a.direct_fields():
@@ -294,6 +370,7 @@ def make_handler(hub, port):
                         hub.logged_in('direct')
                         return self.redirect('/#livechain')
                     except Exception as e:
+                        a.token = None
                         hub.set('need_login', str(e))
                         return self.redirect('/#broker')
                 try:
@@ -323,6 +400,18 @@ def make_handler(hub, port):
             if 'json' not in (self.headers.get('Content-Type') or ''):
                 return self.out(415, {'error': 'send JSON'})
             d = self.body()
+            a = hub.a
+            if p == '/api/setup':
+                try:
+                    hub.setup(str(d.get('broker', '')), d.get('values') or {}, d.get('clear') or [])
+                except ValueError as e:
+                    return self.out(400, {'ok': False, 'error': str(e)})
+                a = hub.a
+                st = hub.status()
+                if st['state'] == 'need_config':
+                    return self.out(400, {'ok': False, 'error': 'Still missing: ' + ', '.join(a.missing()), 'status': st})
+                nxt = 'login' if a.login_kind == 'redirect' and not a.logged_in else 'form' if st['state'] == 'need_login' and st['fields'] else 'live' if a.logged_in else 'error'
+                return self.out(200, {'ok': nxt != 'error', 'next': nxt, 'error': st['msg'] if nxt == 'error' else None, 'status': st})
             if p == '/api/login':
                 try:
                     with hub.alock:
@@ -330,6 +419,7 @@ def make_handler(hub, port):
                     hub.logged_in('direct')
                     return self.out(200, {'ok': True})
                 except Exception as e:
+                    a.token = None
                     hub.set('need_login', str(e))
                     return self.out(400, {'ok': False, 'error': str(e)})
             if p == '/api/session':
@@ -386,29 +476,16 @@ def main():
     args = ap.parse_args()
 
     cfg = load_config(args.config)
-    bid = (args.broker or cfg.get('broker') or 'demo').strip().lower()
+    bid = (args.broker if args.broker is not None else cfg.get('broker') or '').strip().lower()
     port = args.port or int(cfg.get('port') or 8765)
-    try:
-        A = brokers.load(bid)
-    except ValueError as e:
-        sys.exit(str(e))
-    redirect = (cfg.get('redirect_url') or f'http://127.0.0.1:{port}/callback').strip()
-    adapter = A(cfg.get(A.id) or {}, redirect)
-    syms = [s for s in (cfg.get('symbols') or ['NIFTY', 'BANKNIFTY']) if s in A.symbols] or ['NIFTY']
     n = max(5, min(30, int(cfg.get('strikes_each_side') or 15)))
-
-    hub = Hub(adapter, syms)
-    if adapter.missing():
-        hub.set('need_config', 'Fill these in connector/config.json under "' + A.id + '": ' + ', '.join(adapter.missing()))
-    elif not hub.restore():
-        if adapter.login_kind == 'direct' and not adapter.direct_fields():
-            try:
-                adapter.direct_login({})
-                hub.logged_in('direct')
-            except Exception as e:
-                hub.set('need_login', str(e))
-        else:
-            hub.set('need_login', 'Click "Login with ' + A.name + '" on the Broker page.')
+    redirect = (cfg.get('redirect_url') or f'http://127.0.0.1:{port}/callback').strip()
+    hub = Hub(cfg, args.config, redirect)
+    try:
+        hub.use(bid)
+    except ValueError as e:
+        print(f'{e} -- starting without a broker; choose one on the Broker page.')
+        hub.use('')
 
     try:
         srv = ThreadingHTTPServer(('127.0.0.1', port), make_handler(hub, port))
@@ -420,12 +497,11 @@ def main():
         return
     srv.daemon_threads = True
     Poller(hub, n, float(cfg.get('closed_poll_seconds') or 15)).start()
-    url = f'http://127.0.0.1:{port}/#' + ('livechain' if adapter.logged_in else 'broker')
+    url = f'http://127.0.0.1:{port}/#' + ('livechain' if hub.a.logged_in else 'broker')
     print('\n  Professor OI Connector ' + VERSION)
-    print(f'  Broker   : {A.name}')
-    print(f'  Symbols  : {", ".join(syms)}  (+/-{n} strikes)')
+    print(f'  Broker   : {hub.a.name}   (change it on the Broker page)')
     print(f'  Open     : http://127.0.0.1:{port}')
-    print(f'  Redirect : {redirect}   <- set this in your broker app')
+    print(f'  Redirect : {redirect}   <- broker app mein yahi Redirect URL daalo')
     print('  Stop     : close this window or press Ctrl+C\n', flush=True)
     if not args.no_browser:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()

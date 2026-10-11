@@ -3,7 +3,7 @@
  - app_id + app_secret: consent login on auth.dhan.co, redirect with ?tokenId=."""
 import urllib.parse
 from core import AuthError, BrokerError, http, leg, today_ist
-from . import Adapter
+from . import Adapter, F
 
 API = 'https://api.dhan.co/v2'
 AUTH = 'https://auth.dhan.co'
@@ -15,6 +15,10 @@ class Dhan(Adapter):
     name = 'Dhan'
     gap = 3.1                      # option chain API: 1 request every 3 seconds
     symbols = tuple(IDS)
+    symbols = tuple(IDS)
+    fields = (F('client_id', 'Dhan Client ID'), F('access_token', 'Access token', secret=True, group='token', help='web.dhan.co > My Profile > Access DhanHQ APIs > Generate Access Token'),
+              F('app_id', 'API key', group='oauth'), F('app_secret', 'API secret', secret=True, group='oauth'))
+    redirect_needed = 'oauth'
 
     def __init__(self, cfg, redirect_url):
         super().__init__(cfg, redirect_url)
@@ -33,8 +37,13 @@ class Dhan(Adapter):
 
     # token pasted in config.json
     def direct_login(self, form):
-        self.token, self.user = self.cfg['access_token'].strip(), self.cfg['client_id'].strip()
-        self.expiry('NIFTY')       # one cheap call proves the token works
+        self.token = self.cfg['access_token'].strip()
+        try:
+            self.expiry('NIFTY')   # one cheap call proves the token works
+        except Exception:
+            self.token = None
+            raise
+        self.user = self.cfg['client_id'].strip()
 
     # consent flow
     def login_url(self):

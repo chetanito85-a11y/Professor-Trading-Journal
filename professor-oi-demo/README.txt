@@ -4,7 +4,8 @@ PROFESSOR OI TERMINAL
 Do tarike se chalta hai:
   A) Demo (bina broker):   Start-Professor-OI   -> simulated data
   B) Live (apna broker):   Start-Live-Broker    -> asli option chain
-     Setup ke liye BROKER-SETUP.txt padho.
+     Browser khulne par Broker page par apne broker ka "Connect" dabao,
+     jo details maange wo bharo, "Save & connect". Poori guide: BROKER-SETUP.txt
 
 Demo chalane ka tarika
 ----------------------

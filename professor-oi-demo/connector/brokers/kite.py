@@ -1,7 +1,7 @@
 """Zerodha Kite Connect (REST). Login: kite.zerodha.com redirect with request_token."""
 import csv, io, urllib.parse
 from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_json, sha256, today_ist
-from . import Adapter
+from . import Adapter, F
 
 ROOT = 'https://api.kite.trade'
 SPOT = {'NIFTY': 'NSE:NIFTY 50', 'BANKNIFTY': 'NSE:NIFTY BANK', 'FINNIFTY': 'NSE:NIFTY FIN SERVICE', 'MIDCPNIFTY': 'NSE:NIFTY MID SELECT'}
@@ -12,6 +12,8 @@ class Kite(Adapter):
     name = 'Zerodha Kite Connect'
     gap = 1.1                      # quote API: about 1 request per second
     needs = ('api_key', 'api_secret')
+    fields = (F('api_key', 'API key'), F('api_secret', 'API secret', secret=True))
+    redirect_needed = True
     symbols = tuple(SPOT)
 
     def __init__(self, cfg, redirect_url):

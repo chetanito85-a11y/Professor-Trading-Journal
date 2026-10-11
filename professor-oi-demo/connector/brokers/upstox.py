@@ -1,7 +1,7 @@
 """Upstox API v2 (REST). Login: Upstox dialog redirect with ?code=."""
 import urllib.parse
 from core import AuthError, BrokerError, http, leg, today_ist
-from . import Adapter
+from . import Adapter, F
 
 ROOT = 'https://api.upstox.com/v2'
 KEY = {'NIFTY': 'NSE_INDEX|Nifty 50', 'BANKNIFTY': 'NSE_INDEX|Nifty Bank', 'FINNIFTY': 'NSE_INDEX|Nifty Fin Service', 'MIDCPNIFTY': 'NSE_INDEX|NIFTY MID SELECT'}
@@ -12,6 +12,8 @@ class Upstox(Adapter):
     name = 'Upstox'
     gap = 0.6
     needs = ('api_key', 'api_secret')
+    fields = (F('api_key', 'API key'), F('api_secret', 'API secret', secret=True))
+    redirect_needed = True
     symbols = tuple(KEY)
 
     def __init__(self, cfg, redirect_url):

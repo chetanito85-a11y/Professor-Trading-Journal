@@ -710,10 +710,10 @@ main{padding:16px 22px 120px}
 @media (prefers-reduced-motion: reduce){.chart .pl,.fchip .dot,.bk-big .dot{animation:none}}
 .card{scroll-margin-top:calc(var(--top) + 14px)}
 /* ---- v7: live connector ---- */
-.fchip.lv{color:var(--put);border:1px solid color-mix(in srgb,var(--put) 55%,transparent);background:color-mix(in srgb,var(--put) 8%,transparent)}
-.fchip.lg{color:var(--amber);border-style:solid}
-.fchip.off{color:var(--call);border:1px solid color-mix(in srgb,var(--call) 55%,transparent)}
-.fchip.off .dot{animation:none}
+.fchip.fc-lv{color:var(--put);border:1px solid color-mix(in srgb,var(--put) 55%,transparent);background:color-mix(in srgb,var(--put) 8%,transparent)}
+.fchip.fc-lg{color:var(--amber);border-style:solid}
+.fchip.fc-off{color:var(--call);border:1px solid color-mix(in srgb,var(--call) 55%,transparent)}
+.fchip.fc-off .dot{animation:none}
 .lvban{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;border:1px solid var(--line);border-left:3px solid var(--put);border-radius:6px;background:var(--panel);font-size:12px;color:var(--muted)}
 .lvban b{color:var(--fg)}
 .lvban .ibtn{margin-left:auto}
@@ -766,12 +766,32 @@ main{padding:16px 22px 120px}
 @media (max-width:900px){.lvc-b{grid-template-columns:minmax(0,1fr)}.lvw{grid-template-columns:84px 1fr 56px}}
 @media (prefers-reduced-motion: reduce){.lvb.gr,.ti.lvt>b::after,.lvsweep i.ind{animation:none}}
 /* header fits tablets and small laptops; modal never scrolls sideways */
-@media (max-width:1240px){.top .hide-s{display:none}}
+@media (max-width:1280px){.top .hide-s{display:none}}
 @media (max-width:1100px){.top{gap:10px}}
-@media (max-width:1000px) and (min-width:761px){.top #status{display:none}}
-@media (max-width:900px) and (min-width:761px){.top .brand>div,.top #clock{display:none}}
+@media (max-width:1100px){.fchip b{max-width:104px;overflow:hidden;text-overflow:ellipsis}}
+@media (max-width:1000px) and (min-width:761px){.top #status,.top #clock{display:none}}
+@media (max-width:900px) and (min-width:761px){.top .brand>div{display:none}}
 .modal-b{overflow-x:hidden}
 .modal-b::before{inset:0}
+/* in-app broker setup */
+.bk.cur{border-color:var(--put);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--put) 40%,transparent)}
+.bk.cur .go{background:color-mix(in srgb,var(--put) 85%,var(--ink));color:var(--on-solid)}
+.su form{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.su-p{margin:12px 0 0;font-size:12px;color:var(--muted)}
+.su-p b{color:var(--fg);font-weight:600}
+.su-f[hidden],.su-red[hidden]{display:none}
+.su-f em{font-style:normal;font-weight:600;color:var(--faint);text-transform:none;letter-spacing:0}
+.su-f small{font-size:11px;color:var(--faint);line-height:1.4}
+.su-in{display:flex;gap:6px;align-items:center}
+.su-in input{flex:1}
+.su-in .eye{flex:none;padding:6px 9px;border:1px solid var(--line-2);border-radius:7px;font:600 11px var(--f-mono);color:var(--muted)}
+.su-mode{align-self:flex-start}
+.su-n{margin:0}
+.su .lock2{font-size:11.5px}
+.su .lverr{margin:0;min-height:0}
+.su .lverr:empty{display:none}
+.su-go{width:100%;text-align:center;padding:11px}
+.su-go:disabled{opacity:.6;cursor:wait}
 </style>
 
 </head>
@@ -2761,7 +2781,8 @@ const LIVE = {on: false, st: null, chains: {}, prev: {}, hist: {}, es: null, dow
 const LIVE_PAGES = new Set(['livechain', 'broker', 'blueprint']);
 const LV_ST = () => ({
   starting: [L('Starting…', 'Shuru ho raha hai…'), 'acc'],
-  need_config: [L('Keys missing in config.json', 'config.json mein keys nahi hain'), 'warn'],
+  need_setup: [L('Choose your broker', 'Broker chuno'), 'warn'],
+  need_config: [L('Details needed', 'Details bharni hain'), 'warn'],
   need_login: [L('Login needed', 'Login karna hai'), 'warn'],
   connecting: [L('Connecting…', 'Connect ho raha hai…'), 'acc'],
   live: [L('Live', 'Live'), 'up'],
@@ -2771,11 +2792,11 @@ const BKG = () => ({
   kite: {portal: 'developers.kite.trade → Create new app (Kite Connect)', keys: ['api_key', 'api_secret'], redirect: 1,
     note: L('Kite Connect is a paid plan. Live quotes work only while it is active.', 'Kite Connect paid plan hai. Live quotes tabhi chalenge jab plan active ho.')},
   dhan: {portal: 'web.dhan.co → My Profile → Access DhanHQ APIs', keys: ['client_id', 'access_token'], redirect: 0,
-    note: L('Easiest: on that page click “Generate Access Token”, copy it and your Dhan Client ID into config.json. The token lasts about a day. Using an API key and secret instead? Put them in app_id and app_secret, leave access_token empty, set the Dhan app’s redirect URL to http://127.0.0.1:8765/callback and click “Login with Dhan”.', 'Sabse aasaan: us page par “Generate Access Token” dabao, token aur apna Dhan Client ID config.json mein daalo. Token lagbhag ek din chalta hai. API key aur secret use karna hai? Unhe app_id aur app_secret mein daalo, access_token khaali chhodo, Dhan app ka redirect URL http://127.0.0.1:8765/callback rakho aur “Login with Dhan” dabao.')},
+    note: L('Easiest: on that page click “Generate Access Token” and paste it here with your Dhan Client ID. The token lasts about a day; paste a fresh one tomorrow. Have an API key and secret instead? Pick “API key + secret” in the form.', 'Sabse aasaan: us page par “Generate Access Token” dabao aur Dhan Client ID ke saath yahan paste karo. Token lagbhag ek din chalta hai; kal naya daalna. API key aur secret hai? Form mein “API key + secret” chuno.')},
   upstox: {portal: 'account.upstox.com/developer/apps → New app', keys: ['api_key', 'api_secret'], redirect: 1,
     note: L('The redirect URL must match exactly, including http:// and the port.', 'Redirect URL bilkul same hona chahiye, http:// aur port ke saath.')},
   angel: {portal: 'smartapi.angelone.in → My Apps → Create app (Market Feeds API)', keys: ['api_key', 'client_code', 'pin', 'totp_secret'], redirect: 0,
-    note: L('totp_secret is the text key shown under the QR code when you enable TOTP at smartapi.angelone.in/enable-totp. Leave pin or totp_secret empty to type them on this page instead.', 'totp_secret wo text key hai jo smartapi.angelone.in/enable-totp par TOTP on karte waqt QR code ke neeche dikhti hai. pin ya totp_secret khaali chhodoge to ye page unhe login ke waqt maangega.')},
+    note: L('The TOTP secret key is the text shown under the QR code when you enable TOTP at smartapi.angelone.in/enable-totp. Leave MPIN or the TOTP key empty and this page asks for them at each login.', 'TOTP secret key wo text hai jo smartapi.angelone.in/enable-totp par TOTP on karte waqt QR code ke neeche dikhta hai. MPIN ya TOTP key khaali chhodoge to ye page har login par unhe maangega.')},
   fyers: {portal: 'myapi.fyers.in/dashboard → Create app (App ID looks like XXXX-100)', keys: ['app_id', 'secret_key'], redirect: 1,
     note: L('Fyers tokens last one trading day, so log in each morning.', 'Fyers token ek trading din chalta hai, isliye roz subah login karo.')},
   breeze: {portal: 'api.icicidirect.com/apiuser/home → Register an app', keys: ['api_key', 'api_secret'], redirect: 1,
@@ -2799,7 +2820,9 @@ function liveInit() {
 function liveSSE() {
   const es = LIVE.es = new EventSource('/stream');
   es.addEventListener('status', e => {
-    const s = lvJ(e); if (!s) return; LIVE.st = s; LIVE.down = false; liveChrome();
+    const s = lvJ(e); if (!s) return; const old = LIVE.st && LIVE.st.broker;
+    if (old && old !== s.broker) { LIVE.chains = {}; LIVE.prev = {}; LIVE.hist = {}; if (s.symbols && !s.symbols.includes(LIVE.sym)) LIVE.sym = s.symbols[0]; if (app.page === 'livechain') { LIVE.st = s; mount(); } }
+    LIVE.st = s; LIVE.down = false; liveChrome();
     if (app.page === 'broker') MODS.broker.livePanel();
     if (app.page === 'livechain' && !MODS.livechain.ready) mount();
   });
@@ -2819,8 +2842,8 @@ function liveSSE() {
 function liveChrome() {
   const ch = $('#feedChip'); if (!ch || !LIVE.on) return;
   const s = LIVE.st || {}, b = (s.broker || '').toUpperCase();
-  const [txt, cls] = LIVE.down ? ['CONNECTOR OFF', 'off'] : s.state === 'live' ? ['LIVE · ' + b, 'lv'] : s.state === 'error' ? ['RETRYING · ' + b, 'off'] : s.state === 'need_login' || s.state === 'need_config' ? ['LOGIN · ' + b, 'lg'] : ['CONNECTING · ' + b, 'lg'];
-  ch.classList.remove('lv', 'lg', 'off'); ch.classList.add(cls); setText(ch.querySelector('b'), txt);
+  const [txt, cls] = LIVE.down ? ['CONNECTOR OFF', 'fc-off'] : s.state === 'live' ? ['LIVE · ' + b, 'fc-lv'] : s.state === 'error' ? ['RETRYING · ' + b, 'fc-off'] : s.state === 'need_setup' ? ['CHOOSE BROKER', 'fc-lg'] : s.state === 'need_login' || s.state === 'need_config' ? ['LOGIN · ' + b, 'fc-lg'] : ['CONNECTING · ' + b, 'fc-lg'];
+  ch.classList.remove('fc-lv', 'fc-lg', 'fc-off'); ch.classList.add(cls); setText(ch.querySelector('b'), txt);
   ch.title = L('Live broker feed · open Broker & Data', 'Live broker feed · Broker & Data kholo');
   const nb = $('#nb-livechain'); if (nb) { setText(nb, s.state === 'live' && !LIVE.down ? 'LIVE' : ''); nb.className = 'nb up'; }
   setText($('#rfVer'), (s.state === 'live' && !LIVE.down ? 'LIVE' : 'CONNECTOR') + ' · v7');
@@ -2880,9 +2903,9 @@ MODS.livechain = {
     if (!LIVE.on) {
       v.innerHTML = phead('Live Chain', L('The real option chain from your own broker account, through a small connector that runs on your PC.', 'Aapke apne broker account se asli option chain, ek chhote connector ke through jo aapke PC par chalta hai.'), `<span class="pill warn">${L('Not connected', 'Connected nahi')}</span>`) +
         `<section class="card"><div class="card-h"><h3>${L('Connect in 3 steps', '3 steps mein connect karo')}</h3></div><div class="card-b grid g3">
-          <div><b>1 · config.json</b><p class="note" style="margin-top:4px">${L('Open the connector folder, copy config.example.json to config.json and fill your broker’s keys. Keys stay on your PC.', 'connector folder kholo, config.example.json ko config.json bana kar apne broker ki keys bharo. Keys aapke PC par hi rehti hain.')}</p></div>
-          <div><b>2 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('Double-click it. Professor OI opens at 127.0.0.1:8765 with the connector behind it.', 'Us par double-click karo. Professor OI 127.0.0.1:8765 par connector ke saath khulega.')}</p></div>
-          <div><b>3 · ${L('Log in', 'Login')}</b><p class="note" style="margin-top:4px">${L('On the Broker page, click “Login with …”. This page fills with live OI within seconds.', 'Broker page par “Login with …” dabao. Kuch second mein ye page live OI se bhar jayega.')}</p></div>
+          <div><b>1 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('In the Professor OI folder, double-click Start-Live-Broker. The app opens at 127.0.0.1:8765.', 'Professor OI folder mein Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par khulega.')}</p></div>
+          <div><b>2 · ${L('Click your broker', 'Broker par click')}</b><p class="note" style="margin-top:4px">${L('On the Broker page, click Connect on your broker and fill the details it asks for.', 'Broker page par apne broker ke Connect par click karo aur jo details maange wo bharo.')}</p></div>
+          <div><b>3 · Save &amp; connect</b><p class="note" style="margin-top:4px">${L('Log in on the broker’s page if it asks. This page fills with live OI within seconds.', 'Broker ka page login maange to login karo. Kuch second mein ye page live OI se bhar jayega.')}</p></div>
         </div></section>
         <p class="note">${L('You are on the offline copy (opened as a file or online preview), so there is nothing to connect to here. Every other page runs on demo data.', 'Aap offline copy par hain (file ya online preview), isliye yahan connect karne ko kuch nahi hai. Baaki sab pages demo data par chalte hain.')}</p>
         <button class="place" id="lvHow" style="margin-top:6px">${L('Broker setup guide', 'Broker setup guide')} →</button>`;
@@ -3043,19 +3066,30 @@ MODS.broker.mount = function (v) {
   if (LIVE.on) {
     if (why) why.outerHTML = '<section class="card lvc" id="lvPanel" style="margin-bottom:12px"></section>';
     const pill = v.querySelector('.phead .pill'); if (pill) { pill.className = 'pill up'; pill.textContent = L('Connector running', 'Connector chal raha hai'); }
-    const p = v.querySelector('.phead p'); if (p) p.textContent = L('Your connector is running on this PC. Log in with your broker here; keys stay in connector/config.json and never reach this page.', 'Aapka connector is PC par chal raha hai. Yahan broker se login karo; keys connector/config.json mein rehti hain, is page tak kabhi nahi aati.');
+    const p = v.querySelector('.phead p'); if (p) p.textContent = L('Click Connect on your broker, fill the details it asks for, and you are live. Details go only to the connector on this PC.', 'Apne broker ke Connect par click karo, jo details maange wo bharo, bas live ho jaoge. Details sirf is PC ke connector ko jaati hain.');
     v.querySelectorAll('.bk-hero').forEach(x => x.remove());
     v.querySelectorAll('[data-sub]').forEach(x => { const c = x.closest('section.card'); if (c) c.remove(); });
     const last = [...v.querySelectorAll(':scope > p.note')].pop(); if (last) last.remove();
-    this.pk = ''; this.livePanel();
+    // broker cards straight under the panel, pipeline after them
+    const g = v.querySelector('.bk-g'), h = g && g.previousElementSibling, pipe = $('#bkPipe') && $('#bkPipe').closest('section'), panel = $('#lvPanel');
+    if (g && panel) { if (h && h.classList.contains('th-g')) { h.id = 'bkPick'; panel.after(h); h.after(g); } else panel.after(g); if (pipe) g.after(pipe); }
+    this.pk = ''; this.livePanel(); this.liveCards();
   } else if (why) {
     why.outerHTML = `<section class="card" style="margin-bottom:12px"><div class="card-h"><h3>${L('Connect your broker in 3 steps', '3 steps mein broker connect karo')}</h3><span class="pill warn" style="margin-left:auto">${L('Offline copy', 'Offline copy')}</span></div><div class="card-b grid g3">
-      <div><b>1 · ${L('Keys in config.json', 'Keys config.json mein')}</b><p class="note" style="margin-top:4px">${L('Pick your broker below for exact steps. Keys go in connector/config.json on your PC, never in this page or any chat.', 'Neeche apna broker chuno, exact steps milenge. Keys aapke PC par connector/config.json mein jaati hain, is page ya kisi chat mein kabhi nahi.')}</p></div>
-      <div><b>2 · ${L('Start the connector', 'Connector chalao')}</b><p class="note" style="margin-top:4px">${L('Double-click Start-Live-Broker. The app reopens at 127.0.0.1:8765 with your broker behind it.', 'Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par aapke broker ke saath dobara khulega.')}</p></div>
-      <div><b>3 · ${L('Log in each morning', 'Roz subah login')}</b><p class="note" style="margin-top:4px">${L('Click “Login with …” on this page. Live Chain then shows your broker’s real option chain.', 'Is page par “Login with …” dabao. Phir Live Chain aapke broker ki asli option chain dikhayega.')}</p></div>
+      <div><b>1 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('In the Professor OI folder on your PC, double-click Start-Live-Broker. The app opens at 127.0.0.1:8765.', 'Apne PC par Professor OI folder mein Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par khulega.')}</p></div>
+      <div><b>2 · ${L('Click your broker', 'Broker par click')}</b><p class="note" style="margin-top:4px">${L('On its Broker page, click Connect on your broker and fill the details it asks for.', 'Wahan Broker page par apne broker ke Connect par click karo aur jo details maange wo bharo.')}</p></div>
+      <div><b>3 · Save &amp; connect</b><p class="note" style="margin-top:4px">${L('Log in on the broker’s page if it asks. Live Chain then shows your real option chain.', 'Broker ka page login maange to login karo. Phir Live Chain asli option chain dikhayega.')}</p></div>
     </div></section>`;
-    const p = v.querySelector('.phead p'); if (p) p.textContent = L('This copy runs without the connector, so it shows a simulated feed. Follow the 3 steps to see your broker’s live data.', 'Ye copy bina connector ke chal rahi hai, isliye simulated feed dikhata hai. Live data ke liye 3 steps follow karo.');
+    const p = v.querySelector('.phead p'); if (p) p.textContent = L('This copy runs without the connector, so it shows a simulated feed. Open the app with Start-Live-Broker to connect your broker.', 'Ye copy bina connector ke chal rahi hai, isliye simulated feed dikhata hai. Broker connect karne ke liye app ko Start-Live-Broker se kholo.');
   }
+};
+MODS.broker.liveCards = function () {
+  const s = LIVE.st || {};
+  $$('.bk [data-bk]').forEach(b => {
+    const on = b.dataset.bk === s.broker, card = b.closest('.bk');
+    card.classList.toggle('cur', on);
+    b.textContent = on ? (s.state === 'live' ? L('Connected ✓ · edit details', 'Connected ✓ · details badlo') : L('Selected · edit details', 'Chuna hua · details badlo')) : L('Connect', 'Connect karo') + ' →';
+  });
 };
 MODS.broker.livePanel = function () {
   const el = $('#lvPanel'); if (!el) return;
@@ -3064,20 +3098,21 @@ MODS.broker.livePanel = function () {
   this.pk = k;
   const dp = el.querySelector('.lvpaste'), keep = {open: !!(dp && dp.open), url: ($('#lvUrl') || {}).value || ''};
   const [stxt, tone] = LIVE.down ? [L('Connector stopped', 'Connector band hai'), 'dn'] : (LV_ST()[s.state] || [s.state, 'warn']);
-  const B = BROKERS().find(x => x[0] === s.broker), lg = B ? `<span class="lg" style="background:${B[3]}">${B[2]}</span>` : '<span class="lg" style="background:var(--muted)">DM</span>';
-  const nm = esc(s.broker_name || '');
+  const B = BROKERS().find(x => x[0] === s.broker), lg = B ? `<span class="lg" style="background:${B[3]}">${B[2]}</span>` : `<span class="lg" style="background:var(--muted)">${s.broker === 'demo' ? 'DM' : '?'}</span>`;
+  const nm = esc(s.broker === 'none' ? L('No broker yet', 'Abhi koi broker nahi') : s.broker_name || '');
   let act;
   if (LIVE.down) act = `<p>${L('Start it again with Start-Live-Broker, then reload this page.', 'Start-Live-Broker se dobara chalao, phir ye page reload karo.')}</p>`;
-  else if (s.state === 'need_config') act = `<p>${L('Open connector/config.json on this PC and fill', 'Is PC par connector/config.json kholo aur bharo')}: <b>${(s.missing || []).map(esc).join(', ')}</b> (${L('under', 'section')} "${esc(s.broker)}"). ${L('Save, close the connector window and start it again.', 'Save karo, connector window band karo aur dobara chalao.')}</p><button class="ibtn" data-bkg="${esc(s.broker)}">${L('Show steps for', 'Steps dekho:')} ${nm}</button>`;
+  else if (s.state === 'need_setup') act = `<p>${L('Pick your broker below and click Connect. It asks only for what that broker needs.', 'Neeche apna broker chuno aur Connect dabao. Wo sirf utni details maangega jitni us broker ko chahiye.')}</p><div class="lvrow"><button class="lvgo" id="lvPick">${L('Choose broker', 'Broker chuno')} ↓</button><button class="ibtn" data-bkg="demo">${L('Try demo (no keys)', 'Demo try karo (bina keys)')}</button></div>`;
+  else if (s.state === 'need_config') act = `<p>${L('A few details are still missing.', 'Kuch details abhi baaki hain.')}</p><button class="lvgo" data-bkg="${esc(s.broker)}">${L('Enter', 'Bharo:')} ${nm} ${L('details', 'details')} →</button>`;
   else if (s.state === 'need_login' && s.login_kind === 'direct' && (s.fields || []).length) act = `<form class="lvform" id="lvForm">${s.fields.map(([f, lab, typ]) => `<label class="field"><span>${esc(lab)}</span><input name="${esc(f)}" type="${typ === 'password' ? 'password' : 'text'}" ${f === 'totp' ? 'inputmode="numeric" maxlength="6" pattern="[0-9]{6}"' : ''} autocomplete="off" required></label>`).join('')}<button class="lvgo" type="submit">${L('Login with', 'Login with')} ${nm} →</button><p class="note" style="margin:0">${L('Sent only to the connector on this PC.', 'Sirf is PC ke connector ko jaata hai.')}</p><p class="lverr" id="lvErr"></p></form>`;
-  else if (s.state === 'need_login') act = `<a class="lvgo" href="/api/login">${L('Login with', 'Login with')} ${nm} →</a>${s.login_kind === 'redirect' ? `<details class="lvpaste"><summary>${L('Broker sent you to a different page after login?', 'Login ke baad broker kisi aur page par le gaya?')}</summary><p>${L('Copy the full address from the browser bar on that page and paste it here.', 'Us page ke browser bar ka poora address copy karke yahan paste karo.')}</p><div class="lvrow"><input id="lvUrl" placeholder="https://…?request_token=…" autocomplete="off"><button class="ibtn" id="lvUrlGo">${L('Connect', 'Connect')}</button></div><p class="lverr" id="lvErr"></p></details>` : ''}`;
-  else act = `<div class="lvrow"><button class="lvgo" id="lvOpen">${L('Open Live Chain', 'Live Chain kholo')} →</button><button class="ibtn" id="lvOut">${L('Log out', 'Log out')}</button></div>`;
+  else if (s.state === 'need_login') act = `<div class="lvrow"><a class="lvgo" href="/api/login">${L('Login with', 'Login with')} ${nm} →</a><button class="ibtn" data-bkg="${esc(s.broker)}">${L('Edit details', 'Details badlo')}</button></div>${s.login_kind === 'redirect' ? `<details class="lvpaste"><summary>${L('Broker sent you to a different page after login?', 'Login ke baad broker kisi aur page par le gaya?')}</summary><p>${L('Copy the full address from the browser bar on that page and paste it here.', 'Us page ke browser bar ka poora address copy karke yahan paste karo.')}</p><div class="lvrow"><input id="lvUrl" placeholder="https://…?request_token=…" autocomplete="off"><button class="ibtn" id="lvUrlGo">${L('Connect', 'Connect')}</button></div><p class="lverr" id="lvErr"></p></details>` : ''}`;
+  else act = `<div class="lvrow"><button class="lvgo" id="lvOpen">${L('Open Live Chain', 'Live Chain kholo')} →</button><button class="ibtn" id="lvOut">${L('Log out', 'Log out')}</button><button class="ibtn" id="lvPick">${L('Switch broker', 'Broker badlo')}</button></div>`;
   el.innerHTML = `<div class="card-h"><h3>${L('Your connector', 'Aapka connector')}</h3><span class="pill ${tone}${s.state === 'live' && !LIVE.down ? ' live' : ''}" style="margin-left:auto"><span class="dot"></span>${stxt}</span></div>
     <div class="card-b lvc-b">
       <div class="lvc-l"><div class="bk-h">${lg}<div><b>${nm}</b><small>${s.user ? 'ID ' + esc(s.user) : L('Not logged in', 'Login nahi hua')}</small></div></div>
-        ${s.msg ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}<div class="lvact">${act}</div></div>
+        ${s.msg && !['need_setup', 'need_config'].includes(s.state) ? `<p class="lvmsg ${tone}">${esc(s.msg)}</p>` : ''}<div class="lvact">${act}</div></div>
       <div class="lvc-r"><div class="bk-m"><div><span>LAST UPDATE</span><b id="lvS1">—</b></div><div><span>API CALLS</span><b id="lvS2">—</b></div><div><span>ERRORS</span><b id="lvS3">—</b></div><div><span>SYMBOLS</span><b style="font-size:12px">${(s.symbols || []).map(esc).join(' · ')}</b></div><div><span>MARKET</span><b id="lvS4">—</b></div><div><span>UPTIME</span><b id="lvS5">—</b></div></div>
-        ${s.login_kind === 'redirect' ? `<div class="lvred"><span>${L('Redirect URL for your broker app', 'Broker app ka Redirect URL')}</span><code>${esc(s.redirect_url || '')}</code><button class="ibtn" id="lvCopy">${L('Copy', 'Copy')}</button></div>` : ''}
+        ${s.login_kind === 'redirect' && s.broker !== 'demo' ? `<div class="lvred"><span>${L('Redirect URL for your broker app', 'Broker app ka Redirect URL')}</span><code>${esc(s.redirect_url || '')}</code><button class="ibtn" id="lvCopy">${L('Copy', 'Copy')}</button></div>` : ''}
         <div class="lvh">${L('LIVE TICKS FROM YOUR BROKER', 'BROKER SE LIVE TICKS')}</div><ul class="ts" id="lvTs"><li><span class="tt">—</span><b>${L('Waiting for data…', 'Data ka intezaar…')}</b><span></span><span></span></li></ul></div>
     </div>`;
   const np = el.querySelector('.lvpaste'); if (np && keep.open) { np.open = true; $('#lvUrl').value = keep.url; }
@@ -3085,10 +3120,11 @@ MODS.broker.livePanel = function () {
   const f = $('#lvForm'); if (f) f.onsubmit = e => { e.preventDefault(); const d = Object.fromEntries(new FormData(f)); err(L('Logging in…', 'Login ho raha hai…')); lvPost('/api/login', d).then(r => err(r.ok ? '' : r.error)).catch(() => err(L('Connector not reachable.', 'Connector tak nahi pahunch paaye.'))); };
   const ug = $('#lvUrlGo'); if (ug) ug.onclick = () => { err(L('Connecting…', 'Connect ho raha hai…')); lvPost('/api/session', {url: $('#lvUrl').value}).then(r => err(r.ok ? '' : r.error)).catch(() => err(L('Connector not reachable.', 'Connector tak nahi pahunch paaye.'))); };
   const op = $('#lvOpen'); if (op) op.onclick = () => go('livechain');
+  const pk = $('#lvPick'); if (pk) pk.onclick = () => { const g = $('#bkPick') || $('.bk-g'); if (g) g.scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'start'}); };
   const lo = $('#lvOut'); if (lo) lo.onclick = () => lvPost('/api/logout');
   const cp = $('#lvCopy'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(s.redirect_url); cp.textContent = L('Copied', 'Copy ho gaya'); } catch (e) {} };
   el.querySelectorAll('[data-bkg]').forEach(b => b.onclick = () => this.open(b.dataset.bkg));
-  this.liveStats();
+  this.liveStats(); this.liveCards();
 };
 MODS.broker.liveStats = function () {
   if (!$('#lvS1')) return;
@@ -3113,22 +3149,67 @@ MODS.broker.liveTicks = function (c, p) {
   }
   while (ul.children.length > 24) ul.lastChild.remove();
 };
-MODS.broker.open = function (id) {
-  const B = BROKERS().find(x => x[0] === id), G = BKG()[id], M = $('#bkModal'), s = LIVE.st || {}, active = LIVE.on && s.broker === id && !LIVE.down;
-  const red = (s.redirect_url || 'http://127.0.0.1:8765/callback');
-  const cfg = `"broker": "${id}",\n\n"${id}": {\n${G.keys.map(k => `  "${k}": "…"`).join(',\n')}\n}`;
+MODS.broker.open = function (id) { return LIVE.on && !LIVE.down ? this.setup(id) : this.steps(id); };
+MODS.broker.steps = function (id) {
+  const B = BROKERS().find(x => x[0] === id), G = BKG()[id], M = $('#bkModal');
   let n = 0; const st = (t, body) => `<div class="stp"><i>${++n}</i><b>${t}</b>${body}</div>`;
-  M.innerHTML = `<div class="modal-b" role="dialog" aria-label="Connect ${esc(B[1])}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${esc(B[1])}</b><small>${L('Setup steps', 'Setup ke steps')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
+  M.innerHTML = `<div class="modal-b" role="dialog" aria-label="Connect ${esc(B[1])}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${esc(B[1])}</b><small>${L('How to connect', 'Connect kaise karein')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
     <div style="margin-top:12px"></div>
     ${st(L('Create an app on the broker’s developer site', 'Broker ki developer site par app banao'), `<p>${esc(G.portal)}</p>`)}
-    ${G.redirect ? st(L('Set its Redirect URL to', 'Uska Redirect URL ye rakho'), `<p><code>${esc(red)}</code></p>`) : ''}
-    ${st(L('Put the keys in connector/config.json on your PC', 'Keys apne PC par connector/config.json mein daalo'), `<pre class="lvcfg">${esc(cfg)}</pre><span class="lock2">🔒 ${L('Never paste keys into this page or any chat. Only the connector on your PC reads that file.', 'Keys kabhi is page ya kisi chat mein paste mat karo. Sirf aapke PC ka connector wo file padhta hai.')}</span>`)}
-    ${st(L('Start the connector', 'Connector chalao'), `<p>${L('Double-click Start-Live-Broker (Windows) or Start-Live-Broker.command (Mac). The app opens at 127.0.0.1:8765.', 'Start-Live-Broker (Windows) ya Start-Live-Broker.command (Mac) par double-click karo. App 127.0.0.1:8765 par khulega.')}</p>`)}
-    ${st(G.redirect ? L('Log in with the broker each trading day', 'Har trading din broker se login karo') : L('The connector logs in for you', 'Connector aapke liye login karta hai'), `<p>${G.note}</p>`)}
-    ${active && s.state === 'need_login' && s.login_kind === 'redirect' ? `<a class="lvgo" href="/api/login" style="display:block;text-align:center;margin-top:8px">${L('Login with', 'Login with')} ${esc(B[1])} →</a>` : `<button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Got it', 'Samajh gaya')}</button>`}</div>`;
+    ${G.redirect ? st(L('Set its Redirect URL to', 'Uska Redirect URL ye rakho'), `<p><code>http://127.0.0.1:8765/callback</code></p>`) : ''}
+    ${st(L('Open Professor OI with Start-Live-Broker', 'Professor OI ko Start-Live-Broker se kholo'), `<p>${L('In the Professor OI folder on your PC, double-click Start-Live-Broker (Mac: Start-Live-Broker.command). This online or file copy cannot reach your broker.', 'Apne PC par Professor OI folder mein Start-Live-Broker par double-click karo (Mac: Start-Live-Broker.command). Ye online ya file wali copy broker tak nahi pahunch sakti.')}</p>`)}
+    ${st(L('Click Connect on', 'Connect dabao:') + ' ' + esc(B[1]), `<p>${L('The app asks for these details, saves them on your PC and connects:', 'App ye details maangega, aapke PC par save karega aur connect karega:')} <b>${esc(G.keys.join(', '))}</b>. ${G.note}</p><span class="lock2">🔒 ${L('Never paste keys into any chat.', 'Keys kabhi kisi chat mein paste mat karo.')}</span>`)}
+    <button class="place" id="bkSim" style="width:100%;margin-top:6px">${L('Got it', 'Samajh gaya')}</button></div>`;
   M.hidden = false;
   const close = () => { M.hidden = true; };
-  $('#bkClose').onclick = close; const bs = $('#bkSim'); if (bs) bs.onclick = close; M.onclick = e => { if (e.target === M) close(); };
+  $('#bkClose').onclick = close; $('#bkSim').onclick = close; M.onclick = e => { if (e.target === M) close(); };
+};
+MODS.broker.setup = function (id) {
+  const M = $('#bkModal');
+  fetch('/api/brokers', {cache: 'no-store'}).then(r => r.json()).then(cat => {
+    const info = cat.brokers.find(b => b.id === id); if (!info) return;
+    const B = BROKERS().find(x => x[0] === id) || [id, info.name, 'DM', 'var(--muted)'], G = BKG()[id] || {portal: '', note: L('No keys needed. Shows a simulated chain so you can try the whole flow.', 'Koi key nahi chahiye. Simulated chain dikhata hai taaki poora flow try kar sako.')};
+    const s = LIVE.st || {}, cur = s.broker === id, groups = [...new Set(info.fields.map(f => f.group).filter(Boolean))];
+    const saved = k => (info.fields.find(f => f.k === k) || {}).saved;
+    let mode = groups.length ? (saved('access_token') || !saved('app_id') ? groups[0] : groups[1]) : null;
+    const fld = f => `<label class="field su-f"${f.group ? ` data-g="${f.group}"` : ''}><span>${esc(f.label)}${f.optional ? ` <em>${L('optional', 'zaroori nahi')}</em>` : ''}</span><span class="su-in"><input name="${esc(f.k)}" type="${f.secret ? 'password' : 'text'}" autocomplete="off" spellcheck="false" placeholder="${f.saved ? L('Saved ✓ · leave empty to keep', 'Saved ✓ · khaali chhodo to wahi rahega') : ''}">${f.secret ? `<button type="button" class="eye" aria-label="Show">${L('Show', 'Dikhao')}</button>` : ''}</span>${f.help ? `<small>${esc(f.help)}</small>` : ''}</label>`;
+    const redir = `<div class="lvred su-red"${info.redirect === 'oauth' ? ' data-g="oauth"' : ''}><span>${L('Redirect URL in your broker app', 'Broker app mein Redirect URL')}</span><code>${esc(cat.redirect_url)}</code><button type="button" class="ibtn" id="suCopy">${L('Copy', 'Copy')}</button></div>`;
+    const how = info.redirect === true ? L('After saving you go to the broker’s login page and come back here automatically.', 'Save ke baad broker ka login page khulega, phir apne aap yahan wapas aa jaoge.') : id === 'demo' ? '' : L('The connector logs in for you right away.', 'Connector turant aapke liye login kar dega.');
+    M.innerHTML = `<div class="modal-b su" role="dialog" aria-label="Connect ${esc(info.name)}"><div class="bk-h"><span class="lg" style="background:${B[3]}">${B[2]}</span><div><b>${esc(info.name)}</b><small>${cur && s.user ? L('Connected as', 'Connected:') + ' ' + esc(s.user) : L('Connect your account', 'Apna account connect karo')}</small></div><button class="x" id="bkClose" style="margin-left:auto" aria-label="Close">✕</button></div>
+      ${G.portal ? `<p class="su-p">${L('Get these from', 'Ye details yahan milengi')}: <b>${esc(G.portal)}</b></p>` : ''}
+      <form id="suForm" autocomplete="off">
+        ${groups.length ? `<div class="seg su-mode" id="suMode"><button type="button" data-m="token">${L('Access token (easiest)', 'Access token (aasaan)')}</button><button type="button" data-m="oauth">API key + secret</button></div>` : ''}
+        ${info.fields.map(fld).join('') || `<p class="note">${L('No details needed.', 'Koi details nahi chahiye.')}</p>`}
+        ${info.redirect ? redir : ''}
+        ${G.note ? `<p class="note su-n">${G.note}</p>` : ''}
+        <span class="lock2">🔒 ${L('Sent only to the connector on this PC and saved there in connector/config.json. Never paste these in any chat.', 'Sirf is PC ke connector ko jaata hai aur wahin connector/config.json mein save hota hai. Inhe kabhi kisi chat mein paste mat karo.')}</span>
+        <p class="lverr" id="suErr" role="alert"></p>
+        <button class="lvgo su-go" type="submit">${L('Save & connect', 'Save karo aur connect karo')} →</button>
+        ${how ? `<p class="note" style="margin:6px 0 0">${how}</p>` : ''}
+      </form></div>`;
+    M.hidden = false;
+    const close = () => { M.hidden = true; };
+    $('#bkClose').onclick = close; M.onclick = e => { if (e.target === M) close(); };
+    const setMode = m => { mode = m; $$('#suMode [data-m]').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m)); M.querySelectorAll('[data-g]').forEach(x => { x.hidden = x.dataset.g !== m; }); };
+    if (groups.length) { $$('#suMode [data-m]').forEach(b => b.onclick = () => setMode(b.dataset.m)); setMode(mode); }
+    M.querySelectorAll('.eye').forEach(b => b.onclick = () => { const i = b.previousElementSibling, show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.textContent = show ? L('Hide', 'Chhupao') : L('Show', 'Dikhao'); });
+    const cp = $('#suCopy'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(cat.redirect_url); cp.textContent = L('Copied', 'Copy ho gaya'); } catch (e) {} };
+    const first = M.querySelector('.su-f:not([hidden]) input'); if (first) first.focus();
+    const err = t => setText($('#suErr'), t || '');
+    $('#suForm').onsubmit = e => {
+      e.preventDefault();
+      const vis = info.fields.filter(f => !f.group || f.group === mode), values = {};
+      for (const f of vis) { const v = M.querySelector(`input[name="${f.k}"]`).value.trim(); if (v) values[f.k] = v; else if (!f.optional && !f.saved) { err(L('Please fill', 'Ye bharo') + ': ' + f.label); return; } }
+      const clear = groups.length && mode === 'oauth' ? info.fields.filter(f => f.group === 'token').map(f => f.k) : [];
+      const go2 = $('#suForm .su-go'); go2.disabled = true; err(''); go2.textContent = L('Connecting…', 'Connect ho raha hai…');
+      lvPost('/api/setup', {broker: id, values, clear}).then(r => {
+        if (r.ok && r.next === 'login') { go2.textContent = L('Opening login…', 'Login khul raha hai…'); location.href = '/api/login'; return; }
+        go2.disabled = false; go2.textContent = L('Save & connect', 'Save karo aur connect karo') + ' →';
+        if (!r.ok) { err(r.error || L('Could not connect.', 'Connect nahi ho paya.')); return; }
+        close(); if (r.next === 'live') go('livechain'); else { const pn = $('#lvPanel'); if (pn) pn.scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'start'}); }
+      }).catch(() => { go2.disabled = false; err(L('Connector not reachable. Is the Start-Live-Broker window open?', 'Connector tak nahi pahunch paaye. Kya Start-Live-Broker window khuli hai?')); });
+    };
+  }).catch(() => this.steps(id));
 };
 
 /* ---- Journal + OI ---- */

@@ -1,6 +1,6 @@
 {
-  "_read_me": "Step 1: set broker. Step 2: fill ONLY that broker's keys below. Step 3: save and run Start-Live-Broker. Never share this file or paste it in any chat.",
-  "broker": "demo",
+  "_read_me": "Easiest: run Start-Live-Broker, then on the Broker page click Connect on your broker and fill the form. It saves here for you. Never share this file or paste it in any chat.",
+  "broker": "",
   "_broker_choices": "demo | kite | upstox | fyers | dhan | angel | breeze",
 
   "symbols": ["NIFTY", "BANKNIFTY"],

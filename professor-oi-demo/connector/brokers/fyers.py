@@ -2,7 +2,7 @@
 import urllib.parse
 from datetime import datetime
 from core import AuthError, BrokerError, http, leg, sha256
-from . import Adapter
+from . import Adapter, F
 
 API = 'https://api-t1.fyers.in/api/v3'
 DATA = 'https://api-t1.fyers.in/data'
@@ -15,6 +15,8 @@ class Fyers(Adapter):
     name = 'Fyers'
     gap = 0.5
     needs = ('app_id', 'secret_key')
+    fields = (F('app_id', 'App ID', help='Looks like XXXXXXXX-100'), F('secret_key', 'Secret key', secret=True))
+    redirect_needed = True
     symbols = tuple(SYM)
 
     def login_url(self):

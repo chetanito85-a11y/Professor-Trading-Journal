@@ -4,7 +4,7 @@ you type the 6-digit code on the Broker page."""
 import json, re, socket, time, uuid
 from datetime import datetime
 from core import AuthError, BrokerError, cache_path, http, leg, load_json, save_json, today_ist, totp
-from . import Adapter
+from . import Adapter, F
 
 ROOT = 'https://apiconnect.angelone.in'
 MASTER = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
@@ -28,6 +28,9 @@ class Angel(Adapter):
     login_kind = 'direct'
     gap = 1.1
     needs = ('api_key', 'client_code')
+    fields = (F('api_key', 'API key'), F('client_code', 'Client ID', help='Your Angel One login ID'),
+              F('pin', 'MPIN', secret=True, optional=True, help='Leave empty to type it at each login'),
+              F('totp_secret', 'TOTP secret key', secret=True, optional=True, help='Text key under the QR code at smartapi.angelone.in/enable-totp. Empty = type the 6-digit code at each login'))
     symbols = tuple(INDEX)
 
     def __init__(self, cfg, redirect_url):

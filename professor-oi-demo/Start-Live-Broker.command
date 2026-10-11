@@ -6,11 +6,7 @@ if [ -z "$PY" ]; then
   echo "Python nahi mila. https://www.python.org/downloads/ se Python 3.12 install karo."
   read -r -p "Enter dabao..." _; exit 1
 fi
-if [ ! -f connector/config.json ]; then
-  cp connector/config.example.json connector/config.json
-  echo "Pehli baar: connector/config.json ban gaya hai. \"broker\" set karo aur keys bharo."
-  open -e connector/config.json 2>/dev/null || ${EDITOR:-nano} connector/config.json
-  read -r -p "config.json save karke Enter dabao..." _
-fi
+echo "Professor OI browser mein khul raha hai: http://127.0.0.1:8765"
+echo "Broker page par apne broker ke Connect par click karo aur details bharo."
 "$PY" connector/server.py
 read -r -p "Connector ruk gaya. Enter dabao..." _
