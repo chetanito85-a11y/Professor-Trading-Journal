@@ -1,41 +1,46 @@
-# Option Chain: Google Apps Script
+# ⚡ Z2H Option Chain: Ready to Run
 
-Dhan API se live option chain laata hai. `UI` sheet mein table dikhata hai, `FINAL_VIEW` mein har run ki row likhta hai, aur us row par Z2H entry/exit engine chalata hai.
+Dhan API se live option chain laata hai. `UI` sheet mein table dikhata hai, `FINAL_VIEW` mein har minute ek row likhta hai, aur us row par Z2H entry/exit engine chalata hai. Saara code ek hi file `Code.gs` mein hai.
 
-## Files
+## Chalane ka tareeka (3 step)
 
-| File | Kya karti hai |
+1. **Code paste karo:** Google Sheet → **Extensions → Apps Script** kholo. Purani code files delete karo (`index.html` rehne do), `Code.gs` mein ye poora code paste karo aur **Save (Ctrl+S)** dabao.
+2. **Sheet reload karo:** upar naya menu **⚡ Z2H** aayega. Usme **🚀 Setup (1 click)** dabao.
+   - Pehli baar Google permission maangega: **Continue → apna account → Advanced → Go to … (unsafe) → Allow**. Apni script ke liye ye normal hai.
+   - Permission ke baad **🚀 Setup** ek baar aur dabao.
+3. **Setup ke 3 sawaal ka jawab do:** Dhan Client ID, Dhan Access Token, aur S&R URL. S&R URL nahi hai to khaali chhod do.
+
+Bas. Setup baaki kaam khud karta hai:
+- `UI` aur `FINAL_VIEW` sheets banata hai
+- B1 mein symbol ka dropdown lagata hai
+- Dhan se nearest expiry laake B2 mein daalta hai
+- har minute ka auto-run trigger lagata hai
+- pehla run turant chalata hai
+
+## ⚡ Z2H menu
+
+| Button | Kaam |
 |---|---|
-| `OptionChain.gs` | `loadOptionChain` (main trigger), UI table `A5:M90`, active range `O:R`, FINAL_VIEW `A:N` + `P:Y`, voting |
-| `History.gs` | har strike ki OI% / VOL% history, direction, top panel `I1:L4` |
-| `EntryExit.gs` | Z2H entry/exit engine, FINAL_VIEW `Z:AG` + S&R snapshot `AH:AI`, headers |
-| `SRFetch.gs` | `fetchSRToUI_Z2H`: S&R API se UI `S:V` |
+| 🚀 Setup (1 click) | Token save, sheets, expiry, triggers, pehla run. Dobara dabane par duplicate trigger nahi banta |
+| ▶️ Abhi chalao | Market band ho tab bhi abhi ek run chalata hai |
+| 🔑 Token update | Dhan ka naya token daalo. Script check karke batati hai ki token sahi hai ya nahi |
+| 📅 Expiry refresh | B2 mein nearest expiry aur aage ki expiries ka dropdown |
+| ♻️ Position reset | Open Z2H position haath se saaf karta hai |
+| ⏹️ Auto run band karo | Triggers hata deta hai |
 
-`doGet()` ke liye aapki purani `index.html` jaisi hai waisi rehne do. Wo is folder mein nahi hai.
+## Apne aap kya hota hai
 
-## Lagane ka tareeka
+- **Market time:** auto run sirf **Mon–Fri 09:15–15:30 IST** mein chalta hai. Free Google account mein triggers din bhar mein lagbhag 90 minute hi chal sakte hain. NSE holidays ki pehchaan nahi hai, us din bhi chalega (koi nuksaan nahi).
+- **Expiry:** B2 khaali ho, expiry nikal gayi ho, ya symbol badla ho, to nearest expiry khud aa jaati hai. Dropdown se koi aur expiry chuno to wahi chalti hai.
+- **Reset:** symbol, expiry ya din badalne par saari state reset hoti hai: delta, voting, history aur open position. Pehle run mein ΔCE/ΔPE `0` aata hai.
 
-1. Apps Script project mein jo purani `.gs` files ye functions rakhti thin, unhe delete karo. Unki jagah ye 4 files banao aur poora content paste karo. Ek function do files mein reh gaya to jo file baad mein load hogi, wahi chalegi, isliye purani copy mat chhodna.
-2. ⚙️ **Project Settings**:
-   - Time zone: `(GMT+05:30) India Standard Time`
-   - **Script Properties** mein ye 3 add karo:
+## Error aaye to
 
-     | Property | Value |
-     |---|---|
-     | `DHAN_TOKEN` | Dhan access token |
-     | `DHAN_CLIENT_ID` | Dhan client id |
-     | `SR_API_URL` | S&R web app ka `/exec` URL |
+| Kahan | Message | Kya karo |
+|---|---|---|
+| `UI!A4` | `❌ TOKEN MISSING` / `❌ ERROR TOKEN` | ⚡ Z2H → 🔑 Token update |
+| `UI!A4` | `❌ EXPIRY NAHI MILI` | ⚡ Z2H → 📅 Expiry refresh |
+| `UI!A4` | `❌ API ERROR 400` | Agla run nayi expiry khud le aayega |
+| `UI!W1` | `SR_API_URL MISSING` | Setup dobara chalao aur S&R URL daalo |
 
-   Token expire ho to sirf yahan value badlo.
-3. Triggers (⏰):
-   - `loadOptionChain`: time-driven, har 1 minute
-   - `fetchSRToUI_Z2H`: jaise pehle lagaya tha
-   - `blinkRun` (optional): sirf C3 blink ke liye
-4. `UI!B1` mein symbol (`NIFTY` / `BANKNIFTY` / `FINNIFTY`) aur `UI!B2` mein expiry daalo. Date cell chalega, ya text `YYYY-MM-DD`.
-
-## Dhyan rakhne wali baatein
-
-- Symbol, expiry ya din badalte hi saari state reset hoti hai: delta, voting, duration, strike history **aur open Z2H position bhi**. Pehle run mein ΔCE/ΔPE `0` aata hai.
-- Position haath se band karni ho to editor se `resetEntryExit_Z2H` chalao.
-- Errors `UI!A4` mein dikhte hain (`❌ ERROR TOKEN`, `❌ TOKEN MISSING`, `❌ EXPIRY YYYY-MM-DD CHAHIYE` …). S&R ke errors `UI!W1` mein aate hain.
-- Pehle run ke baad **Executions → Logs** mein Dhan ka response dekh lo. Usme `previous_oi` / `previous_close_price` aate hain to CHNG OI aur CHNG columns sahi bhare jaayenge.
+Web app (`doGet`) use karte ho to code badalne ke baad **Deploy → Manage deployments → ✏️ → New version → Deploy** karna hoga.
