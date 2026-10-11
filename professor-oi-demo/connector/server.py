@@ -21,6 +21,7 @@ from core import AuthError, BrokerError, cache_path, load_json, normalise, save_
 import brokers  # noqa: E402
 from store import N as MINUTES, Store  # noqa: E402
 from alerts import Alerts  # noqa: E402
+from ai import AIRead  # noqa: E402
 
 VERSION = '1.0'
 APP = os.path.join(os.path.dirname(HERE), 'index.html')
@@ -64,6 +65,7 @@ class Hub:
         self.store = Store()
         self.stocks, self.stk_base = None, None
         self.alerts = Alerts(cfg, self.save_config, log)
+        self.ai = AIRead(cfg, self.save_config, log, self.ai_snapshot, self.broadcast)
 
     def use(self, bid):
         """Make `bid` the active broker (reads its section from config) and log in if possible."""
@@ -185,6 +187,41 @@ class Hub:
         self.broadcast('chain', c)
         self.broadcast('point', {'sym': s, 'pt': pt})
         self.broadcast('stats', {'calls': self.calls, 'errors': self.errors, 'market_open': core.market_open(), 'now': int(core.now_ts() * 1000)})
+
+    def ai_snapshot(self):
+        """Compact live picture for the AI read: index chains, intraday drift, alerts, stock buildups."""
+        if not self.chains:
+            return None
+        out = {'time_ist': core.now_ist().strftime('%H:%M'), 'market_open': core.market_open(), 'indices': {}}
+        for sym, c in list(self.chains.items()):
+            sm, rows = c['sum'], c['rows']
+            top = lambda leg, rev: [[r['k'], r[leg]['oic']] for r in sorted(rows, key=lambda r: r[leg]['oic'], reverse=rev)[:3]]
+            d = {'spot': c['spot'], 'prev_close': c.get('prev'), 'change_pct': round((c['spot'] / c['prev'] - 1) * 100, 2) if c.get('prev') else None,
+                 'expiry': c['expiry'], 'pcr': sm['pcr'], 'max_pain': sm['max_pain'], 'support': sm['sup'], 'support_2': sm['sup2'],
+                 'resistance': sm['res'], 'resistance_2': sm['res2'], 'atm': sm['atm'], 'atm_iv_pct': sm['atm_iv'], 'atm_straddle': sm['straddle'],
+                 'total_call_oi_change': sm['ce_oic'], 'total_put_oi_change': sm['pe_oic'],
+                 'top_call_writing': top('ce', True), 'top_put_writing': top('pe', True), 'top_call_unwinding': top('ce', False), 'top_put_unwinding': top('pe', False),
+                 'oi_change_measured_from': 'connector start today' if c['since_start'] else 'previous day close'}
+            h = self.hist.get(sym) or []
+            for mins in (30, 60):
+                p = next((x for x in reversed(h) if x['t'] <= c['ts'] - mins * 60000), None)
+                if p:
+                    d[f'{mins}_min_ago'] = {'spot': p['s'], 'pcr': p['pcr'], 'support': p['sup'], 'resistance': p['res'], 'max_pain': p['mp']}
+            out['indices'][sym] = d
+        out['recent_alerts'] = [x['at'] + ' ' + x['text'] for x in self.alerts.log[-8:]]
+        if self.stocks:
+            rows = []
+            for s, ltp, prev, oi, oic, vol, lot in self.stocks['items']:
+                if prev and oi and s not in ('NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'):
+                    rows.append((s, round((ltp / prev - 1) * 100, 2), round(oic / max(1, oi - oic) * 100, 2)))
+            pick = lambda f, key: [list(r) for r in sorted(filter(f, rows), key=key)[:5]]
+            out['fno_stocks'] = {'advancing': sum(1 for r in rows if r[1] > 0), 'declining': sum(1 for r in rows if r[1] < 0),
+                                 'format': '[symbol, price_change_pct, oi_change_pct]',
+                                 'long_buildup': pick(lambda r: r[1] > 0 and r[2] > 0, lambda r: -r[2]),
+                                 'short_buildup': pick(lambda r: r[1] < 0 and r[2] > 0, lambda r: -r[2]),
+                                 'short_covering': pick(lambda r: r[1] > 0 and r[2] < 0, lambda r: r[2]),
+                                 'long_unwinding': pick(lambda r: r[1] < 0 and r[2] < 0, lambda r: r[2])}
+        return out
 
     def publish_stocks(self, raw):
         """raw: adapter list -> compact rows with OI change (vs the first reading today) for the app, history and alerts."""
@@ -428,6 +465,8 @@ def make_handler(hub, port):
                 return self.out(200, d) if d else self.out(404, {'error': 'no stock data yet'})
             if p == '/api/alerts':
                 return self.out(200, hub.alerts.public())
+            if p == '/api/ai':
+                return self.out(200, hub.ai.public())
             if p == '/api/day':
                 sym = q.get('sym', 'NIFTY')
                 d = hub.store.day(sym, q.get('day') or None)
@@ -509,6 +548,20 @@ def make_handler(hub, port):
                     return self.out(400, {'ok': False, 'error': 'Paste the full address from the browser bar after login.'})
                 ok, msg = self.finish_login(params)
                 return self.out(200 if ok else 400, {'ok': ok, 'error': None if ok else msg})
+            if p.startswith('/api/ai/'):
+                act = p.rsplit('/', 1)[1]
+                try:
+                    if act == 'config':
+                        hub.ai.configure(d)
+                    elif act == 'install':
+                        hub.ai.install_sdk()
+                    elif act == 'generate':
+                        threading.Thread(target=hub.ai.generate, daemon=True).start()
+                    else:
+                        return self.out(404, {'error': 'not found'})
+                    return self.out(200, {'ok': True, 'ai': hub.ai.public()})
+                except ValueError as e:
+                    return self.out(400, {'ok': False, 'error': str(e), 'ai': hub.ai.public()})
             if p.startswith('/api/alerts/'):
                 try:
                     act = p.rsplit('/', 1)[1]
@@ -536,7 +589,7 @@ def make_handler(hub, port):
             self.end_headers()
             q = hub.subscribe()
             try:
-                first = [('status', hub.status())] + [('history', {'sym': s, 'rows': h}) for s, h in hub.hist.items()] + [('chain', c) for c in hub.chains.values()] + ([('stocks', hub.stocks)] if hub.stocks else [])
+                first = [('status', hub.status())] + [('history', {'sym': s, 'rows': h}) for s, h in hub.hist.items()] + [('chain', c) for c in hub.chains.values()] + ([('stocks', hub.stocks)] if hub.stocks else []) + [('ai', hub.ai.public())]
                 for ev, data in first:
                     self.wfile.write(f'event: {ev}\ndata: {json.dumps(data, separators=(",", ":"))}\n\n'.encode('utf-8'))
                 self.wfile.flush()

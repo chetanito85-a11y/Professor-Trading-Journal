@@ -843,6 +843,17 @@ main{padding:16px 22px 120px}
 .sga-w b{color:var(--fg)}
 .sga-load{align-self:flex-start;margin-top:auto}
 @media (max-width:1100px){.sga-g{grid-template-columns:minmax(0,1fr)}}
+/* ---- v10: AI read ---- */
+.aiw{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
+.aic{display:flex;flex-direction:column;gap:12px}
+.aig{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+.aig select{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font:500 12.5px var(--f-mono)}
+.aib{padding:10px 12px;border:1px dashed var(--amber);border-radius:7px}
+.aib p{margin:4px 0 8px;font-size:12px;color:var(--muted)}
+.aio{margin:8px 0 0;font:500 11px var(--f-mono);white-space:pre-wrap;color:var(--call)}
+.aiv .ai{font-size:13px;line-height:1.65}
+#aiTxt{line-height:1.65}
+@media (max-width:900px){.aiw,.aig{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 </head>
@@ -1488,7 +1499,7 @@ MODS.overview = {
       </div>`;
     v.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     $('#ovBu').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSymGo(b.dataset.s, 'chain'); };
-    this.aiSlot = -1;
+    this.aiSlot = -1; this.aiRead = null;
   },
   update(ctx) {
     const DN = getData('NIFTY'), DB = getData('BANKNIFTY'), sN = ctx.st('NIFTY'), sB = ctx.st('BANKNIFTY'), t0 = ctx.t0;
@@ -1517,10 +1528,10 @@ MODS.overview = {
       const mt = el.querySelector('.mt'); mt.style.left = clamp(p * 100, 12, 88) + '%'; flash(mt, s.S, inr2(s.S));
     }
     const slot = Math.floor(t0 / 15);
-    if (slot !== this.aiSlot) {
-      this.aiSlot = slot; const txt = aiText(DN, DN.snaps[t0]), el = $('#aiTxt'); let i = 0;
+    if (aiClaude(this)) { /* Claude's read */ } else if (slot !== this.aiSlot) {
+      this.aiSlot = slot; this.aiRead = null; const txt = aiText(DN, DN.snaps[t0]), el = $('#aiTxt'); let i = 0;
       clearInterval(this.ty);
-      setText($('#aiMeta'), `Updated ${tl(t0)} · Demo text. Asli app mein ye Claude API likhega. Ye market ki haalat hai, trade ki salah nahi.`);
+      setText($('#aiMeta'), LIVE.on ? `${L('Updated', 'Updated')} ${tl(t0)} · ${L('Built-in summary. For a Claude-written read, add your key on the Broker page.', 'Built-in summary. Claude ka read chahiye to Broker page par key daalo.')}` : `Updated ${tl(t0)} · Demo text. Asli app mein ye Claude API likhega. Ye market ki haalat hai, trade ki salah nahi.`);
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) el.textContent = txt;
       else this.ty = setInterval(() => { i = Math.min(txt.length, i + 3); el.innerHTML = esc(txt.slice(0, i)) + (i < txt.length ? '<span class="cur"></span>' : ''); if (i >= txt.length) clearInterval(this.ty); }, 24);
     }
@@ -2910,6 +2921,7 @@ function liveSSE() {
     if (app.page === 'broker') MODS.broker.liveTicks(c, p);
   });
   es.addEventListener('stats', e => { const x = lvJ(e); if (!x) return; if (x.now) LIVE.skew = x.now - Date.now(); if (LIVE.st) Object.assign(LIVE.st, x); });
+  es.addEventListener('ai', e => { const x = lvJ(e); if (!x) return; LIVE.ai = x; if (app.page === 'broker' && MODS.broker.aiCard) MODS.broker.aiCard(); });
   es.addEventListener('stocks', e => { const x = lvJ(e); if (x && x.items) { LIVE.stocks = x; lsApply(x); } });
   es.addEventListener('history', e => { const h = lvJ(e); if (h) LIVE.hist[h.sym] = h.rows || []; });
   es.addEventListener('point', e => {
@@ -3178,7 +3190,9 @@ MODS.broker.mount = function (v) {
     // broker cards straight under the panel, pipeline after them
     const g = v.querySelector('.bk-g'), h = g && g.previousElementSibling, pipe = $('#bkPipe') && $('#bkPipe').closest('section'), panel = $('#lvPanel');
     if (g && panel) { if (h && h.classList.contains('th-g')) { h.id = 'bkPick'; panel.after(h); h.after(g); } else panel.after(g); if (pipe) g.after(pipe); }
-    this.pk = ''; this.livePanel(); this.liveCards();
+    const pp = $('#bkPipe') && $('#bkPipe').closest('section');
+    if (pp) pp.insertAdjacentHTML('beforebegin', `<section class="card" id="aiCard" style="margin-top:12px"><div class="card-h"><h3>${L('AI market read · Claude', 'AI market read · Claude')}</h3><span class="sub">${L('A short read of the live numbers, written every few minutes', 'Live numbers ka chhota sa read, har kuch minute')}</span></div><div class="card-b"></div></section>`);
+    this.pk = ''; this.livePanel(); this.liveCards(); if (this.aiCard) this.aiCard();
   } else if (why) {
     why.outerHTML = `<section class="card" style="margin-bottom:12px"><div class="card-h"><h3>${L('Connect your broker in 3 steps', '3 steps mein broker connect karo')}</h3><span class="pill warn" style="margin-left:auto">${L('Offline copy', 'Offline copy')}</span></div><div class="card-b grid g3">
       <div><b>1 · Start-Live-Broker</b><p class="note" style="margin-top:4px">${L('In the Professor OI folder on your PC, double-click Start-Live-Broker. The app opens at 127.0.0.1:8765.', 'Apne PC par Professor OI folder mein Start-Live-Broker par double-click karo. App 127.0.0.1:8765 par khulega.')}</p></div>
@@ -3969,6 +3983,47 @@ MODS.strategy.update = function (ctx) {
       <ul class="sga-w">${sgWhy(v, c).map(x => `<li>${x}</li>`).join('')}</ul>
       <button class="lvgo sga-load" data-i="${i}">${L('Load into builder', 'Builder mein load karo')} →</button></div>`).join('') || `<p class="note">${L('Not enough prices on the chain yet.', 'Chain par abhi kaafi bhaav nahi hain.')}</p>`;
   $$('#sgaTop .sga-load').forEach(b => b.onclick = () => { const c = A.top[+b.dataset.i]; app.legs = c.legs.map(l => ({...l})); app.legsSym = app.sym; this.renderLegs(); this.autoDirty = true; _sgUpd.call(this, lastCtx); const ch = $('#sgCh'); if (ch) ch.closest('.card').scrollIntoView({behavior: REDUCE ? 'auto' : 'smooth', block: 'center'}); });
+};
+
+
+/* ---- AI market read by Claude (runs in the connector; key stays on this PC) ---- */
+const aiFmt = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n').map(x => x.trim()).filter(Boolean).map(x => x.replace(/^[-•*]\s*/, '• ')).join('<br>');
+function aiClaude(m) {
+  const a = LIVE.on && LIVE.ai, r = a && a.reads && a.reads[a.reads.length - 1];
+  if (!r) return false;
+  if (m.aiRead !== r.t) {
+    m.aiRead = r.t; clearInterval(m.ty);
+    const el = $('#aiTxt'); if (el) el.innerHTML = aiFmt(r.text);
+    setText($('#aiMeta'), `${(a.models || {})[r.model] || r.model} · ${r.at} IST · ${L('a description of the market, not trading advice', 'market ki haalat hai, trade ki salah nahi')}`);
+  }
+  return true;
+}
+MODS.broker.aiCard = function () {
+  const el = $('#aiCard'); if (!el) return;
+  const a = LIVE.ai; if (!a) { el.querySelector('.card-b').innerHTML = `<p class="note">${L('Loading…', 'Load ho raha hai…')}</p>`; return; }
+  if (el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;   // don't wipe what is being typed
+  const r = a.reads && a.reads[a.reads.length - 1], st = a.install || {};
+  const opt = (v, cur, label) => `<option value="${v}"${v === cur ? ' selected' : ''}>${label}</option>`;
+  el.querySelector('.card-b').innerHTML = `<div class="aiw"><div class="aic">
+      ${a.sdk ? '' : `<div class="aib"><b>${L('Step 1 · Install the Claude library (one time)', 'Step 1 · Claude library install karo (ek baar)')}</b><p>${L('The connector uses Anthropic’s official Python package for this. Nothing else needs installing.', 'Iske liye connector Anthropic ka official Python package use karta hai. Aur kuch install nahi karna.')}</p>
+        <button class="ibtn" id="aiInst" ${st.state === 'running' ? 'disabled' : ''}>${st.state === 'running' ? L('Installing…', 'Install ho raha hai…') : L('Install', 'Install karo')}</button>${st.state === 'failed' ? `<pre class="aio">${esc(st.out || '')}</pre>` : ''}</div>`}
+      <label class="field"><span>${L('Anthropic API key', 'Anthropic API key')}</span><span class="su-in"><input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="${a.key ? L('Saved ✓ · paste a new key to replace', 'Saved ✓ · badalna ho to nayi key daalo') : 'sk-ant-…'}"><button class="ibtn" id="aiSave">${L('Save', 'Save')}</button></span><small>${L('Create one at console.anthropic.com → API keys. Billing is on your Anthropic account.', 'console.anthropic.com → API keys par banao. Kharcha aapke Anthropic account par.')}</small></label>
+      <div class="aig"><label class="field"><span>Model</span><select id="aiModel">${Object.entries(a.models).map(([k, n]) => opt(k, a.model, `${n} · ≈$${a.cost_per_day[k]}/${L('day', 'din')}`)).join('')}</select></label>
+        <label class="field"><span>${L('Language', 'Bhasha')}</span><select id="aiLang">${opt('hi', a.lang, 'Hinglish')}${opt('en', a.lang, 'English')}</select></label>
+        <label class="field"><span>${L('Every', 'Har')}</span><select id="aiEvery">${[5, 10, 15, 30].map(x => opt(String(x), String(a.every), x + ' min')).join('')}</select></label></div>
+      <div class="lvrow"><label class="tgk"><input type="checkbox" id="aiOn" ${a.enabled ? 'checked' : ''} ${a.key && a.sdk ? '' : 'disabled'}> ${L('Write a read automatically during market hours', 'Market time mein apne aap read likho')}</label></div>
+      <div class="lvrow"><button class="lvgo" id="aiGen" ${a.key && a.sdk && !a.busy ? '' : 'disabled'}>${a.busy ? L('Writing…', 'Likh raha hai…') : L('Write a read now', 'Abhi read likho')}</button></div>
+      ${a.error ? `<p class="lverr">${esc(a.error)}</p>` : ''}
+      <p class="note" style="margin:0">🔒 ${L('The key stays in connector/config.json on this PC; the page never sees it. Never paste it in any chat. Cost is a rough estimate for a full trading day.', 'Key is PC par connector/config.json mein rehti hai; page use kabhi nahi dekhta. Ise kisi chat mein paste mat karo. Kharcha poore trading din ka andaaza hai.')}</p></div>
+    <div class="aiv"><div class="lvh">${L('LATEST READ', 'TAAZA READ')}</div>${r ? `<p class="ai">${aiFmt(r.text)}</p><p class="note" style="margin:6px 0 0">${esc(a.models[r.model] || r.model)} · ${esc(r.at)} IST · ${r.tokens[0]}+${r.tokens[1]} tokens</p>` : `<p class="note">${L('No read yet. It also shows on the Overview page.', 'Abhi koi read nahi. Ye Overview page par bhi dikhega.')}</p>`}</div></div>`;
+  const post = (act, body) => lvPost('/api/ai/' + act, body).then(x => { if (x.ai) LIVE.ai = x.ai; if (!x.ok && x.error) LIVE.ai = {...LIVE.ai, error: x.error}; this.aiCard(); }).catch(() => {});
+  const ins = $('#aiInst'); if (ins) ins.onclick = () => post('install', {});
+  $('#aiSave').onclick = () => { const k = $('#aiKey').value.trim(); if (k) post('config', {api_key: k}); };
+  $('#aiModel').onchange = e => post('config', {model: e.target.value});
+  $('#aiLang').onchange = e => post('config', {lang: e.target.value});
+  $('#aiEvery').onchange = e => post('config', {every: +e.target.value});
+  $('#aiOn').onchange = e => post('config', {enabled: e.target.checked});
+  $('#aiGen').onclick = () => post('generate', {});
 };
 
 /* ================= routing + loop ================= */
