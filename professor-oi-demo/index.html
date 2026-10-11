@@ -765,6 +765,13 @@ main{padding:16px 22px 120px}
 .ti.lvt>b::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--put);color:var(--put);margin-left:5px;vertical-align:2px;animation:pulse 1.6s ease-out infinite}
 @media (max-width:900px){.lvc-b{grid-template-columns:minmax(0,1fr)}.lvw{grid-template-columns:84px 1fr 56px}}
 @media (prefers-reduced-motion: reduce){.lvb.gr,.ti.lvt>b::after,.lvsweep i.ind{animation:none}}
+/* header fits tablets and small laptops; modal never scrolls sideways */
+@media (max-width:1240px){.top .hide-s{display:none}}
+@media (max-width:1100px){.top{gap:10px}}
+@media (max-width:1000px) and (min-width:761px){.top #status{display:none}}
+@media (max-width:900px) and (min-width:761px){.top .brand>div,.top #clock{display:none}}
+.modal-b{overflow-x:hidden}
+.modal-b::before{inset:0}
 </style>
 
 </head>
@@ -2764,7 +2771,7 @@ const BKG = () => ({
   kite: {portal: 'developers.kite.trade → Create new app (Kite Connect)', keys: ['api_key', 'api_secret'], redirect: 1,
     note: L('Kite Connect is a paid plan. Live quotes work only while it is active.', 'Kite Connect paid plan hai. Live quotes tabhi chalenge jab plan active ho.')},
   dhan: {portal: 'web.dhan.co → My Profile → Access DhanHQ APIs', keys: ['client_id', 'access_token'], redirect: 0,
-    note: L('Easiest: generate an access token there (valid about a day) and paste it in config.json. Using an API key and secret instead? Fill app_id and app_secret, leave access_token empty, and set the redirect URL below.', 'Sabse aasaan: wahan access token banao (lagbhag ek din chalta hai) aur config.json mein daalo. API key aur secret use karna hai? app_id aur app_secret bharo, access_token khaali chhodo, aur neeche wala redirect URL set karo.')},
+    note: L('Easiest: on that page click “Generate Access Token”, copy it and your Dhan Client ID into config.json. The token lasts about a day. Using an API key and secret instead? Put them in app_id and app_secret, leave access_token empty, set the Dhan app’s redirect URL to http://127.0.0.1:8765/callback and click “Login with Dhan”.', 'Sabse aasaan: us page par “Generate Access Token” dabao, token aur apna Dhan Client ID config.json mein daalo. Token lagbhag ek din chalta hai. API key aur secret use karna hai? Unhe app_id aur app_secret mein daalo, access_token khaali chhodo, Dhan app ka redirect URL http://127.0.0.1:8765/callback rakho aur “Login with Dhan” dabao.')},
   upstox: {portal: 'account.upstox.com/developer/apps → New app', keys: ['api_key', 'api_secret'], redirect: 1,
     note: L('The redirect URL must match exactly, including http:// and the port.', 'Redirect URL bilkul same hona chahiye, http:// aur port ke saath.')},
   angel: {portal: 'smartapi.angelone.in → My Apps → Create app (Market Feeds API)', keys: ['api_key', 'client_code', 'pin', 'totp_secret'], redirect: 0,
