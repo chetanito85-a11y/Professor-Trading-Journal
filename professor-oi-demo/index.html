@@ -17,21 +17,21 @@
   --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
   --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --top:94px;
+  --top:94px; --shadow:0 1px 0 rgba(0,0,0,.25);
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
     --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
     --fg:#111823; --muted:#556173; --faint:#8994A4;
-    --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+    --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
     color-scheme:light;
   }
 }
 :root[data-theme="light"]{
   --bg:#F3F5F9; --panel:#FFFFFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
   --fg:#111823; --muted:#556173; --faint:#8994A4;
-  --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+  --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -93,7 +93,7 @@ main{min-width:0;padding:18px 20px 120px}
 .phead h1{margin:0;font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;text-wrap:balance}
 .phead p{margin:5px 0 0;color:var(--muted);max-width:68ch}
 .ptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0;box-shadow:var(--shadow)}
 .card-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:10px 14px;border-bottom:1px solid var(--line)}
 .card-h h3{margin:0;font:700 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .card-h .sub{font-size:11.5px;color:var(--faint)}
@@ -120,8 +120,8 @@ main{min-width:0;padding:18px 20px 120px}
 
 /* flash on change */
 .fu{animation:fu .9s ease-out}.fd{animation:fd .9s ease-out}
-@keyframes fu{0%{background-color:color-mix(in srgb,var(--put) 50%,transparent)}100%{background-color:transparent}}
-@keyframes fd{0%{background-color:color-mix(in srgb,var(--call) 50%,transparent)}100%{background-color:transparent}}
+@keyframes fu{0%{background-color:color-mix(in srgb,var(--put) 38%,transparent)}100%{background-color:transparent}}
+@keyframes fd{0%{background-color:color-mix(in srgb,var(--call) 38%,transparent)}100%{background-color:transparent}}
 b.v,.fl{border-radius:3px;padding:0 2px}
 
 /* tables */
@@ -308,7 +308,7 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 .scrub input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:10px;border-radius:50%;background:var(--fg);border:3px solid var(--accent)}
 .scrub input::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--fg);border:3px solid var(--accent)}
 .dock .tlab{font:600 13px var(--f-mono);min-width:64px}
-.toasts{position:fixed;top:calc(var(--top) + 6px);right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;width:min(340px,calc(100vw - 32px));pointer-events:none}
+.toasts{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;width:min(340px,calc(100vw - 32px));pointer-events:none}
 .toast{pointer-events:auto;display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.3);animation:tin .45s cubic-bezier(.2,.8,.2,1)}
 .toast .ic{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font:700 14px var(--f-mono)}
 .toast.up .ic{background:color-mix(in srgb,var(--put) 20%,transparent);color:var(--put)}
@@ -328,6 +328,73 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 .cmdk-box li[aria-selected="true"]{background:var(--panel-2)}
 .anim-in{animation:pagein .35s ease-out}
 @keyframes pagein{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* theme switch + stock picker */
+.thm button{display:grid;place-items:center;min-height:24px;min-width:28px}
+.thm svg{width:14px;height:14px;display:block}
+.stk{padding:5px 10px;border-radius:6px;font:600 12px var(--f-body);color:var(--muted);white-space:nowrap}
+.stk[aria-pressed="true"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line-2)}
+.ibtn[aria-pressed="true"]{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 55%,transparent);background:color-mix(in srgb,var(--amber) 9%,var(--panel))}
+.picker{position:fixed;z-index:85;top:60px;left:16px;width:min(460px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 22px 60px rgba(0,0,0,.3);overflow:hidden;animation:pagein .2s ease-out}
+.picker input{width:100%;padding:13px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;outline:none;font-size:14px}
+.pk-secs{display:flex;gap:4px;padding:8px 10px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.pk-secs button{flex:none;padding:3px 9px;border-radius:999px;border:1px solid var(--line);font:600 11px var(--f-body);color:var(--muted)}
+.pk-secs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.picker ul{list-style:none;margin:0;padding:4px;max-height:min(380px,55vh);overflow:auto}
+.picker li button{width:100%;display:grid;grid-template-columns:1fr auto 70px;gap:12px;padding:7px 10px;border-radius:7px;text-align:left;font-size:13px;align-items:center}
+.picker li button:hover,.picker li button:focus-visible{background:var(--panel-2)}
+.picker li small{display:block;font-size:10.5px;color:var(--faint)}
+.picker li .mono{font-size:12px;text-align:right}
+
+/* scanner */
+.bu{display:inline-block;padding:2px 8px;border-radius:999px;font:700 9.5px/1.5 var(--f-body);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.bu.LB{background:var(--put);color:var(--on-solid)}
+.bu.SB{background:var(--call);color:var(--on-solid)}
+.bu.SC{color:var(--put);box-shadow:inset 0 0 0 1px var(--put)}
+.bu.LU{color:var(--call);box-shadow:inset 0 0 0 1px var(--call)}
+.bu.NT{color:var(--muted);box-shadow:inset 0 0 0 1px var(--line-2)}
+.cats{display:flex;flex-wrap:wrap;gap:6px}
+.cat{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font:600 12px var(--f-body);box-shadow:var(--shadow)}
+.cat b{font:700 13px var(--f-mono)}
+.cat[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.map circle{transition:transform .8s cubic-bezier(.2,.8,.2,1),opacity .3s,r .5s;cursor:pointer;stroke:var(--panel);stroke-width:1}
+.secs{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px}
+.sec{padding:8px 10px;border-radius:8px;text-align:left;border:1px solid transparent}
+.sec b{display:block;font:700 12px var(--f-body)}
+.sec span{font:500 11.5px var(--f-mono)}
+.sec[aria-pressed="true"]{border-color:var(--fg)}
+.thb{font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;white-space:nowrap}
+.thb:hover{color:var(--fg)}
+.srch{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:5px 9px;font:500 12.5px var(--f-body);width:170px}
+.scan tbody tr{cursor:pointer}
+.scan thead th{position:sticky;top:0;z-index:1}
+.bul{display:grid;grid-template-columns:1fr auto 84px;gap:10px;width:100%;padding:6px 4px;border-top:1px solid var(--line);font:500 12px var(--f-mono);text-align:left}
+.bul span{font-family:var(--f-body);font-weight:600}
+.bul b{text-align:right;font-weight:500}
+.bul:hover{background:var(--panel-2)}
+
+/* paper trading */
+.ticket{display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>span{font:700 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{background:var(--panel-2);border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font:500 13px var(--f-mono);width:100%;min-width:0}
+.field input[readonly]{color:var(--accent);font-weight:700}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sidebtn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sidebtn button{padding:9px;border-radius:8px;font:700 13px var(--f-body);letter-spacing:.06em;border:1px solid var(--line-2);color:var(--muted)}
+.sidebtn button[data-v="B"][aria-pressed="true"]{background:var(--put);border-color:var(--put);color:var(--on-solid)}
+.sidebtn button[data-v="S"][aria-pressed="true"]{background:var(--call);border-color:var(--call);color:var(--on-solid)}
+.place{padding:11px;border-radius:9px;font:700 14px var(--f-body);color:var(--on-solid);background:var(--put);transition:transform .1s}
+.place:active{transform:scale(.98)}
+.place.S{background:var(--call)}
+.place:disabled{opacity:.4;cursor:not-allowed}
+.msg{font-size:12px;min-height:1.2em}
+.lock{padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--call) 12%,transparent);color:var(--call);font:600 12.5px var(--f-body)}
+.meter{height:8px;border-radius:999px;background:color-mix(in srgb,var(--fg) 8%,transparent);overflow:hidden;margin:4px 0 10px}
+.meter i{display:block;height:100%;width:0;border-radius:999px;transition:width .5s}
+.ob{list-style:none;margin:0;padding:0;max-height:330px;overflow:auto}
+.ob li{display:grid;grid-template-columns:44px 1fr auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;align-items:center}
+.ob li:first-child{border-top:0}
 
 @media (max-width:1100px){
   .shell{grid-template-columns:64px minmax(0,1fr)}
@@ -377,7 +444,7 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
     <div class="symsw" id="symsw" aria-label="Symbol">
       <button data-sym="NIFTY">NIFTY</button>
       <button data-sym="BANKNIFTY">BANKNIFTY</button>
-      <label class="hide-s" style="display:contents"><select id="stockSel" aria-label="Stock"><option value="">Stocks</option><option>RELIANCE</option><option>HDFCBANK</option><option>INFY</option><option>SBIN</option></select></label>
+      <button class="stk" id="stkBtn" aria-haspopup="listbox">Stocks ▾</button>
     </div>
     <span class="grow"></span>
     <span class="demo hide-s" title="Sab numbers simulated hain">Demo data</span>
@@ -385,7 +452,7 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
     <span class="clock" id="clock">12:00:00</span>
     <span class="pill hide-s" id="expiry">Exp 13 Oct</span>
     <button class="ibtn" id="openK" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"/></svg><span class="hide-s">Search</span> <kbd class="hide-s">Ctrl K</kbd></button>
-    <button class="ibtn" id="themeBtn" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+    <div class="seg thm" id="themeSeg" aria-label="Theme"><button data-th="light" aria-label="Light theme" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button><button data-th="dark" aria-label="Dark theme" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button><button data-th="auto" title="System ke hisaab se">Auto</button></div>
   </header>
   <div class="tape" aria-label="Ticker"><div class="tape-track" id="tape"></div></div>
   <nav class="rail" id="rail" aria-label="Pages"></nav>
@@ -406,6 +473,8 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="cmdk" id="cmdk" hidden><div class="cmdk-box" role="dialog" aria-label="Search"><input id="cmdkIn" placeholder="Page ya symbol likho… (jaise RELIANCE, heatmap)" autocomplete="off"><ul id="cmdkList" role="listbox"></ul></div></div>
+
+<div class="picker" id="picker" hidden><input id="pkIn" placeholder="Stock search karo…" autocomplete="off" aria-label="Search stocks"><div class="pk-secs" id="pkSec"></div><ul id="pkList"></ul></div>
 
 <script>
 (() => {
@@ -450,29 +519,57 @@ const setText = (el, txt) => { if (el && el.textContent !== txt) el.textContent 
 const CFG = {
   NIFTY:     {sym:'NIFTY', name:'NIFTY 50', kind:'index', spot0:22448, prev:22396, step:50, lot:75, half:15, iv0:0.118, dte:4, exp:'13 Oct', seed:7,  vol:0.00052, bias:0.00005, base:210000, smile:[5,260]},
   BANKNIFTY: {sym:'BANKNIFTY', name:'NIFTY BANK', kind:'index', spot0:55040, prev:54912, step:100, lot:35, half:15, iv0:0.134, dte:4, exp:'13 Oct', seed:19, vol:0.00064, bias:0.00003, base:62000, smile:[4,220]},
-  RELIANCE:  {sym:'RELIANCE', name:'Reliance Industries', kind:'stock', spot0:1189, prev:1192, step:10, lot:500, half:10, iv0:0.21, dte:18, exp:'28 Oct', seed:31, vol:0.0007, bias:-0.00002, base:16000, smile:[2,30]},
-  HDFCBANK:  {sym:'HDFCBANK', name:'HDFC Bank', kind:'stock', spot0:1712, prev:1704, step:20, lot:550, half:10, iv0:0.18, dte:18, exp:'28 Oct', seed:41, vol:0.0006, bias:0.00002, base:14000, smile:[2,30]},
-  INFY:      {sym:'INFY', name:'Infosys', kind:'stock', spot0:1534, prev:1522, step:20, lot:400, half:10, iv0:0.24, dte:18, exp:'28 Oct', seed:53, vol:0.0008, bias:0.00003, base:12000, smile:[2,30]},
-  SBIN:      {sym:'SBIN', name:'State Bank of India', kind:'stock', spot0:812, prev:806, step:10, lot:750, half:10, iv0:0.23, dte:18, exp:'28 Oct', seed:67, vol:0.0007, bias:0.00001, base:15000, smile:[2,30]},
 };
 const NIFTY50 = ['RELIANCE','HDFCBANK','ICICIBANK','INFY','TCS','BHARTIARTL','ITC','LT','SBIN','AXISBANK','KOTAKBANK','HINDUNILVR','BAJFINANCE','M&M','MARUTI','SUNPHARMA','HCLTECH','TITAN','NTPC','ULTRACEMCO','TATAMOTORS','POWERGRID','ONGC','ADANIPORTS','ASIANPAINT','TATASTEEL','COALINDIA','BAJAJFINSV','NESTLEIND','JSWSTEEL','WIPRO','GRASIM','TECHM','HINDALCO','CIPLA','DRREDDY','SBILIFE','HDFCLIFE','BEL','TRENT','EICHERMOT','BRITANNIA','APOLLOHOSP','INDUSINDBK','SHRIRAMFIN','ADANIENT','HEROMOTOCO','BAJAJ-AUTO','TATACONSUM','JIOFIN'];
 const BANK14 = ['HDFCBANK','ICICIBANK','SBIN','KOTAKBANK','AXISBANK','INDUSINDBK','BANKBARODA','PNB','FEDERALBNK','IDFCFIRSTB','AUBANK','CANBK','YESBANK','UNIONBANK'];
+/* F&O universe (demo list, ~200 names) */
+const FNO = {
+  Banks: 'HDFCBANK ICICIBANK SBIN KOTAKBANK AXISBANK INDUSINDBK BANKBARODA PNB FEDERALBNK IDFCFIRSTB AUBANK CANBK YESBANK UNIONBANK BANDHANBNK BANKINDIA INDIANB RBLBANK',
+  Financials: 'BAJFINANCE BAJAJFINSV SHRIRAMFIN CHOLAFIN MUTHOOTFIN MANAPPURAM LICHSGFIN PFC RECLTD IRFC SBICARD HDFCLIFE SBILIFE ICICIGI ICICIPRULI LICI HDFCAMC BSE CDSL MCX ANGELONE JIOFIN PNBHOUSING LTF POONAWALLA CAMS KFINTECH 360ONE NUVAMA ABCAPITAL HUDCO IREDA PAYTM POLICYBZR',
+  IT: 'TCS INFY HCLTECH WIPRO TECHM LTIM PERSISTENT COFORGE MPHASIS OFSS KPITTECH TATAELXSI TATATECH NAUKRI',
+  Auto: 'MARUTI TATAMOTORS M&M BAJAJ-AUTO HEROMOTOCO EICHERMOT TVSMOTOR ASHOKLEY BHARATFORG MOTHERSON BOSCHLTD EXIDEIND TIINDIA UNOMINDA SONACOMS',
+  Pharma: 'SUNPHARMA CIPLA DRREDDY DIVISLAB LUPIN AUROPHARMA ZYDUSLIFE TORNTPHARM ALKEM BIOCON GLENMARK MANKIND LAURUSLABS APOLLOHOSP MAXHEALTH FORTIS SYNGENE',
+  FMCG: 'HINDUNILVR ITC NESTLEIND BRITANNIA TATACONSUM DABUR MARICO GODREJCP COLPAL UNITDSPR VBL PATANJALI',
+  Consumer: 'TITAN TRENT DMART ASIANPAINT PIDILITIND HAVELLS VOLTAS BLUESTARCO DIXON KALYANKJIL PAGEIND JUBLFOOD INDHOTEL ETERNAL NYKAA IRCTC INDIGO',
+  Metals: 'TATASTEEL JSWSTEEL HINDALCO VEDL SAIL NMDC JINDALSTEL NATIONALUM HINDZINC COALINDIA APLAPOLLO',
+  Energy: 'RELIANCE ONGC BPCL IOC HINDPETRO GAIL PETRONET OIL ADANIENT ADANIGREEN ADANIENSOL',
+  Power: 'NTPC POWERGRID TATAPOWER NHPC JSWENERGY TORNTPOWER CESC SUZLON INOXWIND IEX',
+  Industrials: 'LT BEL HAL BHEL SIEMENS ABB CGPOWER CUMMINSIND POLYCAB KEI BDL MAZDOCK SOLARINDS RVNL NBCC GMRAIRPORT ADANIPORTS CONCOR ASTRAL SUPREMEIND DELHIVERY',
+  Cement: 'ULTRACEMCO GRASIM SHREECEM AMBUJACEM DALBHARAT',
+  Realty: 'DLF GODREJPROP OBEROIRLTY LODHA PHOENIXLTD PRESTIGE',
+  Telecom: 'BHARTIARTL IDEA INDUSTOWER',
+  Chemicals: 'SRF UPL PIIND',
+};
+const PX0 = {RELIANCE: 1400, HDFCBANK: 980, ICICIBANK: 1400, INFY: 1500, TCS: 3100, SBIN: 860, BHARTIARTL: 1950, ITC: 410, LT: 3700, KOTAKBANK: 2050, AXISBANK: 1150, HINDUNILVR: 2500, BAJFINANCE: 980, 'M&M': 3500, MARUTI: 15500, SUNPHARMA: 1650, HCLTECH: 1480, TITAN: 3500, NTPC: 340, ULTRACEMCO: 12000, TATAMOTORS: 690, POWERGRID: 290, ONGC: 240, ADANIPORTS: 1420, ASIANPAINT: 2400, TATASTEEL: 165, COALINDIA: 390, BAJAJFINSV: 2000, NESTLEIND: 1200, JSWSTEEL: 1100, WIPRO: 250, GRASIM: 2800, TECHM: 1450, HINDALCO: 750, CIPLA: 1550, DRREDDY: 1250, SBILIFE: 1800, HDFCLIFE: 760, BEL: 410, TRENT: 4800, EICHERMOT: 6800, BRITANNIA: 6000, APOLLOHOSP: 7600, INDUSINDBK: 750, SHRIRAMFIN: 640, ADANIENT: 2400, HEROMOTOCO: 5300, 'BAJAJ-AUTO': 8700, TATACONSUM: 1100, JIOFIN: 310, BANKBARODA: 250, PNB: 110, FEDERALBNK: 200, IDFCFIRSTB: 70, AUBANK: 750, CANBK: 120, YESBANK: 21, UNIONBANK: 140, IDEA: 8, SUZLON: 60, IRFC: 130, NHPC: 85, SAIL: 130, NMDC: 75, IOC: 145, GAIL: 180, VEDL: 450, DLF: 780, HAL: 4600, BHEL: 240, ETERNAL: 300, PAYTM: 1200, ZYDUSLIFE: 980};
+const hashS = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const U = {}, UL = [];
+const isStock = sym => !!U[sym];
+function niceLot(p) { const q = 650000 / p, m = q > 1000 ? 50 : q > 200 ? 25 : q > 50 ? 5 : 1; return Math.max(1, Math.round(q / m) * m); }
+function stockCfg(sym) {
+  const u = U[sym], p = u.prev, st = p < 60 ? 1 : p < 150 ? 2 : p < 300 ? 5 : p < 800 ? 10 : p < 1600 ? 20 : p < 3500 ? 50 : p < 8000 ? 100 : 250;
+  return {sym, name: sym, kind: 'stock', sec: u.sec, spot0: u.px[0], prev: p, step: st, lot: u.lot, half: Math.max(4, Math.min(10, Math.floor(u.px[0] / st) - 2)), iv0: u.iv[0] / 100, dte: 18, exp: '28 Oct', seed: hashS(sym) % 9973 + 3, vol: 0, bias: 0, base: u.cb, smile: [2, 30], px: u.px};
+}
 const DATA = {};
 const getData = sym => DATA[sym] || (DATA[sym] = gen(sym));
 
-function gen(sym) {
-  const c = CFG[sym], r = mulberry32(c.seed * 7919 + 13), K = 2 * c.half + 1, st = c.step;
+function simCore(c, seed) {
+  const r = mulberry32(seed), K = 2 * c.half + 1, st = c.step;
   const atm0 = Math.round(c.spot0 / st) * st;
   const strikes = Array.from({length: K}, (_, i) => atm0 + (i - c.half) * st);
   const spot = new Float64Array(N + 1), hi = new Float64Array(N + 1), lo = new Float64Array(N + 1);
-  const segs = []; for (let b = 0; b < N;) { const len = 45 + Math.floor(r() * 95); segs.push({end: b + len, mu: c.bias + gauss(r) * c.vol * 0.11}); b += len; }
-  spot[0] = hi[0] = lo[0] = c.spot0;
-  for (let t = 1, si = 0; t <= N; t++) {
-    while (segs[si].end < t) si++;
-    const v = c.vol * (t < 25 ? 1.7 : t > 345 ? 1.3 : 1);
-    spot[t] = spot[t - 1] * (1 + segs[si].mu + v * gauss(r));
-    const w = Math.abs(gauss(r)) * v * spot[t] * 0.6;
-    hi[t] = Math.max(spot[t], spot[t - 1]) + w * r(); lo[t] = Math.min(spot[t], spot[t - 1]) - w * r();
+  if (c.px) {
+    spot.set(c.px); hi[0] = lo[0] = spot[0];
+    for (let t = 1; t <= N; t++) { const w = Math.abs(spot[t] - spot[t - 1]) * 0.5 + spot[t] * 0.0004 * r(); hi[t] = Math.max(spot[t], spot[t - 1]) + w * r(); lo[t] = Math.min(spot[t], spot[t - 1]) - w * r(); }
+  } else {
+    const segs = []; for (let b = 0; b < N;) { const len = 45 + Math.floor(r() * 95); segs.push({end: b + len, mu: c.bias + gauss(r) * c.vol * 0.11}); b += len; }
+    spot[0] = hi[0] = lo[0] = c.spot0;
+    for (let t = 1, si = 0; t <= N; t++) {
+      while (segs[si].end < t) si++;
+      const v = c.vol * (t < 25 ? 1.7 : t > 345 ? 1.3 : 1);
+      spot[t] = spot[t - 1] * (1 + segs[si].mu + v * gauss(r));
+      const w = Math.abs(gauss(r)) * v * spot[t] * 0.6;
+      hi[t] = Math.max(spot[t], spot[t - 1]) + w * r(); lo[t] = Math.min(spot[t], spot[t - 1]) - w * r();
+    }
   }
   const bonus = strikes.map(x => x % (st * 10) === 0 ? 1.9 : x % (st * 2) === 0 ? 1.25 : 1);
   const cO = new Float64Array((N + 1) * K), pO = new Float64Array((N + 1) * K), cV = new Float64Array((N + 1) * K), pV = new Float64Array((N + 1) * K);
@@ -495,19 +592,44 @@ function gen(sym) {
       pV[i] = pV[j] + Math.abs(wp) * 5 + c.base * 0.03 * burst * (near * 0.9 + 0.1) * (0.5 + r());
     }
   }
+  return {K, strikes, spot, hi, lo, cO, pO, cV, pV};
+}
+
+function gen(sym) {
+  const c = CFG[sym] || (CFG[sym] = stockCfg(sym));
+  const core = simCore(c, c.seed * 7919 + 13), {K, strikes, spot, hi, lo} = core;
   const dayHi = new Float64Array(N + 1), dayLo = new Float64Array(N + 1);
   for (let t = 0; t <= N; t++) { dayHi[t] = Math.max(t ? dayHi[t - 1] : -Infinity, hi[t]); dayLo[t] = Math.min(t ? dayLo[t - 1] : Infinity, lo[t]); }
-  const D = {c, sym, K, strikes, spot, hi, lo, dayHi, dayLo, cO, pO, cV, pV, prevC: new Float64Array(K), prevP: new Float64Array(K), snaps: [], events: []};
+  const D = {c, sym, ...core, dayHi, dayLo, prevC: new Float64Array(K), prevP: new Float64Array(K), snaps: [], events: []};
   for (let k = 0; k < K; k++) {
     const x = strikes[k], m = Math.log(x / c.prev), iv = c.iv0 * 1.03 * (1 - c.smile[0] * m + c.smile[1] * m * m);
     D.prevC[k] = bs(c.prev, x, (c.dte + 1) / 365, iv, true).p; D.prevP[k] = bs(c.prev, x, (c.dte + 1) / 365, iv * 1.015, false).p;
   }
   for (let t = 0; t <= N; t++) D.snaps[t] = snapAt(D, t, spot[t], t);
   D.ser = {pcr: D.snaps.map(s => s.pcr), gex: D.snaps.map(s => s.gex), mp: D.snaps.map(s => s.maxPain), iv: D.snaps.map(s => s.cIV[s.atmK])};
-  confirmWalls(D); moreEvents(D);
-  if (sym === 'NIFTY') D.stocks = mkStocks(D, NIFTY50);
-  if (sym === 'BANKNIFTY') D.stocks = mkStocks(D, BANK14);
+  Object.assign(D, wallsFrom(D, sym, D.events)); moreEvents(D);
   return D;
+}
+
+function buildUniverse() {
+  const DN = getData('NIFTY'), DB = getData('BANKNIFTY');
+  for (const [sec, list] of Object.entries(FNO)) for (const sym of list.split(' ')) {
+    const r = mulberry32(hashS(sym)), prev = PX0[sym] || Math.round(Math.exp(Math.log(90) + r() * Math.log(6000 / 90)));
+    const reg = Math.floor(r() * 5), beta = 0.25 + r() * 0.55;
+    const idD = [0.007, -0.009, 0.005, -0.007, 0][reg] * (0.6 + 0.8 * r()), oiD = [0.012, 0.012, -0.01, -0.01, 0.001][reg] * (0.4 + r());
+    const IX = sec === 'Banks' ? DB : DN, unusual = r() < 0.12;
+    const pct = new Float32Array(N + 1), px = new Float64Array(N + 1), oi = new Float64Array(N + 1), iv = new Float32Array(N + 1), pcr = new Float32Array(N + 1), vol = new Float64Array(N + 1);
+    const lot = niceLot(prev), oi0 = Math.round(15000 + r() * 90000), avgVol = oi0 * (0.35 + r() * 0.5);
+    let id = gauss(r) * 0.5, op = 0, ivv = 18 + r() * 22, pc = 0.5 + r() * 0.7;
+    for (let t = 0; t <= N; t++) {
+      if (t) { id += idD + gauss(r) * 0.035; op += oiD + gauss(r) * 0.025; ivv = Math.max(8, ivv + gauss(r) * 0.06 + (idD < 0 ? 0.004 : -0.002)); pc = clamp(pc + gauss(r) * 0.006 + Math.sign(idD) * 0.0006, 0.2, 2.2); }
+      pct[t] = beta * (IX.spot[t] / IX.c.prev - 1) * 100 + id; px[t] = prev * (1 + pct[t] / 100); oi[t] = oi0 * (1 + op / 100); iv[t] = ivv; pcr[t] = pc;
+      vol[t] = (t ? vol[t - 1] : 0) + avgVol / N * (t < 20 ? 2.4 : t > 340 ? 1.6 : 1) * (0.5 + r()) * (1 + Math.abs(t ? pct[t] - pct[t - 1] : 0) * 6) * (unusual ? 2.6 : 1);
+    }
+    U[sym] = {s: sym, sec, prev, lot, pct, px, oi, iv, pcr, vol, avgVol, unusual, cb: oi0 * 0.18};
+    UL.push(U[sym]);
+  }
+  DN.stocks = NIFTY50.map(x => ({s: x, p: U[x].pct})); DB.stocks = BANK14.map(x => ({s: x, p: U[x].pct}));
 }
 
 function snapAt(D, tt, S, tOI) {
@@ -542,11 +664,12 @@ function snapAt(D, tt, S, tOI) {
   return s;
 }
 
-function confirmWalls(D) {
-  const sn = D.snaps;
+function wallsFrom(core, sym, events) {
+  const {K, strikes, cO, pO} = core, out = {};
   for (const side of ['S', 'R']) {
-    const raw = t => side === 'S' ? sn[t].rawS : sn[t].rawR;
-    const chg = (t, k) => side === 'S' ? sn[t].pChg[k] : sn[t].cChg[k];
+    const A = side === 'S' ? pO : cO;
+    const chg = (t, k) => A[t * K + k] - A[k];
+    const raw = t => { let b = -1, bv = 0; for (let k = 0; k < K; k++) { const v = chg(t, k); if (v > bv) { bv = v; b = k; } } if (b < 0) { b = 0; for (let k = 1; k < K; k++) if (A[t * K + k] > A[t * K + b]) b = k; } return b; };
     const ser = new Int16Array(N + 1), fk = new Int16Array(N + 1).fill(-1), fn = new Int8Array(N + 1);
     let cur = raw(3), cand = -1, cnt = 0;
     for (let t = 0; t <= N; t++) {
@@ -558,8 +681,8 @@ function confirmWalls(D) {
             if (cand === rw) cnt++; else { cand = rw; cnt = 1; }
             if (cnt >= 3) {
               const unw = chg(t, cur) < chg(Math.max(0, t - 10), cur) * 0.97;
-              let second = 0; for (let k = 0; k < D.K; k++) if (k !== rw) second = Math.max(second, chg(t, k));
-              D.events.push({t, sym: D.sym, type: 'shift', side, from: D.strikes[cur], to: D.strikes[rw], kind: unw ? 'old wall unwinding' : 'fresh writing', ratio: second > 0 ? nv / second : 0, tone: D.strikes[rw] > D.strikes[cur] ? 'up' : 'down'});
+              let second = 0; for (let k = 0; k < K; k++) if (k !== rw) second = Math.max(second, chg(t, k));
+              events.push({t, sym, type: 'shift', side, from: strikes[cur], to: strikes[rw], kind: unw ? 'old wall unwinding' : 'fresh writing', ratio: second > 0 ? nv / second : 0, tone: strikes[rw] > strikes[cur] ? 'up' : 'down'});
               cur = rw; cand = -1; cnt = 0;
             }
           } else { cand = -1; cnt = 0; }
@@ -567,8 +690,9 @@ function confirmWalls(D) {
       }
       ser[t] = cur; fk[t] = cand; fn[t] = cnt;
     }
-    D['wall' + side] = {ser, fk, fn};
+    out['wall' + side] = {ser, fk, fn};
   }
+  return out;
 }
 function moreEvents(D) {
   const sn = D.snaps, st = D.c.step;
@@ -588,10 +712,6 @@ function moreEvents(D) {
     const g = Math.sign(s.gex); if (g !== 0 && g !== gs) { if (t > 5) D.events.push({t, sym: D.sym, type: 'gex', dir: g, val: s.gex, tone: g > 0 ? 'acc' : 'warn'}); gs = g; }
   }
   D.events.sort((a, b) => a.t - b.t);
-}
-function mkStocks(D, list) {
-  const r = mulberry32(D.c.seed * 31 + 7);
-  return list.map(s => { const beta = 0.5 + r() * 0.9, p = new Float32Array(N + 1); let id = gauss(r) * 0.55; for (let t = 0; t <= N; t++) { if (t) id += gauss(r) * 0.03; p[t] = beta * (D.spot[t] / D.c.prev - 1) * 100 + id; } return {s, p}; });
 }
 function state(D, tf) {
   const t0 = Math.min(N, Math.floor(tf)), a = tf - t0, t1 = Math.min(N, t0 + 1);
@@ -647,8 +767,10 @@ function eventsUpTo(syms, t) { const out = []; for (const s of syms) for (const 
 /* ================= app state ================= */
 const app = {page: 'overview', sym: 'NIFTY', structSym: 'NIFTY', edge: 150, tf: 150, mode: 'live', playing: true, speed: 1, lastMin: -1,
   rules: {shift: true, test: true, pcr: true, unwind: true, gex: true}, chainRange: 12, chainDesc: true, heatMode: 'net', layers: {walls: true, mp: true, writing: true},
-  oiIv: 3, oiTab: 'all', oiBase: {}, legs: null, legsSym: null, selTrade: 0, alertSym: 'ALL', stdStrike: {}};
-try { const th = localStorage.getItem('poi-theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+  oiIv: 3, oiTab: 'all', oiBase: {}, legs: null, legsSym: null, selTrade: 0, alertSym: 'ALL', stdStrike: {},
+  scan: {cat: 'ALL', sec: 'ALL', q: '', unusual: false, sort: 'oc', dir: -1}, bt: {sym: 'NIFTY', H: 30, sig: 'S-up'}, sound: {beep: false, voice: false}};
+let THEME = 'auto'; try { THEME = localStorage.getItem('poi-theme') || 'auto'; } catch (e) {}
+if (THEME !== 'auto') document.documentElement.dataset.theme = THEME;
 
 /* ================= icons / nav ================= */
 const IC = {
@@ -657,18 +779,23 @@ const IC = {
   candles: 'M7 3v4M7 17v4M5 7h4v10H5zM17 3v6M17 15v6M15 9h4v6h-4z', gamma: 'M5 5c4 0 5 6 7 14M19 5c-3 0-5 4-7 9', clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 3',
   payoff: 'M3 18h6l6-12h6M3 12h18', book: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM9 8h6M9 12h6', bell: 'M6 16v-5a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
   map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
+  radar: 'M12 12l6-6M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5', flask: 'M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M7.5 15h9',
+  wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-4v4M16 13h2',
 };
 const PAGES = [
   {id: 'overview', label: 'Overview', ic: 'grid', grp: 'Live market'},
   {id: 'chain', label: 'Option Chain', ic: 'table'},
   {id: 'oi', label: 'OI Analysis', ic: 'layers'},
   {id: 'heatmap', label: 'OI Heatmap', ic: 'heat', isNew: 1},
+  {id: 'scanner', label: 'F&O Scanner', ic: 'radar', isNew: 1},
   {id: 'structure', label: 'Market Structure', ic: 'pulse'},
   {id: 'chart', label: 'Chart + Walls', ic: 'candles', isNew: 1, grp: 'Deep dive'},
   {id: 'gex', label: 'GEX & Greeks', ic: 'gamma', isNew: 1},
   {id: 'straddle', label: 'Straddle & Expiry', ic: 'clock'},
   {id: 'strategy', label: 'Strategy Builder', ic: 'payoff', isNew: 1},
-  {id: 'journal', label: 'Journal + OI', ic: 'book', isNew: 1, grp: 'Your trading'},
+  {id: 'backtest', label: 'Signal Backtest', ic: 'flask', isNew: 1},
+  {id: 'paper', label: 'Paper Trading', ic: 'wallet', isNew: 1, grp: 'Your trading'},
+  {id: 'journal', label: 'Journal + OI', ic: 'book', isNew: 1},
   {id: 'alerts', label: 'Alerts', ic: 'bell', isNew: 1},
   {id: 'blueprint', label: 'Blueprint', ic: 'map', grp: 'Plan'},
 ];
@@ -733,6 +860,73 @@ const MODS = {};
 const phead = (t, p, tools = '') => `<div class="phead"><div><h1>${t}</h1><p>${p}</p></div><div class="ptools">${tools}</div></div>`;
 const symLabel = () => `<span class="pill acc">${app.sym}</span>`;
 
+/* ---- live prices for paper trading (always at the live edge, not the replay cursor) ---- */
+let LC = {};
+const liveSt = sym => LC[sym] || (LC[sym] = state(getData(sym), Math.min(app.edge, N)));
+
+/* ---- paper trading engine + risk manager ---- */
+const paper = {start: 500000, realized: 0, pos: [], log: [], closed: [], trades: 0, streak: 0, coolUntil: -1, locked: false, hist: [], disc: 100,
+  risk: {maxLoss: 10000, maxTrades: 10, maxLots: 5, cool: true}};
+let pid = 1;
+const posQty = p => p.lots * p.lot, posSg = p => p.side === 'B' ? 1 : -1;
+function posLtp(p) { const s = liveSt(p.sym), k = getData(p.sym).strikes.indexOf(p.strike); return p.type === 'CE' ? s.cP[k] : s.pP[k]; }
+const posPnl = p => (posLtp(p) - p.avg) * posQty(p) * posSg(p);
+const marginRate = sym => isStock(sym) ? 0.18 : 0.12;
+const blocked = p => p.side === 'B' ? p.avg * posQty(p) : liveSt(p.sym).S * posQty(p) * marginRate(p.sym);
+function paperStats() { const unreal = paper.pos.reduce((a, p) => a + posPnl(p), 0), used = paper.pos.reduce((a, p) => a + blocked(p), 0); return {unreal, used, day: paper.realized + unreal, avail: paper.start + paper.realized - used}; }
+function plog(text, status, tone) { paper.log.unshift({t: app.edge, text, status, tone}); }
+function placeOrder(o) {
+  const R = paper.risk, label = `${o.side === 'B' ? 'BUY' : 'SELL'} ${o.sym} ${o.strike} ${o.type} × ${o.lots}`;
+  const reject = why => { plog(label, 'Rejected', 'dn'); plog(why, 'Reason', 'dn'); paper.disc = Math.max(0, paper.disc - 8); return why; };
+  if (app.mode !== 'live') return reject('Replay mode mein order nahi lagta. Live par jao.');
+  if (paper.locked) return reject('Daily loss limit hit. Aaj naye orders band hain.');
+  if (paper.coolUntil > app.edge) return reject(`Cooldown ${tl(paper.coolUntil)} tak (lagatar 2 loss).`);
+  if (paper.trades >= R.maxTrades) return reject(`Aaj ke max ${R.maxTrades} trades ho chuke.`);
+  if (o.lots > R.maxLots) return reject(`Ek order mein max ${R.maxLots} lots.`);
+  const D = getData(o.sym), s = liveSt(o.sym), k = D.strikes.indexOf(o.strike), px = o.type === 'CE' ? s.cP[k] : s.pP[k], qty = o.lots * D.c.lot;
+  const need = o.side === 'B' ? px * qty : s.S * qty * marginRate(o.sym);
+  if (need > paperStats().avail) return reject(`Margin kam hai. Chahiye ₹${inr(need)}.`);
+  const p = {id: pid++, sym: o.sym, type: o.type, strike: o.strike, side: o.side, lots: o.lots, lot: D.c.lot, avg: px, t: app.edge, sl: o.sl || null, tgt: o.tgt || null};
+  paper.pos.push(p); paper.trades++;
+  if (!p.sl) { paper.disc = Math.max(0, paper.disc - 5); }
+  plog(`${label} @ ${inr2(px)}${p.sl ? '' : ' · bina SL'}`, 'Filled', o.side === 'B' ? 'up' : 'dn');
+  return null;
+}
+function exitPos(id, why = 'Exit') {
+  const i = paper.pos.findIndex(p => p.id === id); if (i < 0) return;
+  const p = paper.pos[i], px = posLtp(p), pnl = (px - p.avg) * posQty(p) * posSg(p);
+  paper.pos.splice(i, 1); paper.realized += pnl; paper.closed.push({...p, exit: px, te: app.edge, pnl, why});
+  paper.streak = pnl < 0 ? paper.streak + 1 : 0;
+  plog(`${why}: ${p.sym} ${p.strike} ${p.type} @ ${inr2(px)}`, sgn(pnl), pnl >= 0 ? 'up' : 'dn');
+  if (paper.risk.cool && paper.streak >= 2) { paper.coolUntil = app.edge + 10; paper.streak = 0; plog('Lagatar 2 loss. 10 minute ka break.', 'Cooldown', 'warn'); }
+}
+function paperTick() {
+  LC = {};
+  for (const p of [...paper.pos]) {
+    const px = posLtp(p), b = p.side === 'B';
+    if (p.sl && (b ? px <= p.sl : px >= p.sl)) exitPos(p.id, 'SL hit');
+    else if (p.tgt && (b ? px >= p.tgt : px <= p.tgt)) exitPos(p.id, 'Target hit');
+  }
+  if (!paper.pos.length && !paper.closed.length) return;
+  const st = paperStats();
+  if (!paper.locked && st.day <= -paper.risk.maxLoss) { paper.locked = true; paper.disc = Math.max(0, paper.disc - 20); plog(`Day loss ₹${inr(-st.day)} ne limit cross ki. Naye orders band.`, 'Locked', 'dn'); }
+  const m = Math.floor(app.edge), last = paper.hist[paper.hist.length - 1];
+  if (!last || last[0] !== m) paper.hist.push([m, st.day]); else last[1] = st.day;
+}
+
+/* ---- F&O scanner rows ---- */
+const BU = {LB: 'Long buildup', SB: 'Short buildup', SC: 'Short covering', LU: 'Long unwinding', NT: 'Neutral'};
+const BU_COL = {LB: 'var(--put)', SB: 'var(--call)', SC: 'color-mix(in srgb,var(--put) 50%,var(--panel))', LU: 'color-mix(in srgb,var(--call) 50%,var(--panel))', NT: 'var(--faint)'};
+function scanRows(tf) {
+  const t0 = Math.min(N, Math.floor(tf)), a = Math.min(tf, N) - t0, t1 = Math.min(N, t0 + 1);
+  return UL.map(u => {
+    const p = lerp(u.pct[t0], u.pct[t1], a), px = lerp(u.px[t0], u.px[t1], a), oi = u.oi[t0], oc = (oi / u.oi[0] - 1) * 100;
+    const bu = Math.abs(p) < 0.1 && Math.abs(oc) < 0.4 ? 'NT' : p >= 0 ? (oc >= 0 ? 'LB' : 'SC') : (oc >= 0 ? 'SB' : 'LU');
+    return {s: u.s, sec: u.sec, px, p, oi, oc, bu, iv: u.iv[t0], ivc: u.iv[t0] - u.iv[0], pcr: u.pcr[t0], vx: u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
+  });
+}
+const symOptions = () => `<optgroup label="Indices"><option>NIFTY</option><option>BANKNIFTY</option></optgroup>` + Object.entries(FNO).map(([sec, list]) => `<optgroup label="${sec}">${list.split(' ').map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('')}</optgroup>`).join('');
+
 /* ---- Overview ---- */
 MODS.overview = {
   mount(v) {
@@ -747,8 +941,11 @@ MODS.overview = {
         <section class="card"><div class="card-h"><h3>Live alerts</h3><button class="ibtn" data-go="alerts" style="margin-left:auto">All</button></div><div class="card-b" id="ovFeed"></div></section>
         <section class="card"><div class="card-h"><h3>Breadth · NIFTY 50</h3></div><div class="card-b" id="ovBreadth"></div></section>
         <section class="card span2"><div class="card-h"><h3>Biggest writing today · NIFTY</h3><span class="sub">Kis strike par sabse zyada nayi position bani</span></div><div class="card-b grid g2" id="ovWrite"></div></section>
+        <section class="card span2"><div class="card-h"><h3>F&amp;O pulse · buildups</h3><span class="sub">OI ke saath sabse bade move</span><button class="ibtn" data-go="scanner" style="margin-left:auto">Scanner</button></div><div class="card-b grid g2" id="ovBu"></div></section>
+        <section class="card"><div class="card-h"><h3>Paper trading</h3><button class="ibtn" data-go="paper" style="margin-left:auto">Open</button></div><div class="card-b" id="ovPaper"></div></section>
       </div>`;
-    v.querySelector('[data-go]').onclick = () => go('alerts');
+    v.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+    $('#ovBu').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSymGo(b.dataset.s, 'chain'); };
     this.aiSlot = -1;
   },
   update(ctx) {
@@ -806,6 +1003,13 @@ MODS.overview = {
     setText($('#adUt'), `${up} up`); setText($('#adFt'), `${fl} flat`); setText($('#adDt'), `${dn} down`);
     const so = [...st].sort((x, y) => y.p - x.p), g = so.slice(0, 3), l = so.slice(-3).reverse();
     $('#mvList').innerHTML = [0, 1, 2].map(i => `<div><span>${esc(g[i].s)}</span><b class="up">${pct(g[i].p)}</b></div><div><span>${esc(l[i].s)}</span><b class="dn">${pct(l[i].p)}</b></div>`).join('');
+    if (ctx.minuteChanged || this.dirty) {
+      const rows = scanRows(ctx.tf), top = c => rows.filter(r => r.bu === c).sort((a, b) => b.oc - a.oc).slice(0, 5);
+      const li = list => list.map(r => `<button class="bul" data-s="${esc(r.s)}"><span>${esc(r.s)}</span><b class="${r.p >= 0 ? 'up' : 'dn'}">${pct(r.p)}</b><b class="mut">OI ${pct(r.oc, 1)}</b></button>`).join('') || '<p class="empty">Abhi koi nahi</p>';
+      $('#ovBu').innerHTML = `<div><div class="kv"><span class="bu LB">Long buildup</span><span class="mut">${rows.filter(r => r.bu === 'LB').length} stocks</span></div>${li(top('LB'))}</div><div><div class="kv"><span class="bu SB">Short buildup</span><span class="mut">${rows.filter(r => r.bu === 'SB').length} stocks</span></div>${li(top('SB'))}</div>`;
+    }
+    const ps = paperStats();
+    $('#ovPaper').innerHTML = `<div class="bigv ${ps.day >= 0 ? 'up' : 'dn'}">${sgn(ps.day)}</div><div class="mut" style="font-size:12px;margin-bottom:10px">Day P&amp;L · virtual ₹${inr(paper.start)}</div><div class="kv"><span>Open positions</span><b>${paper.pos.length}</b></div><div class="kv"><span>Trades used</span><b>${paper.trades} / ${paper.risk.maxTrades}</b></div><div class="kv"><span>Loss limit used</span><b>${clamp(Math.round(-ps.day / paper.risk.maxLoss * 100), 0, 100)}%</b></div>${paper.locked ? '<div class="lock" style="margin-top:8px">Aaj ka trading band (loss limit)</div>' : ''}`;
     this.dirty = false;
   },
 };
@@ -1264,6 +1468,276 @@ MODS.strategy = {
   },
 };
 
+/* ---- F&O scanner ---- */
+MODS.scanner = {
+  mount(v) {
+    const f = app.scan;
+    v.innerHTML = phead('F&amp;O Scanner', `Saare ${UL.length} F&amp;O stocks ek jagah. Price aur OI saath dekh ke pata chalta hai ki naye buyers aa rahe hain, naye sellers, ya log position kaat rahe hain.`,
+      `<input class="srch" id="scQ" placeholder="Stock search…" value="${esc(f.q)}" aria-label="Search stock"><select class="sel" id="scSec" aria-label="Sector"><option value="ALL">All sectors</option>${Object.keys(FNO).map(x => `<option ${f.sec === x ? 'selected' : ''}>${x}</option>`).join('')}</select><button class="ibtn" id="scUn" aria-pressed="${f.unusual}">⚡ Unusual volume</button>`) +
+      `<div class="cats" id="scCats" style="margin-bottom:12px"></div>
+      <div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>Buildup map</h3><span class="sub">X = price change · Y = OI change · bada gola = zyada volume</span></div><div class="card-b"><div class="chart map" id="scMap"></div></div></section>
+        <section class="card"><div class="card-h"><h3>Sectors</h3><span class="sub">Avg change · long/short buildup</span></div><div class="card-b"><div class="secs" id="scSecs"></div></div></section>
+        <section class="card span3"><div class="card-h"><h3>Stocks</h3><span class="sub" id="scCnt"></span><span class="sub" style="margin-left:auto">Column heading par click = sort</span></div><div class="tw" style="max-height:620px;overflow:auto" id="scTbl"></div></section>
+      </div>
+      <p class="note">Row ya gole par click karo, us stock ki option chain khul jaayegi. Long buildup = price ↑ OI ↑ · Short buildup = price ↓ OI ↑ · Short covering = price ↑ OI ↓ · Long unwinding = price ↓ OI ↓</p>`;
+    const again = () => { this.dirty = true; this.update(lastCtx); };
+    $('#scQ').oninput = e => { f.q = e.target.value; again(); };
+    $('#scSec').onchange = e => { f.sec = e.target.value; again(); };
+    $('#scUn').onclick = e => { f.unusual = !f.unusual; e.currentTarget.setAttribute('aria-pressed', f.unusual); again(); };
+    $('#scCats').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { f.cat = b.dataset.c; again(); } };
+    $('#scSecs').onclick = e => { const b = e.target.closest('[data-sec]'); if (b) { f.sec = f.sec === b.dataset.sec ? 'ALL' : b.dataset.sec; $('#scSec').value = f.sec; again(); } };
+    $('#scTbl').onclick = e => {
+      const th = e.target.closest('[data-k]');
+      if (th) { if (f.sort === th.dataset.k) f.dir *= -1; else { f.sort = th.dataset.k; f.dir = th.dataset.k === 's' ? 1 : -1; } again(); return; }
+      const tr = e.target.closest('tr[data-s]'); if (tr) setSymGo(tr.dataset.s, 'chain');
+    };
+    this.mapBuilt = false; this.refs = {};
+  },
+  match(r) { const f = app.scan; return (f.cat === 'ALL' || r.bu === f.cat) && (f.sec === 'ALL' || r.sec === f.sec) && (!f.q || r.s.includes(f.q.trim().toUpperCase())) && (!f.unusual || r.vx >= 2); },
+  update(ctx) {
+    const rows = scanRows(ctx.tf), f = app.scan;
+    if (ctx.minuteChanged || this.dirty) {
+      const cnt = {ALL: rows.length}; for (const r of rows) cnt[r.bu] = (cnt[r.bu] || 0) + 1;
+      $('#scCats').innerHTML = ['ALL', 'LB', 'SB', 'SC', 'LU', 'NT'].map(c => `<button class="cat" data-c="${c}" aria-pressed="${f.cat === c}">${c === 'ALL' ? 'All stocks' : `<span class="bu ${c}">${BU[c]}</span>`}<b>${cnt[c] || 0}</b></button>`).join('');
+      const secs = Object.keys(FNO).map(x => { const rs = rows.filter(r => r.sec === x); return {x, avg: rs.reduce((a, r) => a + r.p, 0) / rs.length, lb: rs.filter(r => r.bu === 'LB').length, sb: rs.filter(r => r.bu === 'SB').length}; }).sort((a, b) => b.avg - a.avg);
+      $('#scSecs').innerHTML = secs.map(x => `<button class="sec" data-sec="${x.x}" aria-pressed="${f.sec === x.x}" style="background:color-mix(in srgb,var(${x.avg >= 0 ? '--put' : '--call'}) ${Math.round(clamp(Math.abs(x.avg) / 2, 0.06, 0.7) * 60)}%,var(--panel))"><b>${x.x}</b><span>${pct(x.avg)} · ${x.lb}/${x.sb}</span></button>`).join('');
+      const list = rows.filter(r => this.match(r)).sort((a, b) => { const x = a[f.sort], y = b[f.sort]; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * f.dir; });
+      setText($('#scCnt'), `${list.length} of ${rows.length}`);
+      const th = (k, l, cls = '') => `<th class="${cls}"><button class="thb" data-k="${k}">${l}${f.sort === k ? (f.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
+      const box = $('#scTbl'), sc = box.scrollTop;
+      box.innerHTML = list.length ? `<table class="tbl scan" style="min-width:860px"><thead><tr>${th('s', 'Symbol', 'l')}${th('px', 'LTP')}${th('p', 'Chg %')}${th('oi', 'Fut OI')}${th('oc', 'OI chg %')}<th class="c">Buildup</th>${th('iv', 'IV')}${th('pcr', 'PCR')}${th('vx', 'Volume ×')}</tr></thead><tbody>${list.map(r => `<tr data-s="${esc(r.s)}"><td class="l"><b>${esc(r.s)}</b> <span class="mut" style="font-family:var(--f-body);font-size:11px">${r.sec}</span></td><td><b class="v" data-px></b></td><td data-p></td><td>${inr(r.oi)}</td><td class="${r.oc >= 0 ? 'up' : 'dn'}">${pct(r.oc, 1)}</td><td class="c"><span class="bu ${r.bu}">${BU[r.bu]}</span></td><td>${r.iv.toFixed(1)} <span class="${r.ivc >= 0 ? 'up' : 'dn'}" style="font-size:10.5px">${sgn(r.ivc, x => x.toFixed(1))}</span></td><td>${r.pcr.toFixed(2)}</td><td class="${r.vx >= 2 ? 'amb' : ''}">${r.vx.toFixed(1)}×${r.vx >= 2 ? ' ⚡' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:14px">Is filter mein koi stock nahi. Filter badlo.</p>';
+      box.scrollTop = sc;
+      this.refs = {}; $$('#scTbl tr[data-s]').forEach(tr => this.refs[tr.dataset.s] = {px: tr.querySelector('[data-px]'), p: tr.querySelector('[data-p]')});
+      this.drawMap(rows);
+      this.dirty = false;
+    }
+    for (const r of rows) { const R = this.refs[r.s]; if (!R) continue; flash(R.px, +r.px.toFixed(2), inr2(r.px)); setText(R.p, pct(r.p)); R.p.className = r.p >= 0 ? 'up' : 'dn'; }
+  },
+  drawMap(rows) {
+    const el = $('#scMap'), w = Math.max(280, el.clientWidth), h = w < 560 ? 300 : 390, pl = 46, pb = 26, pt = 10, pr = 12;
+    this.mx = Math.max(this.mx || 1.5, ...rows.map(r => Math.abs(r.p) * 1.12)); this.my = Math.max(this.my || 3, ...rows.map(r => Math.abs(r.oc) * 1.12));
+    const X = v => pl + (v / this.mx + 1) / 2 * (w - pl - pr), Y = v => pt + (1 - (v / this.my + 1) / 2) * (h - pt - pb);
+    if (!this.mapBuilt || this.mw !== w) {
+      el.innerHTML = `<svg width="${w}" height="${h}" role="img" aria-label="Buildup map of F&amp;O stocks"><g id="mapBg"></g><g id="mapPts">${rows.map(r => `<circle data-s="${esc(r.s)}" r="4" cx="0" cy="0"/>`).join('')}</g></svg><div class="tip" id="mapTip" hidden></div>`;
+      this.mapBuilt = true; this.mw = w; this.pts = {}; $$('#mapPts circle').forEach(c => this.pts[c.dataset.s] = c);
+      const tip = $('#mapTip'), g = $('#mapPts');
+      g.onmousemove = e => { const c = e.target.closest('circle'); if (!c) { tip.hidden = true; return; } const r = this.last.find(x => x.s === c.dataset.s), b = el.getBoundingClientRect(); tip.innerHTML = `<b>${esc(r.s)}</b> · ${r.sec}<br>${inr2(r.px)} <span class="${r.p >= 0 ? 'up' : 'dn'}">${pct(r.p)}</span><br>OI ${pct(r.oc, 1)} · ${BU[r.bu]}`; tip.hidden = false; tip.style.left = clamp(e.clientX - b.left + 12, 0, b.width - 170) + 'px'; tip.style.top = (e.clientY - b.top + 12) + 'px'; };
+      g.onmouseleave = () => { tip.hidden = true; };
+      g.onclick = e => { const c = e.target.closest('circle'); if (c) setSymGo(c.dataset.s, 'chain'); };
+    }
+    this.last = rows;
+    const x0 = X(0), y0 = Y(0), quad = (x, y, ww, hh, c, o) => `<rect x="${x}" y="${y}" width="${Math.max(0, ww)}" height="${Math.max(0, hh)}" style="fill:var(${c});fill-opacity:${o}"/>`;
+    let bg = quad(x0, pt, w - pr - x0, y0 - pt, '--put', 0.07) + quad(pl, pt, x0 - pl, y0 - pt, '--call', 0.07) + quad(x0, y0, w - pr - x0, h - pb - y0, '--put', 0.025) + quad(pl, y0, x0 - pl, h - pb - y0, '--call', 0.025);
+    bg += `<line x1="${pl}" x2="${w - pr}" y1="${y0}" y2="${y0}" style="stroke:var(--line-2)"/><line x1="${x0}" x2="${x0}" y1="${pt}" y2="${h - pb}" style="stroke:var(--line-2)"/>`;
+    const lab = (x, y, t, a, c) => `<text class="axl" x="${x}" y="${y}" text-anchor="${a}" style="fill:var(${c});font-family:var(--f-body);font-weight:700;letter-spacing:.08em">${t}</text>`;
+    bg += lab(w - pr - 6, pt + 14, 'LONG BUILDUP', 'end', '--put') + lab(pl + 6, pt + 14, 'SHORT BUILDUP', 'start', '--call') + lab(w - pr - 6, h - pb - 8, 'SHORT COVERING', 'end', '--put') + lab(pl + 6, h - pb - 8, 'LONG UNWINDING', 'start', '--call');
+    for (const v of niceTicks(-this.mx, this.mx, 4)) bg += `<text class="axl" x="${X(v)}" y="${h - 8}" text-anchor="middle">${v > 0 ? '+' : ''}${v}%</text>`;
+    for (const v of niceTicks(-this.my, this.my, 4)) bg += `<text class="axl" x="${pl - 6}" y="${Y(v) + 3}" text-anchor="end">${v > 0 ? '+' : ''}${v}%</text>`;
+    $('#mapBg').innerHTML = bg;
+    for (const r of rows) { const c = this.pts[r.s]; if (!c) continue; c.style.transform = `translate(${X(r.p).toFixed(1)}px,${Y(r.oc).toFixed(1)}px)`; c.setAttribute('r', (3 + Math.min(r.vx, 4) * 1.3).toFixed(1)); c.style.fill = BU_COL[r.bu]; c.style.opacity = this.match(r) ? 0.88 : 0.1; }
+  },
+};
+
+/* ---- Paper trading + risk manager ---- */
+MODS.paper = {
+  mount(v) {
+    if (!this.o) this.o = {sym: app.sym, type: 'CE', side: 'B', lots: 1, strike: null};
+    this.sig = null; this.nc = -1; this.nl = -1;
+    const R = paper.risk;
+    v.innerHTML = phead('Paper Trading', 'Nakli ₹5 lakh, live bhaav (demo mein simulated). Har band trade apne aap Journal + OI mein judti hai, aur Risk Manager overtrading aur revenge trading rokta hai.', '<span class="pill warn">Virtual money</span>') +
+      `<div class="kpis">${['Capital', 'Available', 'Used margin', 'Realized P&amp;L', 'Open P&amp;L', 'Day P&amp;L'].map((l, i) => `<div class="card kpi"><span class="lab">${l}</span><span class="val" id="ptk${i}">—</span>${i === 5 ? '<div id="ptSp"></div>' : ''}</div>`).join('')}</div>
+      <div class="grid g3">
+        <section class="card"><div class="card-h"><h3>Order ticket</h3><span class="pill up" id="ptMode" style="margin-left:auto">Live</span></div><div class="card-b ticket">
+          <label class="field"><span>Symbol</span><select id="pt-sym">${symOptions()}</select></label>
+          <div class="sidebtn" id="pt-side" role="group" aria-label="Side"><button data-v="B">BUY</button><button data-v="S">SELL</button></div>
+          <div class="row2"><label class="field"><span>Type</span><select id="pt-type"><option>CE</option><option>PE</option></select></label><label class="field"><span>Strike</span><select id="pt-strike"></select></label></div>
+          <div class="row2"><label class="field"><span>Lots</span><input id="pt-lots" type="number" min="1" max="100" value="1"></label><label class="field"><span>LTP (live)</span><input id="pt-ltp" readonly></label></div>
+          <div class="row2"><label class="field"><span>Stop loss</span><input id="pt-sl" type="number" step="0.05" min="0" placeholder="Premium"></label><label class="field"><span>Target</span><input id="pt-tgt" type="number" step="0.05" min="0" placeholder="Premium"></label></div>
+          <div><div class="kv"><span>Quantity</span><b id="pt-qty">—</b></div><div class="kv"><span>Premium value</span><b id="pt-val">—</b></div><div class="kv"><span>Margin needed</span><b id="pt-mgn">—</b></div></div>
+          <div id="pt-lock"></div>
+          <button class="place" id="pt-go">Place order</button><div class="msg" id="pt-msg" role="status"></div>
+        </div></section>
+        <section class="card span2"><div class="card-h"><h3>Open positions</h3><div class="tools"><button class="ibtn" id="pt-exitall">Exit all</button></div></div><div class="tw" id="ptPos"></div>
+          <div class="card-h" style="border-top:1px solid var(--line)"><h3>Closed today</h3><button class="ibtn" data-go="journal" style="margin-left:auto">Journal mein dekho</button></div><div class="tw" id="ptClosed"></div></section>
+        <section class="card"><div class="card-h"><h3>Risk manager</h3></div><div class="card-b">
+          <label class="field"><span>Daily max loss (₹)</span><input id="pr-loss" type="number" step="500" min="500" value="${R.maxLoss}"></label>
+          <div class="row2" style="margin-top:8px"><label class="field"><span>Max trades / day</span><input id="pr-trades" type="number" min="1" value="${R.maxTrades}"></label><label class="field"><span>Max lots / order</span><input id="pr-lots" type="number" min="1" value="${R.maxLots}"></label></div>
+          <div class="rule"><b id="pr-cl">Cooldown after 2 losses</b><p>Lagatar 2 loss ke baad 10 minute ka break. Revenge trading se bachata hai.</p><button class="sw" role="switch" aria-labelledby="pr-cl" aria-checked="${R.cool}" id="pr-cool"></button></div>
+          <div class="kv"><span>Loss limit used</span><b id="pr-lu"></b></div><div class="meter"><i id="pr-lm"></i></div>
+          <div class="kv"><span>Trades used</span><b id="pr-tu"></b></div><div class="meter"><i id="pr-tm"></i></div>
+          <div class="kv"><span>Discipline score</span><b id="pr-ds"></b></div><div class="meter"><i id="pr-dm"></i></div>
+          <p class="note">Score girta hai: bina SL trade (−5), risk rule todne ki koshish (−8), loss limit hit (−20).</p>
+        </div></section>
+        <section class="card"><div class="card-h"><h3>Position size calculator</h3></div><div class="card-b ticket">
+          <div class="row2"><label class="field"><span>Capital (₹)</span><input id="ps-cap" type="number" step="10000" value="500000"></label><label class="field"><span>Risk per trade %</span><input id="ps-risk" type="number" step="0.25" min="0" value="1"></label></div>
+          <div class="row2"><label class="field"><span>Entry (premium)</span><input id="ps-en" type="number" step="0.05"></label><label class="field"><span>Stop loss (premium)</span><input id="ps-sl" type="number" step="0.05"></label></div>
+          <div><div class="kv"><span>Risk per lot</span><b id="ps-rl">—</b></div><div class="kv"><span>Max risk allowed</span><b id="ps-mr">—</b></div></div>
+          <div class="bigv acc" id="ps-lots">—</div><p class="note" id="ps-note" style="margin-top:0"></p>
+          <button class="ibtn" id="ps-use" style="justify-content:center">Ticket mein lagao</button>
+        </div></section>
+        <section class="card"><div class="card-h"><h3>Order log</h3></div><div class="card-b"><ul class="ob" id="ptLog"></ul></div></section>
+      </div>`;
+    const o = this.o, re = () => this.update(lastCtx);
+    $('#pt-sym').value = o.sym; $('#pt-type').value = o.type; $('#pt-lots').value = o.lots;
+    this.fillStrikes(); this.side(o.side);
+    $('#pt-sym').onchange = e => { o.sym = e.target.value; o.strike = null; this.fillStrikes(); this.prefill(); re(); };
+    $('#pt-type').onchange = e => { o.type = e.target.value; this.prefill(); re(); };
+    $('#pt-strike').onchange = e => { o.strike = +e.target.value; this.prefill(); re(); };
+    $('#pt-lots').oninput = e => { o.lots = clamp(Math.round(+e.target.value || 1), 1, 100); re(); };
+    $('#pt-side').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { this.side(b.dataset.v); this.prefill(); re(); } };
+    $('#pt-go').onclick = () => {
+      LC = {}; const sl = parseFloat($('#pt-sl').value) || null, tgt = parseFloat($('#pt-tgt').value) || null;
+      const err = placeOrder({sym: o.sym, type: o.type, strike: o.strike, side: o.side, lots: o.lots, sl, tgt}), m = $('#pt-msg');
+      m.textContent = err || 'Order fill ho gaya. Neeche positions mein dekho.'; m.className = 'msg ' + (err ? 'dn' : 'up'); re();
+    };
+    $('#pt-exitall').onclick = () => { LC = {}; [...paper.pos].forEach(p => exitPos(p.id, 'Exit all')); re(); };
+    $('#ptPos').onclick = e => { const b = e.target.closest('[data-x]'); if (b) { LC = {}; exitPos(+b.dataset.x); re(); } };
+    v.querySelector('[data-go="journal"]').onclick = () => go('journal');
+    $('#pr-loss').onchange = e => { paper.risk.maxLoss = Math.max(500, +e.target.value || 10000); e.target.value = paper.risk.maxLoss; re(); };
+    $('#pr-trades').onchange = e => { paper.risk.maxTrades = clamp(Math.round(+e.target.value || 10), 1, 100); e.target.value = paper.risk.maxTrades; re(); };
+    $('#pr-lots').onchange = e => { paper.risk.maxLots = clamp(Math.round(+e.target.value || 5), 1, 100); e.target.value = paper.risk.maxLots; re(); };
+    $('#pr-cool').onclick = e => { paper.risk.cool = !paper.risk.cool; e.currentTarget.setAttribute('aria-checked', paper.risk.cool); };
+    ['ps-cap', 'ps-risk', 'ps-en', 'ps-sl'].forEach(id => { $('#' + id).oninput = () => this.calc(); });
+    $('#ps-use').onclick = () => { if (!this.calcLots) return; o.lots = this.calcLots; $('#pt-lots').value = o.lots; $('#pt-sl').value = this.calcSl.toFixed(2); re(); };
+    this.prefill();
+  },
+  ltp() { const o = this.o, D = getData(o.sym), s = liveSt(o.sym), k = D.strikes.indexOf(o.strike); return k < 0 ? 0 : o.type === 'CE' ? s.cP[k] : s.pP[k]; },
+  fillStrikes() {
+    const o = this.o, D = getData(o.sym), s = liveSt(o.sym), lo = Math.max(0, s.atmK - 8), hi = Math.min(D.K - 1, s.atmK + 8);
+    if (o.strike == null || D.strikes.indexOf(o.strike) < lo || D.strikes.indexOf(o.strike) > hi) o.strike = D.strikes[s.atmK];
+    $('#pt-strike').innerHTML = D.strikes.slice(lo, hi + 1).map((x, i) => `<option value="${x}" ${x === o.strike ? 'selected' : ''}>${x}${lo + i === s.atmK ? ' (ATM)' : ''}</option>`).join('');
+  },
+  side(v) { this.o.side = v; $$('#pt-side button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); const g = $('#pt-go'); g.className = 'place ' + v; g.textContent = (v === 'B' ? 'BUY' : 'SELL') + ' · Place order'; },
+  prefill() { const l = this.ltp(); $('#ps-en').value = l.toFixed(2); $('#ps-sl').value = (this.o.side === 'B' ? l * 0.8 : l * 1.2).toFixed(2); this.calc(); },
+  calc() {
+    const D = getData(this.o.sym), cap = +$('#ps-cap').value || 0, rk = +$('#ps-risk').value || 0, en = +$('#ps-en').value || 0, sl = +$('#ps-sl').value || 0;
+    const rpl = Math.abs(en - sl) * D.c.lot, mr = cap * rk / 100, lots = rpl > 0 ? Math.floor(mr / rpl) : 0;
+    setText($('#ps-rl'), '₹' + inr(rpl)); setText($('#ps-mr'), '₹' + inr(mr)); setText($('#ps-lots'), `${lots} lot${lots === 1 ? '' : 's'}`);
+    setText($('#ps-note'), lots ? `SL hit hua to max loss ₹${inr(lots * rpl)} (${D.c.lot} qty per lot).` : 'Ek lot ka risk bhi limit se zyada hai. SL paas rakho ya risk % badhao.');
+    this.calcLots = lots; this.calcSl = sl;
+  },
+  renderPos() {
+    this.pr = {};
+    $('#ptPos').innerHTML = paper.pos.length ? `<table class="tbl"><thead><tr><th class="l">Instrument</th><th class="l">Side</th><th>Qty</th><th>Avg</th><th>LTP</th><th>P&amp;L</th><th>SL / Target</th><th></th></tr></thead><tbody>${paper.pos.map(p => `<tr data-id="${p.id}"><td class="l"><b>${esc(p.sym)}</b> ${p.strike} ${p.type}<br><span class="mut" style="font-size:10.5px">${tl(p.t)}</span></td><td class="l"><span class="bs ${p.side}">${p.side === 'B' ? 'BUY' : 'SELL'}</span></td><td>${inr(posQty(p))}</td><td>${inr2(p.avg)}</td><td><b class="v" data-l></b></td><td><b class="v" data-p></b></td><td class="mut">${p.sl ? inr2(p.sl) : '—'} / ${p.tgt ? inr2(p.tgt) : '—'}</td><td><button class="ibtn" data-x="${p.id}">Exit</button></td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:12px 14px">Abhi koi open position nahi. Ticket se pehla trade lo.</p>';
+    $$('#ptPos tr[data-id]').forEach(tr => { this.pr[tr.dataset.id] = {l: tr.querySelector('[data-l]'), p: tr.querySelector('[data-p]')}; });
+  },
+  renderClosed() {
+    $('#ptClosed').innerHTML = paper.closed.length ? `<table class="tbl"><thead><tr><th class="l">Instrument</th><th class="l">Side</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th class="l">Why</th></tr></thead><tbody>${[...paper.closed].reverse().map(p => `<tr><td class="l"><b>${esc(p.sym)}</b> ${p.strike} ${p.type} × ${p.lots}</td><td class="l"><span class="bs ${p.side}">${p.side === 'B' ? 'BUY' : 'SELL'}</span></td><td>${inr2(p.avg)} <span class="mut">@${tl(p.t)}</span></td><td>${inr2(p.exit)} <span class="mut">@${tl(p.te)}</span></td><td class="${p.pnl >= 0 ? 'up' : 'dn'}"><b>${sgn(p.pnl)}</b></td><td class="l mut">${esc(p.why)}</td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:12px 14px">Band ki hui trades yahan aayengi, aur Journal + OI mein bhi.</p>';
+  },
+  update(ctx) {
+    const o = this.o, D = getData(o.sym), s = liveSt(o.sym), ltp = this.ltp(), qty = o.lots * D.c.lot;
+    const le = $('#pt-ltp'), lt = inr2(ltp); if (le.value !== lt) le.value = lt;
+    setText($('#pt-qty'), `${inr(qty)} (${o.lots} × ${D.c.lot})`); setText($('#pt-val'), '₹' + inr(ltp * qty));
+    setText($('#pt-mgn'), '₹' + inr(o.side === 'B' ? ltp * qty : s.S * qty * marginRate(o.sym)));
+    const live = app.mode === 'live', cooling = paper.coolUntil > app.edge, mp = $('#ptMode');
+    mp.className = 'pill ' + (live ? 'up' : 'warn'); setText(mp, live ? 'Live' : 'Replay');
+    const lockTxt = paper.locked ? 'Daily loss limit hit. Aaj naye orders band hain, positions exit kar sakte ho.' : cooling ? `Cooldown ${tl(paper.coolUntil)} tak. Thoda ruk jao, saans lo.` : !live ? 'Replay chal raha hai. Order ke liye neeche "Live" dabao.' : '';
+    const lk = $('#pt-lock'); if (lk._t !== lockTxt) { lk.innerHTML = lockTxt ? `<div class="lock">${lockTxt}</div>` : ''; lk._t = lockTxt; }
+    $('#pt-go').disabled = !!lockTxt;
+    const st = paperStats();
+    [[0, paper.start], [0, st.avail], [0, st.used], [1, paper.realized], [1, st.unreal], [1, st.day]].forEach(([pl, val], i) => { const el = $('#ptk' + i); flash(el, Math.round(val), pl ? sgn(val) : '₹' + inr(val)); if (pl) { el.classList.toggle('up', val > 0); el.classList.toggle('dn', val < 0); } });
+    if (ctx.minuteChanged || this.dirty) $('#ptSp').innerHTML = spark(paper.hist.length > 1 ? paper.hist.map(x => x[1]) : [0, 0], st.day >= 0 ? 'var(--put)' : 'var(--call)', 1);
+    const sig = paper.pos.map(p => p.id).join(',');
+    if (sig !== this.sig) { this.sig = sig; this.renderPos(); }
+    for (const p of paper.pos) { const r = this.pr[p.id]; if (!r) continue; const px = posLtp(p), pl = posPnl(p); flash(r.l, px, inr2(px)); flash(r.p, Math.round(pl), sgn(pl)); r.p.classList.toggle('up', pl >= 0); r.p.classList.toggle('dn', pl < 0); }
+    if (paper.closed.length !== this.nc) { this.nc = paper.closed.length; this.renderClosed(); }
+    if (paper.log.length !== this.nl) { this.nl = paper.log.length; $('#ptLog').innerHTML = paper.log.map(l => `<li><span class="mono mut">${tl(l.t)}</span><span>${esc(l.text)}</span><span class="pill ${l.tone}">${esc(l.status)}</span></li>`).join('') || '<li><span></span><span class="empty">Abhi koi order nahi.</span><span></span></li>'; }
+    const R = paper.risk, lu = clamp(-st.day / R.maxLoss, 0, 1), tu = clamp(paper.trades / R.maxTrades, 0, 1);
+    setText($('#pr-lu'), `₹${inr(Math.max(0, -st.day))} / ₹${inr(R.maxLoss)}`); $('#pr-lm').style.cssText = `width:${lu * 100}%;background:var(${lu > 0.75 ? '--call' : lu > 0.4 ? '--amber' : '--put'})`;
+    setText($('#pr-tu'), `${paper.trades} / ${R.maxTrades}`); $('#pr-tm').style.cssText = `width:${tu * 100}%;background:var(${tu >= 1 ? '--call' : '--accent'})`;
+    setText($('#pr-ds'), `${paper.disc} / 100`); $('#pr-dm').style.cssText = `width:${paper.disc}%;background:var(${paper.disc >= 70 ? '--put' : paper.disc >= 40 ? '--amber' : '--call'})`;
+    this.dirty = false;
+  },
+};
+
+/* ---- Signal backtest ---- */
+const BT_DAYS = 30;
+let BT = null;
+const SIGNALS = [
+  {id: 'S-up', name: 'Support moved up', dir: 1, f: e => e.type === 'shift' && e.side === 'S' && e.tone === 'up'},
+  {id: 'S-dn', name: 'Support moved down', dir: -1, f: e => e.type === 'shift' && e.side === 'S' && e.tone === 'down'},
+  {id: 'R-up', name: 'Resistance moved up', dir: 1, f: e => e.type === 'shift' && e.side === 'R' && e.tone === 'up'},
+  {id: 'R-dn', name: 'Resistance moved down', dir: -1, f: e => e.type === 'shift' && e.side === 'R' && e.tone === 'down'},
+  {id: 'pcr-hi', name: 'PCR crossed above 1.25', dir: 1, f: e => e.type === 'pcr' && e.dir > 0},
+  {id: 'pcr-lo', name: 'PCR fell below 0.80', dir: -1, f: e => e.type === 'pcr' && e.dir < 0},
+  {id: 't-S', name: 'Spot testing support', dir: 1, f: e => e.type === 'test' && e.side === 'S'},
+  {id: 't-R', name: 'Spot testing resistance', dir: -1, f: e => e.type === 'test' && e.side === 'R'},
+];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function buildBacktest() {
+  if (BT) return BT;
+  const dates = [], d = new Date(2026, 9, 8);
+  while (dates.length < BT_DAYS) { if (d.getDay() !== 0 && d.getDay() !== 6) dates.unshift(`${pad(d.getDate())} ${MON[d.getMonth()]}`); d.setDate(d.getDate() - 1); }
+  BT = {dates, days: {}};
+  for (const sym of ['NIFTY', 'BANKNIFTY']) {
+    const base = CFG[sym];
+    const simDays = start => { const days = []; let prev = start;
+    for (let i = 0; i < BT_DAYS; i++) {
+      const r = mulberry32(hashS(sym + 'bt' + i)), open = prev * (1 + gauss(r) * 0.0035);
+      const c = {...base, spot0: open, prev, bias: gauss(r) * 0.00009};
+      const core = simCore(c, hashS(sym + 'core' + i)), evs = [], w = wallsFrom(core, sym, evs), K = core.K, st = c.step;
+      const pcrAt = t => { let sc = 0, sp = 0; for (let k = 0; k < K; k++) { sc += core.cO[t * K + k]; sp += core.pO[t * K + k]; } return sp / sc; };
+      let pcrSt = pcrAt(0) > 1.25 ? 1 : pcrAt(0) < 0.8 ? -1 : 0; const lastT = {S: -99, R: -99};
+      for (let t = 1; t <= N; t++) {
+        const pcr = pcrAt(t), S = core.spot[t];
+        if (pcr > 1.25 && pcrSt !== 1) { evs.push({t, type: 'pcr', dir: 1}); pcrSt = 1; } else if (pcr < 0.8 && pcrSt !== -1) { evs.push({t, type: 'pcr', dir: -1}); pcrSt = -1; } else if (pcr > 0.95 && pcr < 1.1) pcrSt = 0;
+        for (const side of ['S', 'R']) { const lvl = core.strikes[w['wall' + side].ser[t]]; if (Math.abs(S - lvl) <= 0.25 * st && t - lastT[side] > 30) { evs.push({t, type: 'test', side}); lastT[side] = t; } }
+      }
+      days.push({date: dates[i], spot: core.spot, evs}); prev = core.spot[N];
+    }
+    return {days, end: prev}; };
+    BT.days[sym] = simDays(base.prev * base.prev / simDays(base.prev).end).days;
+  }
+  return BT;
+}
+function btStats(sym, sg, H) {
+  const list = [];
+  for (const d of BT.days[sym]) for (const e of d.evs) if (sg.f(e) && e.t + H <= N) list.push({date: d.date, t: e.t, S: d.spot[e.t], mv: (d.spot[e.t + H] - d.spot[e.t]) * sg.dir});
+  const n = list.length, hits = list.filter(x => x.mv > 0).length, avg = n ? list.reduce((a, x) => a + x.mv, 0) / n : 0;
+  return {list, n, hits, rate: n ? hits / n * 100 : 0, avg, best: n ? Math.max(...list.map(x => x.mv)) : 0, worst: n ? Math.min(...list.map(x => x.mv)) : 0};
+}
+MODS.backtest = {
+  mount(v) {
+    buildBacktest(); const b = app.bt;
+    v.innerHTML = phead('Signal Backtest', `Kaunsa OI signal sach mein kaam karta hai? Pichhle ${BT_DAYS} din mein har signal ke baad market kidhar gaya, andaze se nahi, ginti se dekho.`,
+      `<div class="seg" id="btSym"><button data-s="NIFTY">NIFTY</button><button data-s="BANKNIFTY">BANKNIFTY</button></div><div class="seg" id="btH"><button data-h="15">15 min</button><button data-h="30">30 min</button><button data-h="60">60 min</button></div>`) +
+      `<div class="grid g3">
+        <section class="card span2"><div class="card-h"><h3>Signal scoreboard</h3><span class="sub" id="btSub"></span></div><div class="tw" id="btBoard"></div></section>
+        <section class="card"><div class="card-h"><h3 id="btTitle">Signal detail</h3></div><div class="card-b" id="btDetail"></div></section>
+        <section class="card span2"><div class="card-h"><h3>Move after signal</h3><span class="sub">Points, signal ki direction mein (+ = sahi gaya)</span></div><div class="card-b"><div class="chart" id="btHist"></div></div></section>
+        <section class="card"><div class="card-h"><h3>Har baar kya hua</h3></div><div class="tw" id="btList" style="max-height:330px;overflow:auto"></div></section>
+      </div><p class="note">Demo: ye history bhi simulated hai. Asli app mein 2+ saal ka real data hoga. Purana nateeja aage ki guarantee nahi hai.</p>`;
+    const seg = (id, key, attr) => $$(`#${id} button`).forEach(x => { x.setAttribute('aria-pressed', String(b[key]) === x.dataset[attr]); x.onclick = () => { b[key] = key === 'H' ? +x.dataset[attr] : x.dataset[attr]; $$(`#${id} button`).forEach(y => y.setAttribute('aria-pressed', y === x)); this.draw(); }; });
+    seg('btSym', 'sym', 's'); seg('btH', 'H', 'h');
+    $('#btBoard').onclick = e => { const r = e.target.closest('[data-sig]'); if (r) { b.sig = r.dataset.sig; this.draw(); } };
+  },
+  update() { if (this.dirty) { this.draw(); this.dirty = false; } },
+  draw() {
+    const b = app.bt, rows = SIGNALS.map(sg => ({sg, st: btStats(b.sym, sg, b.H)}));
+    setText($('#btSub'), `${b.sym} · ${BT_DAYS} din · signal ke ${b.H} min baad`);
+    const verdict = st => st.n < 5 ? ['Kam data', ''] : st.rate >= 60 ? ['Strong', 'up'] : st.rate >= 50 ? ['Okay', 'warn'] : ['Weak', 'dn'];
+    $('#btBoard').innerHTML = `<table class="tbl" style="min-width:640px"><thead><tr><th class="l">Signal</th><th class="l">Direction</th><th>Times</th><th class="l">Hit rate</th><th>Avg move</th><th class="c">Verdict</th></tr></thead><tbody>${[...rows].sort((x, y) => y.st.rate - x.st.rate).map(({sg, st}) => { const [vt, vc] = verdict(st); return `<tr data-sig="${sg.id}" class="tr-row ${sg.id === b.sig ? 'sel' : ''}"><td class="l"><b style="font-family:var(--f-body)">${sg.name}</b></td><td class="l ${sg.dir > 0 ? 'up' : 'dn'}">${sg.dir > 0 ? '▲ Bullish' : '▼ Bearish'}</td><td>${st.n}</td><td class="l"><div class="wr" style="grid-template-columns:1fr 44px;padding:0;min-width:130px"><span class="b"><i style="width:${st.rate}%;background:var(${st.rate >= 50 ? '--put' : '--call'})"></i></span><span>${st.rate.toFixed(0)}%</span></div></td><td class="${st.avg >= 0 ? 'up' : 'dn'}">${sgn(st.avg, x => x.toFixed(1))} pts</td><td class="c"><span class="pill ${vc}">${vt}</span></td></tr>`; }).join('')}</tbody></table>`;
+    const {sg, st} = rows.find(x => x.sg.id === b.sig) || rows[0];
+    setText($('#btTitle'), sg.name);
+    $('#btDetail').innerHTML = `<div class="bigv ${st.rate >= 50 ? 'up' : 'dn'}">${st.rate.toFixed(0)}%</div><p class="note" style="margin:2px 0 10px">${st.n} mein se ${st.hits} baar market ${b.H} minute mein ${sg.dir > 0 ? 'upar' : 'neeche'} gaya.</p>
+      <div class="kv"><span>Avg move (signal direction)</span><b class="${st.avg >= 0 ? 'up' : 'dn'}">${sgn(st.avg, x => x.toFixed(1))} pts</b></div><div class="kv"><span>Best</span><b class="up">${sgn(st.best, x => x.toFixed(1))} pts</b></div><div class="kv"><span>Worst</span><b class="dn">${sgn(st.worst, x => x.toFixed(1))} pts</b></div><div class="kv"><span>Har din average</span><b>${(st.n / BT_DAYS).toFixed(1)} signals</b></div>`;
+    const el = $('#btHist'), w = Math.max(260, el.clientWidth), h = 220, vals = st.list.map(x => x.mv);
+    if (!vals.length) el.innerHTML = '<p class="empty">Is signal ka koi data nahi.</p>';
+    else {
+      const lo = Math.min(...vals, 0), hi = Math.max(...vals, 0), nb = 14, bw = (hi - lo) / nb || 1, bins = Array(nb).fill(0);
+      for (const x of vals) bins[Math.min(nb - 1, Math.floor((x - lo) / bw))]++;
+      const mx = Math.max(...bins), pl = 32, pb = 26, cw = (w - pl - 10) / nb, Yh = c => 8 + (1 - c / mx) * (h - pb - 8);
+      let s = '';
+      for (const c of niceTicks(0, mx, 3).filter(Number.isInteger)) s += `<line class="grid" x1="${pl}" x2="${w - 10}" y1="${Yh(c)}" y2="${Yh(c)}"/><text class="axl" x="${pl - 6}" y="${Yh(c) + 3}" text-anchor="end">${c}</text>`;
+      bins.forEach((c, i) => { const mid = lo + (i + 0.5) * bw; s += `<rect x="${pl + i * cw + 1}" y="${Yh(c)}" width="${Math.max(1, cw - 2)}" height="${h - pb - Yh(c)}" rx="2" style="fill:var(${mid >= 0 ? '--put' : '--call'});fill-opacity:.78"/>`; if (i % 3 === 0) s += `<text class="axl" x="${pl + i * cw + cw / 2}" y="${h - 8}" text-anchor="middle">${Math.round(mid)}</text>`; });
+      const zx = pl + (0 - lo) / ((hi - lo) || 1) * (w - pl - 10); s += `<line x1="${zx}" x2="${zx}" y1="4" y2="${h - pb}" style="stroke:var(--fg);stroke-dasharray:3 3"/>`;
+      el.innerHTML = `<svg width="${w}" height="${h}" role="img" aria-label="Move distribution">${s}</svg>`;
+    }
+    $('#btList').innerHTML = st.n ? `<table class="tbl"><thead><tr><th class="l">Day</th><th class="l">Time</th><th>Spot</th><th>Move</th></tr></thead><tbody>${[...st.list].reverse().map(x => `<tr><td class="l">${x.date}</td><td class="l">${tl(x.t)}</td><td>${inr2(x.S)}</td><td class="${x.mv > 0 ? 'up' : 'dn'}"><b>${sgn(x.mv, y => y.toFixed(1))}</b></td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:12px 14px">Koi signal nahi mila.</p>';
+  },
+};
+
 /* ---- Journal + OI ---- */
 const TODAY = [
   {sym: 'NIFTY', side: 'BUY', opt: 'CE', rel: 0, en: 24, ex: 61, lots: 2, setup: 'Support bounce'},
@@ -1276,23 +1750,24 @@ const PAST = [['08 Oct', 'NIFTY', 'BUY', '22450 CE', 'Near support', 'Walls movi
 function posCtx(D, t) { const s = D.snaps[t], st = D.c.step, sup = wallLv(D, 'S', t), res = wallLv(D, 'R', t); return s.S - sup <= 0.6 * st ? 'Near support' : res - s.S <= 0.6 * st ? 'Near resistance' : 'Mid-range'; }
 MODS.journal = {
   mount(v) {
-    this.trades = TODAY.map((T, i) => {
+    const paperT = paper.closed.map(p => { const D = getData(p.sym), en = Math.floor(p.t), ex = Math.floor(p.te); return {sym: p.sym, side: p.side === 'B' ? 'BUY' : 'SELL', opt: p.type, lots: p.lots, en, ex, setup: 'Paper trade · ' + p.why, k: D.strikes.indexOf(p.strike), strike: p.strike, ep: p.avg, xp: p.exit, pnl: p.pnl, pos: posCtx(D, en), walls: WALL_LABEL[wallsMsg(D, en).key], paper: 1}; });
+    this.trades = [...paperT, ...TODAY.map((T, i) => {
       const D = getData(T.sym), a = D.snaps[T.en], b = D.snaps[T.ex], k = clamp(a.atmK + T.rel, 0, D.K - 1), strike = D.strikes[k];
       const ep = T.opt === 'CE' ? a.cP[k] : a.pP[k], xp = T.opt === 'CE' ? b.cP[k] : b.pP[k], pnl = (xp - ep) * (T.side === 'BUY' ? 1 : -1) * T.lots * D.c.lot;
       return {...T, i, k, strike, ep, xp, pnl, pos: posCtx(D, T.en), walls: WALL_LABEL[wallsMsg(D, T.en).key], date: 'Today'};
-    });
-    v.innerHTML = phead('Journal + OI', 'Har trade ke saath us waqt ki market ki tasveer apne aap save hoti hai. Phir pata chalta hai kis haalat mein aap jeette ho aur kis mein haarte ho.', '<span class="ex">Example trades</span>') +
+    })].map((T, i) => ({...T, i}));
+    v.innerHTML = phead('Journal + OI', 'Har trade ke saath us waqt ki market ki tasveer apne aap save hoti hai. Phir pata chalta hai kis haalat mein aap jeette ho aur kis mein haarte ho.', '<span class="ex">Example + paper trades</span>') +
       `<div class="grid g3">
         <section class="card span2"><div class="card-h"><h3>Today's trades</h3><span class="sub">Row par click karo, us waqt ka OI dekho</span></div><div class="tw"><table class="tbl" id="jTbl"><thead><tr><th class="l">Time</th><th class="l">Symbol</th><th class="l">Trade</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th class="l">Where</th></tr></thead><tbody></tbody></table></div></section>
         <section class="card"><div class="card-h"><h3>Market at entry</h3></div><div class="card-b" id="jSnap"></div></section>
         <section class="card span3"><div class="card-h"><h3>Your edge by market context</h3><span class="sub">Aaj ke ${TODAY.length} + pichhle ${PAST.length} example trades</span></div><div class="card-b grid g2" id="jEdge"></div></section>
       </div>`;
     const tb = $('#jTbl tbody');
-    tb.innerHTML = this.trades.map(T => `<tr class="tr-row" data-i="${T.i}" tabindex="0"><td class="l">${tl(T.en)}</td><td class="l">${T.sym}</td><td class="l"><span class="${T.side === 'BUY' ? 'up' : 'dn'}">${T.side}</span> ${T.strike} ${T.opt} × ${T.lots}<br><span class="mut" style="font-family:var(--f-body);font-size:11px">${T.setup}</span></td><td>${inr2(T.ep)}</td><td>${inr2(T.xp)}</td><td class="${T.pnl >= 0 ? 'up' : 'dn'}"><b>${sgn(T.pnl)}</b></td><td class="l"><span class="pill">${T.pos}</span></td></tr>`).join('');
+    tb.innerHTML = this.trades.map(T => `<tr class="tr-row" data-i="${T.i}" tabindex="0"><td class="l">${tl(T.en)}</td><td class="l">${T.sym}</td><td class="l"><span class="${T.side === 'BUY' ? 'up' : 'dn'}">${T.side}</span> ${T.strike} ${T.opt} × ${T.lots}<br><span class="mut" style="font-family:var(--f-body);font-size:11px">${T.paper ? '<span class="pill acc">Paper</span> ' : ''}${esc(T.setup)}</span></td><td>${inr2(T.ep)}</td><td>${inr2(T.xp)}</td><td class="${T.pnl >= 0 ? 'up' : 'dn'}"><b>${sgn(T.pnl)}</b></td><td class="l"><span class="pill">${T.pos}</span></td></tr>`).join('');
     const pick = i => { app.selTrade = i; $$('.tr-row').forEach(r => r.classList.toggle('sel', +r.dataset.i === i)); this.snap(); };
     tb.onclick = e => { const r = e.target.closest('tr'); if (r) pick(+r.dataset.i); };
     tb.onkeydown = e => { if (e.key === 'Enter') { const r = e.target.closest('tr'); if (r) pick(+r.dataset.i); } };
-    pick(app.selTrade);
+    pick(clamp(app.selTrade, 0, this.trades.length - 1));
     const all = [...this.trades.map(T => ({pos: T.pos, walls: T.walls, pnl: T.pnl})), ...PAST.map(r => ({pos: r[4], walls: r[5], pnl: r[6]}))];
     const table = (key, title) => {
       const g = {}; for (const x of all) (g[x[key]] = g[x[key]] || []).push(x.pnl);
@@ -1327,12 +1802,18 @@ MODS.alerts = {
       `<div class="grid g3">
         <section class="card"><div class="card-h"><h3>Rules</h3></div><div class="card-b">${RULES.map(r => `<div class="rule"><b id="rl-${r.id}">${r.name}</b><p>${r.d}</p><button class="sw" role="switch" aria-labelledby="rl-${r.id}" aria-checked="${app.rules[r.id]}" data-r="${r.id}"></button></div>`).join('')}
           <div class="card-h" style="padding:14px 0 8px;border:0"><h3>Kahan bhejein</h3></div>
-          <div class="chips"><span class="pill up">In-app · on</span><span class="pill">Telegram · Phase 3</span><span class="pill">Phone push · Phase 3</span><span class="pill">Email digest · Phase 4</span></div></div></section>
+          <div class="chips"><span class="pill up">In-app · on</span><span class="pill">Telegram · Phase 3</span><span class="pill">Phone push · Phase 3</span><span class="pill">Email digest · Phase 4</span></div>
+          <div class="card-h" style="padding:16px 0 4px;border:0"><h3>Awaaz</h3></div>
+          <div class="rule"><b id="snd-b">Beep sound</b><p>Har alert par chhoti si awaaz. Upar jaane par oonchi, neeche par neechi.</p><button class="sw" role="switch" aria-labelledby="snd-b" aria-checked="${app.sound.beep}" data-snd="beep"></button></div>
+          <div class="rule"><b id="snd-v">Voice announce</b><p>Alert bol kar sunaye, jaise "NIFTY support moved up".</p><button class="sw" role="switch" aria-labelledby="snd-v" aria-checked="${app.sound.voice}" data-snd="voice"></button></div>
+          <button class="ibtn" id="sndTest" style="margin-top:6px">▶ Test alert</button></div></section>
         <section class="card span2"><div class="card-h"><h3>Alert feed</h3><div class="tools"><div class="seg" id="alSym"><button data-s="ALL">All</button><button data-s="NIFTY">NIFTY</button><button data-s="BANKNIFTY">BANKNIFTY</button></div></div></div><div class="card-b" id="alFeed" style="max-height:620px;overflow:auto"></div></section>
       </div>`;
-    v.querySelectorAll('.sw').forEach(b => b.onclick = () => { const k = b.dataset.r; app.rules[k] = !app.rules[k]; b.setAttribute('aria-checked', app.rules[k]); this.dirty = true; this.update(lastCtx); });
+    v.querySelectorAll('.sw[data-r]').forEach(b => b.onclick = () => { const k = b.dataset.r; app.rules[k] = !app.rules[k]; b.setAttribute('aria-checked', app.rules[k]); this.dirty = true; this.update(lastCtx); });
     $$('#alSym button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.s === app.alertSym); b.onclick = () => { app.alertSym = b.dataset.s; $$('#alSym button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
     $('#alFeed').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; app.mode = 'replay'; app.playing = false; app.tf = +b.dataset.t; render(true); });
+    v.querySelectorAll('.sw[data-snd]').forEach(b => b.onclick = () => { const k = b.dataset.snd; app.sound[k] = !app.sound[k]; b.setAttribute('aria-checked', app.sound[k]); if (app.sound[k] && k === 'beep') beep('up'); });
+    $('#sndTest').onclick = () => toast({t: Math.floor(app.edge), sym: 'NIFTY', type: 'shift', side: 'S', from: 22400, to: 22450, kind: 'fresh writing', ratio: 1.6, tone: 'up'});
   },
   update(ctx) {
     if (!ctx.minuteChanged && !this.dirty) return; this.dirty = false;
@@ -1343,7 +1824,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context (naya)'], ['Alerts', 'Rules, feed, click-to-replay, Telegram/push (naya)'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Light / Dark / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
@@ -1351,17 +1832,17 @@ MODS.blueprint = {
       `<div class="grid g2 bp">
         <section class="card"><div class="card-h"><h3>Pages · approve karo</h3><span class="sub" id="bpCnt"></span></div><div class="card-b">${BP_PAGES.map((p, i) => `<label class="chk"><input type="checkbox" id="bp-${i}" ${saved[i] ? 'checked' : ''}><b>${p[0]}</b><span>${p[1]}</span></label>`).join('')}<p class="note">Ticks sirf aapke browser mein save hote hain. Final faisla chat mein bata dena.</p></div></section>
         <section class="card"><div class="card-h"><h3>Abhi kya demo hai, kya asli banega</h3></div><div class="card-b">
-          <p><b>Demo mein:</b> sab data ek simulator bana raha hai (ek din ka NIFTY, BANKNIFTY aur 4 stocks). Numbers asli market ke nahi hain. Live feel dikhane ke liye 1 minute = 2 second.</p>
+          <p><b>Demo mein:</b> sab data ek simulator bana raha hai (ek din ka NIFTY, BANKNIFTY aur ~200 F&amp;O stocks, aur backtest ke liye 30 din ki history). Numbers asli market ke nahi hain. Live feel dikhane ke liye 1 minute = 2 second.</p>
           <p><b>Asli app mein:</b> data broker API (Upstox / Dhan / Fyers / Angel One / Kite) ke WebSocket se aayega, har tick par update hoga, aur purane din replay ke liye database mein save honge.</p>
           <p><b>Dhyan rahe:</b> agar ye app dusron ko bechni hai to NSE se data redistribution license lagega. Apne use ke liye broker API kaafi hai.</p></div></section>
         <section class="card span3" style="grid-column:1/-1"><div class="card-h"><h3>Architecture</h3></div><div class="card-b"><div class="flow">
           <div><b>Broker WebSocket</b>Option chain ticks, spot, OI</div><div><b>Ingest service</b>Python FastAPI · OI, Greeks, GEX, walls calculate</div><div><b>Redis + TimescaleDB</b>Live cache + har minute ki history</div><div><b>API + WS gateway</b>Browser ko live push · alerts engine</div><div><b>Next.js app</b>Ye UI · React, Tailwind, Framer Motion, charts</div>
         </div></div></section>
         <section class="card"><div class="card-h"><h3>Phases</h3></div><div class="card-b">
-          <div class="phase"><b>Phase 1</b><span>Broker API jodna, NIFTY live chain, flash animation, login</span></div>
-          <div class="phase"><b>Phase 2</b><span>OI Analysis, Structure, Straddle, BANKNIFTY + stocks (IndexOI ke barabar)</span></div>
-          <div class="phase"><b>Phase 3</b><span>Heatmap, Chart + Walls, GEX, Replay database, Telegram/push alerts</span></div>
-          <div class="phase"><b>Phase 4</b><span>Strategy builder, Journal + OI, AI market read (Claude API), mobile PWA</span></div>
+          <div class="phase"><b>Phase 1</b><span>Broker API jodna, NIFTY live chain, flash animation, login, light/dark theme</span></div>
+          <div class="phase"><b>Phase 2</b><span>OI Analysis, Structure, Straddle, BANKNIFTY + saare F&amp;O stocks, F&amp;O Scanner</span></div>
+          <div class="phase"><b>Phase 3</b><span>Heatmap, Chart + Walls, GEX, Replay database, Paper Trading + Risk Manager, Telegram/push/voice alerts</span></div>
+          <div class="phase"><b>Phase 4</b><span>Strategy builder, Journal + OI, Signal Backtest (asli history), AI market read (Claude API), mobile PWA</span></div>
         </div></section>
         <section class="card"><div class="card-h"><h3>Tech stack</h3></div><div class="card-b"><table class="tbl"><tbody>
           <tr><td class="l mut">Frontend</td><td class="l">Next.js · React · TypeScript · Tailwind</td></tr><tr><td class="l mut">Animation</td><td class="l">Framer Motion · CSS transitions</td></tr><tr><td class="l mut">Charts</td><td class="l">TradingView Lightweight Charts · Canvas heatmap</td></tr><tr><td class="l mut">Backend</td><td class="l">Python FastAPI (ya Node.js)</td></tr><tr><td class="l mut">Data</td><td class="l">Redis (live) · PostgreSQL + TimescaleDB (history)</td></tr><tr><td class="l mut">Hosting</td><td class="l">Vercel (UI) · VPS / Railway (backend)</td></tr>
@@ -1377,13 +1858,35 @@ MODS.blueprint = {
 /* ================= chrome: header, tape, dock, toasts, cmdk ================= */
 const SYM_PAGES = new Set(['chain', 'oi', 'heatmap', 'chart', 'gex', 'straddle', 'strategy']);
 function syncSym() {
-  $$('#symsw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.sym === app.sym));
-  const sel = $('#stockSel'); sel.value = CFG[app.sym].kind === 'stock' ? app.sym : ''; sel.classList.toggle('on', CFG[app.sym].kind === 'stock');
-  const D = getData(app.sym); setText($('#expiry'), `${app.sym} · Exp ${D.c.exp}`);
+  const D = getData(app.sym), st = isStock(app.sym);
+  $$('#symsw [data-sym]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sym === app.sym));
+  const sb = $('#stkBtn'); sb.setAttribute('aria-pressed', st); sb.textContent = (st ? app.sym : 'Stocks') + ' ▾';
+  setText($('#expiry'), `${app.sym} · Exp ${D.c.exp}`);
 }
 function setSym(s) { app.sym = s; syncSym(); if (SYM_PAGES.has(app.page)) mount(); else render(true); }
+function setSymGo(s, p) { app.sym = s; syncSym(); go(p); }
 $('#symsw').addEventListener('click', e => { const b = e.target.closest('[data-sym]'); if (b) setSym(b.dataset.sym); });
-$('#stockSel').onchange = e => { if (e.target.value) setSym(e.target.value); };
+
+/* stock picker */
+const pk = {sec: 'ALL'};
+function drawPicker() {
+  const q = $('#pkIn').value.trim().toUpperCase(), rows = scanRows(app.tf).filter(r => (pk.sec === 'ALL' || r.sec === pk.sec) && (!q || r.s.includes(q)));
+  $('#pkSec').innerHTML = ['ALL', ...Object.keys(FNO)].map(x => `<button data-sec="${x}" aria-pressed="${pk.sec === x}">${x === 'ALL' ? `All ${UL.length}` : x}</button>`).join('');
+  $('#pkList').innerHTML = rows.map(r => `<li><button data-s="${esc(r.s)}"><span><b>${esc(r.s)}</b><small>${r.sec} · <span class="bu ${r.bu}" style="font-size:8.5px;padding:0 5px">${BU[r.bu]}</span></small></span><span class="mono">${inr2(r.px)}</span><span class="mono ${r.p >= 0 ? 'up' : 'dn'}">${pct(r.p)}</span></button></li>`).join('') || '<li class="empty" style="padding:10px 12px">Kuch nahi mila</li>';
+}
+function openPicker() {
+  const P = $('#picker'), r = $('#stkBtn').getBoundingClientRect(); P.hidden = false;
+  P.style.top = (r.bottom + 6) + 'px'; P.style.left = clamp(r.left, 16, Math.max(16, innerWidth - P.offsetWidth - 16)) + 'px';
+  $('#pkIn').value = ''; drawPicker(); $('#pkIn').focus();
+}
+const closePicker = () => { $('#picker').hidden = true; };
+const pickSym = s => { closePicker(); SYM_PAGES.has(app.page) ? setSym(s) : setSymGo(s, 'chain'); };
+$('#stkBtn').onclick = () => { $('#picker').hidden ? openPicker() : closePicker(); };
+$('#pkIn').oninput = drawPicker;
+$('#pkIn').onkeydown = e => { if (e.key === 'Escape') closePicker(); if (e.key === 'Enter') { const b = $('#pkList [data-s]'); if (b) pickSym(b.dataset.s); } };
+$('#pkSec').onclick = e => { const b = e.target.closest('[data-sec]'); if (b) { pk.sec = b.dataset.sec; drawPicker(); } };
+$('#pkList').onclick = e => { const b = e.target.closest('[data-s]'); if (b) pickSym(b.dataset.s); };
+document.addEventListener('mousedown', e => { if (!$('#picker').hidden && !e.target.closest('#picker') && !e.target.closest('#stkBtn')) closePicker(); });
 
 const TAPE = ['NIFTY', 'BANKNIFTY', 'VIX', 'PCR', 'RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ITC', 'LT', 'BHARTIARTL', 'AXISBANK'];
 $('#tape').innerHTML = [0, 1].map(() => TAPE.map(n => `<span class="ti" data-tk="${n}"><b>${esc(n)}</b><span class="a"></span><span class="b"></span></span>`).join('')).join('');
@@ -1421,35 +1924,47 @@ $('#liveBtn').onclick = () => { app.mode = 'live'; app.tf = app.edge; render(tru
 $('#speedSeg').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { app.speed = +b.dataset.s; render(); } };
 $('#scIn').addEventListener('input', e => { app.mode = 'replay'; app.tf = clamp(+e.target.value, 0, app.edge); e.target.value = app.tf; if (app.tf >= app.edge - 0.01) app.mode = 'live'; render(); });
 
+let actx = null;
+function beep(tone) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+    o.type = 'sine'; o.frequency.value = tone === 'down' ? 440 : tone === 'up' ? 880 : 660;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.15, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.4);
+  } catch (e) {}
+}
+function speak(txt) { try { if (!window.speechSynthesis) return; const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-IN'; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} }
+function notify(e) { if (app.sound.beep) beep(e.tone); if (app.sound.voice) speak(evTitle(e).replace('→', 'to')); }
 function toast(e) {
   const box = $('#toasts'), el = document.createElement('div');
   el.className = 'toast ' + e.tone; el.innerHTML = `<span class="ic">${evIcon(e)}</span><div><b>${esc(evTitle(e))}</b><span>${tl(e.t)} · ${esc(evDetail(e))}</span></div>`;
   box.prepend(el); while (box.children.length > 3) box.lastChild.remove();
+  notify(e);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 6000);
 }
 function fireToasts(a, b) {
   if (Math.floor(a) === Math.floor(b)) return;
-  const syms = ['NIFTY', 'BANKNIFTY']; if (CFG[app.sym].kind === 'stock') syms.push(app.sym);
+  const syms = ['NIFTY', 'BANKNIFTY']; if (isStock(app.sym)) syms.push(app.sym);
   for (const s of syms) for (const e of getData(s).events) if (e.t > Math.floor(a) && e.t <= Math.floor(b) && app.rules[e.type]) toast(e);
 }
 
-const cmdItems = () => [...PAGES.map(p => ({l: p.label, h: 'Page', run: () => go(p.id)})), ...Object.keys(CFG).map(s => ({l: `${s} option chain`, h: CFG[s].name, run: () => { app.sym = s; syncSym(); go('chain'); }})),
-  {l: 'Jump to live', h: 'Replay', run: () => $('#liveBtn').click()}, {l: 'Replay from 09:15 at 20×', h: 'Replay', run: () => { app.mode = 'replay'; app.tf = 0; app.playing = true; app.speed = 20; render(true); }}, {l: 'Toggle light / dark', h: 'Theme', run: () => $('#themeBtn').click()}];
+const cmdItems = () => [...PAGES.map(p => ({l: p.label, h: 'Page', run: () => go(p.id)})), ...['NIFTY', 'BANKNIFTY', ...UL.map(u => u.s)].map(s => ({l: `${s} option chain`, h: CFG[s] ? CFG[s].name : U[s].sec, run: () => setSymGo(s, 'chain')})),
+  {l: 'Jump to live', h: 'Replay', run: () => $('#liveBtn').click()}, {l: 'Replay from 09:15 at 20×', h: 'Replay', run: () => { app.mode = 'replay'; app.tf = 0; app.playing = true; app.speed = 20; render(true); }},
+  {l: 'Light theme', h: 'Theme', run: () => { setTheme('light'); MODS[app.page].dirty = true; render(true); }}, {l: 'Dark theme', h: 'Theme', run: () => { setTheme('dark'); MODS[app.page].dirty = true; render(true); }}];
 let cmdSel = 0, cmdList = [];
 function openCmd() { $('#cmdk').hidden = false; const i = $('#cmdkIn'); i.value = ''; drawCmd(); i.focus(); }
 function closeCmd() { $('#cmdk').hidden = true; }
-function drawCmd() { const q = $('#cmdkIn').value.toLowerCase().trim(); cmdList = cmdItems().filter(x => !q || (x.l + ' ' + x.h).toLowerCase().includes(q)); cmdSel = clamp(cmdSel, 0, Math.max(0, cmdList.length - 1)); $('#cmdkList').innerHTML = cmdList.map((x, i) => `<li role="option" data-i="${i}" aria-selected="${i === cmdSel}">${esc(x.l)}<span>${esc(x.h)}</span></li>`).join('') || '<li>Kuch nahi mila</li>'; }
+function drawCmd() { const q = $('#cmdkIn').value.toLowerCase().trim(); cmdList = cmdItems().filter(x => !q || (x.l + ' ' + x.h).toLowerCase().includes(q)).slice(0, 60); cmdSel = clamp(cmdSel, 0, Math.max(0, cmdList.length - 1)); $('#cmdkList').innerHTML = cmdList.map((x, i) => `<li role="option" data-i="${i}" aria-selected="${i === cmdSel}">${esc(x.l)}<span>${esc(x.h)}</span></li>`).join('') || '<li>Kuch nahi mila</li>'; }
 $('#openK').onclick = openCmd;
 $('#cmdkIn').oninput = () => { cmdSel = 0; drawCmd(); };
 $('#cmdkIn').onkeydown = e => { if (e.key === 'ArrowDown') { cmdSel++; drawCmd(); e.preventDefault(); } else if (e.key === 'ArrowUp') { cmdSel--; drawCmd(); e.preventDefault(); } else if (e.key === 'Enter' && cmdList[cmdSel]) { closeCmd(); cmdList[cmdSel].run(); } else if (e.key === 'Escape') closeCmd(); };
 $('#cmdkList').onclick = e => { const li = e.target.closest('[data-i]'); if (li) { closeCmd(); cmdList[+li.dataset.i].run(); } };
 $('#cmdk').onclick = e => { if (e.target.id === 'cmdk') closeCmd(); };
-document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#cmdk').hidden ? openCmd() : closeCmd(); } else if (e.key === 'Escape' && !$('#cmdk').hidden) closeCmd(); });
-$('#themeBtn').onclick = () => {
-  const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
-  r.dataset.theme = dark ? 'light' : 'dark'; try { localStorage.setItem('poi-theme', r.dataset.theme); } catch (e) {}
-  MODS[app.page].dirty = true; render(true);
-};
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#cmdk').hidden ? openCmd() : closeCmd(); } else if (e.key === 'Escape') { closeCmd(); closePicker(); } });
+function setTheme(m) { THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
+$('#themeSeg').onclick = e => { const b = e.target.closest('[data-th]'); if (!b) return; setTheme(b.dataset.th); MODS[app.page].dirty = true; render(true); };
+setTheme(THEME);
 
 /* ================= routing + loop ================= */
 let lastCtx = null;
@@ -1479,13 +1994,14 @@ setInterval(() => {
   app.edge = Math.min(N, app.edge + TICK / MIN_MS);
   if (app.mode === 'live') app.tf = app.edge;
   else if (app.playing) { app.tf = Math.min(app.edge, app.tf + TICK / MIN_MS * app.speed); if (app.tf >= app.edge - 1e-6) { app.mode = 'live'; app.tf = app.edge; } }
+  paperTick();
   fireToasts(prev, app.edge);
   if (app.mode === 'live' && prev >= N && app.edge >= N) return;
   render();
 }, TICK);
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
-getData('NIFTY'); getData('BANKNIFTY');
+getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
 syncSym();
 const h0 = (location.hash || '').slice(1);
 go(MODS[h0] ? h0 : 'overview');

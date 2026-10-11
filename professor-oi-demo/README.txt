@@ -14,8 +14,17 @@ Chalane ka tarika
 - Ya bas "index.html" par double-click kar do, wo bhi kaafi hai.
 - Band karna ho to kaali (terminal) window close kar do.
 
+Andar kya hai (15 pages)
+------------------------
+Overview, Option Chain, OI Analysis, OI Heatmap, F&O Scanner (~200 stocks),
+Market Structure, Chart + Walls, GEX & Greeks, Straddle & Expiry,
+Strategy Builder, Signal Backtest, Paper Trading + Risk Manager,
+Journal + OI, Alerts (beep + voice), Blueprint.
+Theme: header mein Light / Dark / Auto.
+
 Dhyan rahe
 ----------
+- Paper trading ke trades page reload karne par reset ho jaate hain (demo).
 - Saara data SIMULATED hai (demo). Asli market ke numbers nahi hain.
 - Internet ho to sundar fonts load honge. Bina internet ke bhi chalega,
   bas fonts normal dikhenge.
