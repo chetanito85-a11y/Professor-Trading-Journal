@@ -7,31 +7,40 @@
 <title>Professor OI Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
 /* Layout: trading-terminal shell — sticky header + ticker tape, left rail nav, dense card grid, replay dock fixed at bottom */
+/* Layout: HUD trading terminal — sticky header + ticker, left rail, bracketed data cards on a faint grid; replay dock at bottom.
+   Themes: AMOLED dark (pure black) and clean light. */
 :root{
-  --bg:#070A10; --panel:#0E141D; --glass:rgba(14,20,29,.8); --glow1:#2EE6D6; --glow2:#5B8CFF; --glow3:#A06BFF; --panel-2:#151D29; --line:#1D2734; --line-2:#2A3647;
-  --fg:#E4E9F0; --muted:#8693A5; --faint:#566274;
-  --accent:#5B8CFF; --call:#F0565A; --put:#1FBF88; --amber:#E2A72E; --on-solid:#FFFFFF; --on-amber:#1D1400;
-  --f-display:'Unbounded','Segoe UI',system-ui,sans-serif;
-  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --bg:#000000; --panel:#050505; --panel-2:#0F0F0F; --line:#1C1C1C; --line-2:#2C2C2C;
+  --fg:#F2F2EF; --muted:#9C9C97; --faint:#5F5F5A;
+  --accent:#4D8DFF; --call:#FF5A5F; --put:#2ED18A; --amber:#F2B233; --on-solid:#000000; --on-amber:#1A1200;
+  --ink:#F2F2EF; --ink-fg:#000000; --brk:#4A4A46; --grid:rgba(255,255,255,.035);
+  --glow1:#22C3B5; --glow2:#4D8DFF; --glow3:#A58BFF;
+  --f-display:'IBM Plex Sans Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --top:94px; --shadow:0 1px 0 rgba(0,0,0,.25);
+  --top:94px; --shadow:none;
+  --brackets:linear-gradient(currentColor,currentColor) left top/9px 1.5px no-repeat,linear-gradient(currentColor,currentColor) left top/1.5px 9px no-repeat,linear-gradient(currentColor,currentColor) right top/9px 1.5px no-repeat,linear-gradient(currentColor,currentColor) right top/1.5px 9px no-repeat,linear-gradient(currentColor,currentColor) left bottom/9px 1.5px no-repeat,linear-gradient(currentColor,currentColor) left bottom/1.5px 9px no-repeat,linear-gradient(currentColor,currentColor) right bottom/9px 1.5px no-repeat,linear-gradient(currentColor,currentColor) right bottom/1.5px 9px no-repeat;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --bg:#EEF2F8; --panel:#FFFFFF; --glass:rgba(255,255,255,.8); --glow1:#0FB5A8; --glow2:#2F62E0; --glow3:#7B4DFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
-    --fg:#111823; --muted:#556173; --faint:#8994A4;
-    --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
+    --bg:#F3F4F1; --panel:#FFFFFF; --panel-2:#F1F2EE; --line:#E2E4DF; --line-2:#CDD1CA;
+    --fg:#121412; --muted:#5C615A; --faint:#8D9289;
+    --accent:#2F6BE0; --call:#DE454B; --put:#14965F; --amber:#D4950A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+    --ink:#141614; --ink-fg:#FFFFFF; --brk:#9DA398; --grid:rgba(18,20,18,.045);
+    --glow1:#0E9E93; --glow2:#2F6BE0; --glow3:#6B4DE6; --shadow:0 1px 2px rgba(18,20,18,.04);
     color-scheme:light;
   }
 }
 :root[data-theme="light"]{
-  --bg:#EEF2F8; --panel:#FFFFFF; --glass:rgba(255,255,255,.8); --glow1:#0FB5A8; --glow2:#2F62E0; --glow3:#7B4DFF; --panel-2:#EDF1F6; --line:#DDE3EB; --line-2:#C9D2DE;
-  --fg:#111823; --muted:#556173; --faint:#8994A4;
-  --accent:#2F62E0; --call:#D43A40; --put:#0E9A6A; --amber:#B9791A; --on-solid:#FFFFFF; --on-amber:#FFFFFF; --shadow:0 1px 2px rgba(17,24,35,.05),0 4px 14px rgba(17,24,35,.06);
+  --bg:#F3F4F1; --panel:#FFFFFF; --panel-2:#F1F2EE; --line:#E2E4DF; --line-2:#CDD1CA;
+  --fg:#121412; --muted:#5C615A; --faint:#8D9289;
+  --accent:#2F6BE0; --call:#DE454B; --put:#14965F; --amber:#D4950A; --on-solid:#FFFFFF; --on-amber:#FFFFFF;
+  --ink:#141614; --ink-fg:#FFFFFF; --brk:#9DA398; --grid:rgba(18,20,18,.045);
+  --glow1:#0E9E93; --glow2:#2F6BE0; --glow3:#6B4DE6; --shadow:0 1px 2px rgba(18,20,18,.04);
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -90,7 +99,7 @@ main{min-width:0;padding:18px 20px 120px}
 
 /* ---------- page parts ---------- */
 .phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
-.phead h1{margin:0;font:600 23px/1.2 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
+.phead h1{margin:0;font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;text-wrap:balance}
 .phead p{margin:5px 0 0;color:var(--muted);max-width:68ch}
 .ptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0;box-shadow:var(--shadow)}
@@ -396,63 +405,120 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 .ob li{display:grid;grid-template-columns:44px 1fr auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;align-items:center}
 .ob li:first-child{border-top:0}
 
-/* ---- quantum flow layer ---- */
-#flow{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.aurora{position:fixed;z-index:0;pointer-events:none;width:64vmax;height:64vmax;border-radius:50%;animation:drift 30s ease-in-out infinite alternate}
-.aurora.a1{top:-26vmax;left:-18vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--glow2) 20%,transparent),transparent)}
-.aurora.a2{bottom:-32vmax;right:-22vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--glow3) 17%,transparent),transparent);animation-duration:38s;animation-direction:alternate-reverse}
-@keyframes drift{to{transform:translate(9vmax,7vmax) scale(1.12)}}
-.shell{position:relative;z-index:1}
-.card{position:relative;isolation:isolate;background:var(--glass)}
-.card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;opacity:0;transition:opacity .35s;
-  background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),var(--glow1),color-mix(in srgb,var(--glow3) 70%,transparent) 38%,transparent 70%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
-.card::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(440px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--glow2) 10%,transparent),transparent 60%)}
-.card:hover::before,.card:hover::after{opacity:1}
-.brand>div{background:linear-gradient(90deg,var(--fg) 0%,var(--glow1) 28%,var(--glow3) 52%,var(--fg) 78%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flowtxt 9s linear infinite}
-.brand small{color:var(--muted)}
-.brand svg{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--glow2) 65%,transparent))}
-@keyframes flowtxt{to{background-position:-260% 0}}
-.top::after,.dock::before{content:"";position:absolute;left:0;right:0;height:1px;pointer-events:none;opacity:.75;background:linear-gradient(90deg,transparent,var(--glow1),var(--glow2),var(--glow3),transparent);background-size:200% 100%;animation:flowline 7s linear infinite}
-.top::after{bottom:-1px}.dock::before{top:-1px}
-@keyframes flowline{to{background-position:200% 0}}
-.tape{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
-.nav-i{transition:background .25s,color .25s,box-shadow .25s}
-.nav-i[aria-current="page"]{background:linear-gradient(90deg,color-mix(in srgb,var(--glow2) 22%,transparent),color-mix(in srgb,var(--glow3) 6%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--glow2) 32%,transparent)}
-.nav-i[aria-current="page"] svg{color:var(--glow1);filter:drop-shadow(0 0 6px var(--glow1))}
-.pill.live{box-shadow:0 0 16px color-mix(in srgb,var(--put) 35%,transparent)}
-.play{background:linear-gradient(135deg,var(--glow1),var(--glow2) 50%,var(--glow3));box-shadow:0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}
-.play.on{animation:ring 2.2s ease-out infinite}
-@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow1) 55%,transparent),0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}100%{box-shadow:0 0 0 12px transparent,0 0 18px color-mix(in srgb,var(--glow2) 50%,transparent)}}
-.scrub .fl{background:linear-gradient(90deg,var(--glow1),var(--glow2),var(--glow3));box-shadow:0 0 10px color-mix(in srgb,var(--glow2) 60%,transparent)}
-.scrub input::-webkit-slider-thumb{box-shadow:0 0 12px var(--glow1)}
+/* ---- HUD look ---- */
+body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+.card{position:relative;border-radius:6px}
+.card::before{content:"";position:absolute;inset:-1px;pointer-events:none;color:var(--brk);background:var(--brackets)}
+.card-h h3{font:700 10.5px var(--f-mono);letter-spacing:.14em}
+.phead h1{font:700 27px/1.15 var(--f-display);letter-spacing:.005em}
+.brand{font-family:var(--f-display);font-size:19px;letter-spacing:.01em}
+.brand small{font-family:var(--f-mono);letter-spacing:.16em}
+.nav-i{font-family:var(--f-body)}
+.nav-i[aria-current="page"]{background:var(--ink);color:var(--ink-fg)}
+.nav-i[aria-current="page"] svg{color:var(--ink-fg)}
+.nav-i[aria-current="page"] em{color:var(--ink-fg);border-color:color-mix(in srgb,var(--ink-fg) 45%,transparent)}
+.play{background:var(--ink);color:var(--ink-fg)}
+.symsw button[aria-pressed="true"],.stk[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg);box-shadow:none}
+.pill{font-family:var(--f-mono);letter-spacing:.08em;border-radius:4px}
+.kpi .lab,.stat span,.field>span{font-family:var(--f-mono)}
 .kpi .val{align-self:flex-start}
+.tbl th{font-family:var(--f-mono);letter-spacing:.1em}
 .rd{display:inline-block;animation:rdu .45s cubic-bezier(.2,.8,.2,1)}
 .rd.d{animation-name:rdd}
-@keyframes rdu{from{transform:translateY(60%);opacity:0;filter:blur(2px)}to{transform:none;opacity:1;filter:none}}
-@keyframes rdd{from{transform:translateY(-60%);opacity:0;filter:blur(2px)}to{transform:none;opacity:1;filter:none}}
-.anim-in .card,.anim-in .cat{animation:cardin .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 42ms)}
-@keyframes cardin{from{opacity:.3;transform:translateY(12px) scale(.985);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
-.chart path.ln{filter:drop-shadow(0 0 4px var(--gc))}
-.chart path.draw{stroke-dasharray:5000;stroke-dashoffset:5000;animation:draw 1.6s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes rdu{from{transform:translateY(60%);opacity:0}to{transform:none;opacity:1}}
+@keyframes rdd{from{transform:translateY(-60%);opacity:0}to{transform:none;opacity:1}}
+.anim-in .card,.anim-in .cat{animation:cardin .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 35ms)}
+@keyframes cardin{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:none}}
+.chart path.draw{stroke-dasharray:5000;stroke-dashoffset:5000;animation:draw 1.5s cubic-bezier(.3,.7,.2,1) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.phead h1{background:linear-gradient(90deg,var(--fg) 55%,color-mix(in srgb,var(--glow2) 80%,var(--fg)));-webkit-background-clip:text;background-clip:text;color:transparent}
 .mini5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
 .mini5 .mini{min-width:0}
 .mini5 .kv b{font-family:var(--f-mono)}
-.ivt{padding:7px 8px;border-radius:7px;text-align:left;font:600 10.5px var(--f-body);border:1px solid color-mix(in srgb,var(--glow3) 25%,transparent);transition:transform .2s}
-.ivt:hover{transform:translateY(-2px)}
+.ivt{padding:7px 8px;border-radius:5px;text-align:left;font:600 10.5px var(--f-mono);border:1px solid var(--line);transition:transform .2s}
+.ivt:hover{transform:translateY(-2px);border-color:var(--fg)}
 .ivt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ivt b{font:600 12px var(--f-mono)}
 .ivt i{font:500 10.5px var(--f-mono);font-style:normal;margin-left:4px}
-@media (max-width:1100px){.mini5{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:760px){.mini5{grid-template-columns:minmax(0,1fr)}}
-@media (prefers-reduced-motion: reduce){
-  #flow,.aurora{display:none}
-  .anim-in .card,.anim-in .cat,.rd,.play.on,.brand>div,.top::after,.dock::before{animation:none}
-  .chart path.draw{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
-}
 
+/* ---- buildup grid ---- */
+.gd-wrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.gd-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}
+.gd-h{display:flex;justify-content:space-between;align-items:baseline;font:700 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;margin:0 2px 8px}
+.gd-h.up{color:var(--put)}.gd-h.dn{color:var(--call)}
+.gd-mid{position:relative;height:30px;margin:12px 0;display:flex;align-items:center}
+.gd-mid::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,var(--put),var(--accent) 50%,var(--call))}
+.gd-mid span{position:relative;margin:0 auto;padding:2px 10px;background:var(--bg);font:600 11px var(--f-mono);color:var(--muted);border:1px solid var(--line-2);border-radius:4px}
+.tl{display:flex;flex-direction:column;gap:4px;padding:8px 9px 9px;text-align:left;border:1px solid var(--line);border-radius:5px;background:var(--panel);position:relative;min-width:0;cursor:pointer;transition:border-color .2s}
+.tl.b{background:linear-gradient(180deg,color-mix(in srgb,var(--put) 8%,var(--panel)),var(--panel) 65%)}
+.tl.r{background:linear-gradient(180deg,color-mix(in srgb,var(--call) 8%,var(--panel)),var(--panel) 65%)}
+.tl:hover,.tl.on{border-color:var(--fg)}
+.tl.hl::before{content:"";position:absolute;inset:-5px;pointer-events:none;color:var(--fg);background:var(--brackets)}
+.tl-h{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;min-width:0}
+.tl-h>div{min-width:0}
+.tl-s{display:block;font:700 14.5px/1.1 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-p{font:600 11.5px var(--f-mono)}
+.tl-r{font:600 10px var(--f-mono);color:var(--muted);border:1px solid var(--line-2);border-radius:3px;padding:0 4px;flex:none}
+.tl-tag{display:flex;justify-content:space-between;align-items:center;gap:4px;font:700 8.5px var(--f-mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.dots{letter-spacing:1px;font-size:8px}
+.dots b{color:var(--fg)}.dots u{color:var(--line-2);text-decoration:none}
+.tl-prof{position:relative;display:flex;flex-direction:column;gap:1px;margin-top:3px;height:82px}
+.tl-prof .rw{flex:1;display:flex;justify-content:space-between;min-height:1px}
+.tl-prof .rw i{display:block;height:100%;background:color-mix(in srgb,var(--put) 62%,transparent)}
+.tl-prof .rw i+i{background:color-mix(in srgb,var(--call) 52%,transparent)}
+.tl-prof .rw.cur i{opacity:1;filter:saturate(1.4)}
+.tl-px{position:absolute;right:0;transform:translateY(-50%);font:700 9.5px var(--f-mono);background:var(--ink);color:var(--ink-fg);padding:1px 4px;border-radius:3px;z-index:1}
+.tl-ln{position:absolute;left:0;right:0;height:1px;background:var(--fg);opacity:.6}
+.tl-vw{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--accent);opacity:.8}
+.gd-side{position:sticky;top:calc(var(--top) + 10px)}
+.gd-st{margin:0 0 8px;font:700 10.5px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.pk{display:block;width:100%;text-align:left;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);margin-bottom:9px;position:relative}
+.pk:hover{border-color:var(--fg)}
+.pk.b{background:linear-gradient(160deg,color-mix(in srgb,var(--put) 11%,var(--panel)),var(--panel) 55%)}
+.pk.r{background:linear-gradient(160deg,color-mix(in srgb,var(--call) 11%,var(--panel)),var(--panel) 55%)}
+.pk-h{display:grid;grid-template-columns:30px 1fr auto;gap:9px;align-items:center}
+.lg{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;font:700 10.5px var(--f-mono);color:#fff}
+.pk-h b{font:700 18px/1.1 var(--f-display);display:block}
+.pk-h small{font-size:10.5px;color:var(--muted)}
+.ring2{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f-mono);border:2px solid currentColor}
+.pk-pill{display:inline-block;margin:10px 0 4px;padding:3px 10px;border-radius:4px;font:700 11px var(--f-mono);letter-spacing:.12em;color:var(--on-solid)}
+.pk.b .pk-pill{background:var(--put)}.pk.r .pk-pill{background:var(--call)}
+.pk-big{font:700 32px/1.05 var(--f-display);letter-spacing:-.01em}
+.pk-px{font:500 12px var(--f-mono);color:var(--muted)}
+.pk-lv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.pk-lv small{display:block;font:700 9px var(--f-mono);letter-spacing:.12em;color:var(--faint)}
+.pk-lv b{font:600 12.5px var(--f-mono)}
+.pk-bar{position:relative;height:4px;border-radius:2px;margin-top:9px;background:linear-gradient(90deg,var(--put),var(--line-2) 50%,var(--call))}
+.pk-bar i{position:absolute;top:-3px;width:3px;height:10px;border-radius:2px;background:var(--amber);transform:translateX(-50%);transition:left .6s}
+.pop{position:fixed;z-index:70;width:min(470px,calc(100vw - 24px));background:var(--panel);border:1px solid var(--line-2);border-radius:8px;box-shadow:0 18px 48px rgba(0,0,0,.28);padding:14px;animation:pagein .18s ease-out}
+.pop::before{content:"";position:absolute;inset:-5px;pointer-events:none;color:var(--fg);background:var(--brackets)}
+.pop-h{display:grid;grid-template-columns:34px 1fr 130px;gap:10px;align-items:center}
+.pop-h .lg{width:34px;height:34px}
+.pop-h b{font:700 19px/1.1 var(--f-display)}
+.pop-h small{display:block;font:600 10px var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.pop-px{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font:700 15px var(--f-mono)}
+.pop-g{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin:8px 0 10px;font:500 11.5px var(--f-mono)}
+.pop-g div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--line);padding-bottom:2px}
+.pop-g span{color:var(--muted);font-weight:700;letter-spacing:.08em;font-size:9.5px}
+.pop canvas{width:100%;display:block;border-top:1px solid var(--line)}
+.pop-f{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:11.5px;color:var(--faint)}
+/* ---- market flow ---- */
+.mf{padding:10px 12px 12px}
+.mf-top canvas,.mf-body canvas{display:block;width:100%}
+.mf-body{display:grid;grid-template-columns:minmax(0,1fr) 60px 176px;position:relative}
+.mf-body svg{display:block;width:60px;overflow:visible}
+.mf-links path{fill:none;stroke-width:1.3;stroke-dasharray:3 5;animation:dash 1.1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.mf-list{display:flex;flex-direction:column;justify-content:space-between;gap:12px}
+.mf-list>div{display:flex;flex-direction:column;gap:4px}
+.mfi{display:grid;grid-template-columns:1fr auto;gap:2px 6px;padding:5px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel);text-align:left;font:600 11.5px var(--f-mono);align-items:baseline}
+.mfi:hover{border-color:var(--fg)}
+.mfi b{font:700 12.5px var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mfi i{grid-column:1/-1;height:3px;border-radius:2px;display:block;transition:width .6s}
+.mf-lbl{font:700 10px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;margin:2px 0}
+@media (max-width:1100px){.mini5{grid-template-columns:repeat(3,minmax(0,1fr))}.gd-wrap{grid-template-columns:minmax(0,1fr)}.gd-side{position:static;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px}.gd-side .gd-st{grid-column:1/-1}.gd-side>div{display:contents}.pk{margin:0}}
+@media (max-width:760px){.mini5{grid-template-columns:minmax(0,1fr)}.mf-body{grid-template-columns:minmax(0,1fr)}.mf-body svg,.mf-list{display:none}.gd-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion: reduce){.anim-in .card,.anim-in .cat,.rd{animation:none}.chart path.draw{animation:none;stroke-dasharray:none;stroke-dashoffset:0}.mf-links path{animation:none}}
+.pop-h svg{width:100%;height:34px;display:block}
 @media (max-width:1100px){
   .shell{grid-template-columns:64px minmax(0,1fr)}
   .rail h6,.nav-i span,.nav-i em{display:none}
@@ -492,7 +558,6 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
 
 </head>
 <body>
-<canvas id="flow" aria-hidden="true"></canvas><div class="aurora a1"></div><div class="aurora a2"></div>
 <div class="shell">
   <header class="top">
     <div class="brand">
@@ -510,7 +575,7 @@ td.h1c>.bar,td.h1p>.bar,td.h2>.bar{opacity:0}
     <span class="clock" id="clock">12:00:00</span>
     <span class="pill hide-s" id="expiry">Exp 13 Oct</span>
     <button class="ibtn" id="openK" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"/></svg><span class="hide-s">Search</span> <kbd class="hide-s">Ctrl K</kbd></button>
-    <div class="seg thm" id="themeSeg" aria-label="Theme"><button data-th="light" aria-label="Light theme" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button><button data-th="dark" aria-label="Dark theme" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button><button data-th="auto" title="System ke hisaab se">Auto</button></div>
+    <div class="seg thm" id="themeSeg" aria-label="Theme"><button data-th="light" aria-label="Light theme" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button><button data-th="dark" aria-label="AMOLED dark theme" title="AMOLED dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button><button data-th="auto" title="System ke hisaab se">Auto</button></div>
   </header>
   <div class="tape" aria-label="Ticker"><div class="tape-track" id="tape"></div></div>
   <nav class="rail" id="rail" aria-label="Pages"></nav>
@@ -684,7 +749,9 @@ function buildUniverse() {
       pct[t] = beta * (IX.spot[t] / IX.c.prev - 1) * 100 + id; px[t] = prev * (1 + pct[t] / 100); oi[t] = oi0 * (1 + op / 100); iv[t] = ivv; pcr[t] = pc;
       vol[t] = (t ? vol[t - 1] : 0) + avgVol / N * (t < 20 ? 2.4 : t > 340 ? 1.6 : 1) * (0.5 + r()) * (1 + Math.abs(t ? pct[t] - pct[t - 1] : 0) * 6) * (unusual ? 2.6 : 1);
     }
-    U[sym] = {s: sym, sec, prev, lot, pct, px, oi, iv, pcr, vol, avgVol, unusual, cb: oi0 * 0.18};
+    const hi = new Float64Array(N + 1), lo = new Float64Array(N + 1);
+    for (let t = 0; t <= N; t++) { const a = px[t], b = t ? px[t - 1] : a, w = Math.abs(a - b) * 0.6 + a * 0.0006 * r(); hi[t] = Math.max(a, b) + w * r(); lo[t] = Math.min(a, b) - w * r(); }
+    U[sym] = {s: sym, sec, prev, lot, pct, px, hi, lo, oi, iv, pcr, vol, avgVol, unusual, cb: oi0 * 0.18};
     UL.push(U[sym]);
   }
   DN.stocks = NIFTY50.map(x => ({s: x, p: U[x].pct})); DB.stocks = BANK14.map(x => ({s: x, p: U[x].pct}));
@@ -838,7 +905,7 @@ const IC = {
   payoff: 'M3 18h6l6-12h6M3 12h18', book: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM9 8h6M9 12h6', bell: 'M6 16v-5a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
   map: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
   radar: 'M12 12l6-6M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5', flask: 'M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M7.5 15h9',
-  wave: 'M2 12c2.5-6 5.5-6 8 0s5.5 6 8 0 3-4 4-4M2 18h20',
+  wave: 'M2 12c2.5-6 5.5-6 8 0s5.5 6 8 0 3-4 4-4M2 18h20', flowi: 'M3 5c7 0 7 7 14 7h4M3 19c7 0 7-7 14-7M3 12h6', tiles: 'M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z',
   wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-4v4M16 13h2',
 };
 const PAGES = [
@@ -846,6 +913,8 @@ const PAGES = [
   {id: 'chain', label: 'Option Chain', ic: 'table'},
   {id: 'oi', label: 'OI Analysis', ic: 'layers'},
   {id: 'heatmap', label: 'OI Heatmap', ic: 'heat', isNew: 1},
+  {id: 'mflow', label: 'Market Flow', ic: 'flowi', isNew: 1},
+  {id: 'grid', label: 'Buildup Grid', ic: 'tiles', isNew: 1},
   {id: 'scanner', label: 'F&O Scanner', ic: 'radar', isNew: 1},
   {id: 'structure', label: 'Market Structure', ic: 'pulse'},
   {id: 'chart', label: 'Chart + Walls', ic: 'candles', isNew: 1, grp: 'Deep dive'},
@@ -888,7 +957,7 @@ function svgChart(el, o) {
     let d = ''; s.v.forEach((v, i) => d += (i ? 'L' : 'M') + X(xs[i]).toFixed(1) + ',' + Y(v).toFixed(1));
     const fx = X(xs[0]), lx = X(xs[xs.length - 1]), ly = Y(s.v[s.v.length - 1]);
     if (s.area) b += `<path d="${d}L${lx},${Y(s.base || 0)}L${fx},${Y(s.base || 0)}Z" style="fill:${s.c};fill-opacity:.13;stroke:none"/>`;
-    b += `<path class="ln${o.anim && !s.dash ? ' draw' : ''}" d="${d}" style="--gc:${s.c};fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
+    b += `<path class="ln${o.anim && !s.dash ? ' draw' : ''}" d="${d}" style="fill:none;stroke:${s.c};stroke-width:${s.w || 1.7}${s.dash ? ';stroke-dasharray:5 4' : ''}" stroke-linejoin="round"/>`;
     if (s.dot) b += `<circle cx="${lx}" cy="${ly}" r="3.4" style="fill:${s.c};stroke:var(--panel);stroke-width:2"/>`;
   }
   const extra = o.extra ? o.extra(X, Y, w, h) : '';
@@ -1810,6 +1879,241 @@ MODS.backtest = {
   },
 };
 
+
+/* ---- per-stock intraday view: VWAP, volume profile, levels, conviction ---- */
+let SV = {}, SVt = -1, RK = null;
+const SEC_HUE = {Banks: 212, Financials: 262, IT: 190, Auto: 20, Pharma: 330, FMCG: 140, Consumer: 38, Metals: 0, Energy: 28, Power: 52, Industrials: 175, Cement: 240, Realty: 300, Telecom: 280, Chemicals: 95};
+const logoBg = sym => `hsl(${SEC_HUE[U[sym].sec] ?? 210} 55% 42%)`;
+const initials = sym => sym.replace(/[^A-Z0-9]/g, '').slice(0, 2);
+function stockView(sym, tf) {
+  const u = U[sym], t0 = Math.min(N, Math.floor(tf));
+  if (SVt !== t0) { SV = {}; SVt = t0; RK = null; }
+  if (SV[sym]) return SV[sym];
+  const px = u.px, dv = t => Math.max(1, t ? u.vol[t] - u.vol[t - 1] : u.vol[0]);
+  const vwap = new Float64Array(t0 + 1); let pv = 0, vv = 0, lo = Infinity, hi = -Infinity;
+  for (let t = 0; t <= t0; t++) { const v = dv(t); pv += px[t] * v; vv += v; vwap[t] = pv / vv; lo = Math.min(lo, u.lo[t]); hi = Math.max(hi, u.hi[t]); }
+  const NB = 16, bw = (hi - lo) / NB || 1, up = new Float64Array(NB), dn = new Float64Array(NB);
+  for (let t = 0; t <= t0; t++) { const b = clamp(Math.floor((px[t] - lo) / bw), 0, NB - 1); if (t && px[t] < px[t - 1]) dn[b] += dv(t); else up[b] += dv(t); }
+  const tot = up.map((x, i) => x + dn[i]), price = px[t0], pb = clamp(Math.floor((price - lo) / bw), 0, NB - 1), poc = argmax(tot);
+  const peaks = []; for (let i = 0; i < NB; i++) if (tot[i] > 0 && tot[i] >= (tot[i - 1] || 0) && tot[i] >= (tot[i + 1] || 0)) peaks.push(lo + (i + 0.5) * bw);
+  const sup = peaks.filter(p => p < price - bw * 0.25).sort((a, b) => b - a), res = peaks.filter(p => p > price + bw * 0.25).sort((a, b) => a - b);
+  while (sup.length < 4) sup.push((sup.length ? sup[sup.length - 1] : price) - bw * 1.4);
+  while (res.length < 2) res.push((res.length ? res[res.length - 1] : price) + bw * 1.4);
+  const pct = u.pct[t0], oc = (u.oi[t0] / u.oi[0] - 1) * 100;
+  const bu = Math.abs(pct) < 0.1 && Math.abs(oc) < 0.4 ? 'NT' : pct >= 0 ? (oc >= 0 ? 'LB' : 'SC') : (oc >= 0 ? 'SB' : 'LU');
+  let delta = 0; for (let t = Math.max(1, t0 - 30); t <= t0; t++) delta += dv(t) * Math.sign(px[t] - px[t - 1]);
+  const bull = pct >= 0, stop = bull ? sup[0] : res[0], tgt = bull ? res[1] : sup[1];
+  const z = lo + (poc + 0.5) * bw, ob = [lo + poc * bw, lo + (poc + 1) * bw];
+  return SV[sym] = {sym, u, t0, price, pct, oc, bu, bull, vwap, vw: vwap[t0], lo, hi, bw, up, dn, tot, pb, poc, z, ob, sup, res, delta, rr: Math.abs(tgt - price) / Math.max(price * 1e-4, Math.abs(price - stop)), chg: price - u.prev, vx: u.vol[t0] / (u.avgVol * Math.max(t0, 8) / N)};
+}
+function rankAll(tf) {
+  stockView(UL[0].s, tf); if (RK) return RK;
+  const all = UL.map(u => stockView(u.s, tf)), score = (V, side) => {
+    const same = side.map(x => Math.abs(x.pct)).sort((a, b) => a - b), pr = same.length > 1 ? same.indexOf(Math.abs(V.pct)) / (same.length - 1) : 1;
+    const align = V.bull ? (V.bu === 'LB' ? 1 : V.bu === 'SC' ? 0.45 : 0) : (V.bu === 'SB' ? 1 : V.bu === 'LU' ? 0.45 : 0);
+    const vw = V.bull ? (V.price >= V.vw ? 1 : 0) : (V.price < V.vw ? 1 : 0);
+    return Math.round(clamp(42 * pr + 25 * align + 18 * vw + 15 * clamp((V.vx - 1) / 1.5, 0, 1), 1, 99));
+  };
+  const bulls = all.filter(V => V.bull), bears = all.filter(V => !V.bull);
+  for (const [list] of [[bulls], [bears]]) { list.forEach(V => { V.score = score(V, list); }); list.sort((a, b) => b.score - a.score || Math.abs(b.pct) - Math.abs(a.pct)); list.forEach((V, i) => { V.rank = i + 1; V.of = list.length; V.pctl = list.length > 1 ? 100 - i / (list.length - 1) * 100 : 100; }); }
+  return RK = {bulls, bears};
+}
+const dotsHTML = sc => { const n = clamp(Math.round(sc / 20), 1, 5); return `<span class="dots"><b>${'●'.repeat(n)}</b><u>${'●'.repeat(5 - n)}</u></span>`; };
+const f2 = x => x >= 1000 ? inr2(x) : x.toFixed(2);
+function stockChart(cv, V) {
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 440, H = 210; cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const C = {put: tok('--put'), call: tok('--call'), fg: tok('--fg'), faint: tok('--faint'), muted: tok('--muted'), acc: tok('--accent'), line: tok('--line'), amb: tok('--amber'), mono: tok('--f-mono')};
+  const u = V.u, t0 = V.t0, cand = [];
+  for (let b = 0; b * 5 < Math.max(t0, 1); b++) { const m0 = b * 5, m1 = Math.min(b * 5 + 5, t0); let h = u.px[m0], l = h; for (let m = m0 + 1; m <= m1; m++) { h = Math.max(h, u.hi[m]); l = Math.min(l, u.lo[m]); } cand.push({o: u.px[m0], c: u.px[m1], h, l}); }
+  const lv = [...V.res.slice(0, 2).map((p, i) => ['R' + (i + 1), p, C.call]), ['Z', V.z, C.amb], ...V.sup.slice(0, 4).map((p, i) => ['S' + (i + 1), p, C.put])];
+  let mn = Math.min(V.lo, ...lv.map(x => x[1])), mx = Math.max(V.hi, ...lv.map(x => x[1])); const pd = (mx - mn) * 0.06; mn -= pd; mx += pd;
+  const pl = 6, pr = 64, pt = 8, pb = 18, Y = v => pt + (1 - (v - mn) / (mx - mn)) * (H - pt - pb), slot = (W - pl - pr) / Math.max(cand.length, 12);
+  g.font = `600 9.5px ${C.mono}`; g.textBaseline = 'middle';
+  g.fillStyle = rgba(V.bull ? C.put : C.call, 0.1); g.fillRect(pl, Y(V.ob[1]), W - pl - pr, Math.max(2, Y(V.ob[0]) - Y(V.ob[1])));
+  for (const [n, p, col] of lv) { const y = Y(p); g.strokeStyle = rgba(col, 0.55); g.setLineDash(n === 'Z' ? [] : [3, 3]); g.beginPath(); g.moveTo(pl, y); g.lineTo(W - pr, y); g.stroke(); g.setLineDash([]); g.fillStyle = col; g.textAlign = 'left'; g.fillText(`${n} ${f2(p)}`, W - pr + 4, y); }
+  g.strokeStyle = C.acc; g.setLineDash([2, 3]); g.lineWidth = 1.2; g.beginPath();
+  for (let t = 0; t <= t0; t++) { const x = pl + t / 5 * slot, y = Y(V.vwap[t]); t ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.setLineDash([]); g.lineWidth = 1;
+  const cw = Math.max(1.5, slot * 0.62);
+  cand.forEach((c, i) => { const x = pl + i * slot + slot / 2, col = c.c >= c.o ? C.put : C.call; g.strokeStyle = col; g.beginPath(); g.moveTo(x, Y(c.h)); g.lineTo(x, Y(c.l)); g.stroke(); g.fillStyle = col; const a = Y(Math.max(c.o, c.c)), b = Y(Math.min(c.o, c.c)); g.fillRect(x - cw / 2, a, cw, Math.max(1, b - a)); });
+  const lx = pl + (cand.length - 0.5) * slot, ly = Y(V.price); g.strokeStyle = C.fg; g.beginPath(); g.arc(lx, ly, 5, 0, 7); g.stroke();
+  g.fillStyle = C.faint; g.textAlign = 'center'; for (const [t, l] of TT) if (t <= Math.max(t0, 60)) g.fillText(l, clamp(pl + t / 5 * slot, 18, W - pr - 18), H - 7);
+}
+function popHTML(V) {
+  const s = V.sym, tagC = V.bull ? 'up' : 'dn';
+  return `<div class="pop-h"><span class="lg" style="background:${logoBg(s)}">${initials(s)}</span><div><b>${esc(s)}</b><small>${esc(s)} · ${U[s].sec}</small></div>${spark([...V.u.pct.slice(0, V.t0 + 1)], V.bull ? 'var(--put)' : 'var(--call)')}</div>
+    <div class="pop-px"><span>₹${f2(V.price)}</span><span class="${tagC}">${pct(V.pct)} · ${sgn(V.chg, f2)}</span></div>
+    <div class="pop-g">
+      <div><span>RANK</span><b>p${V.pctl.toFixed(1)} · #${V.rank}/${V.of}</b></div><div><span>CONV</span><b>${V.score} ${dotsHTML(V.score)}</b></div>
+      <div><span>OI</span><b class="${V.oc >= 0 ? 'up' : 'dn'}">${pct(V.oc, 1)} · ${BU[V.bu]}</b></div><div><span>Δ 30M</span><b class="${V.delta >= 0 ? 'up' : 'dn'}">${sgn(V.delta, compact)} · ${V.price >= V.vw ? '▲ above' : '▼ below'} VWAP</b></div>
+      <div><span>VWAP</span><b>${f2(V.vw)}</b></div><div><span>OB ZONE</span><b>${f2(V.ob[0])}–${f2(V.ob[1])}</b></div>
+      <div><span>${V.bull ? 'Z/S1' : 'Z/R1'}</span><b>${f2(V.z)} · ${f2(V.bull ? V.sup[0] : V.res[0])}</b></div><div><span>R1/R2</span><b>${f2(V.res[0])} · ${f2(V.res[1])}</b></div>
+      <div><span>R:R</span><b>1:${V.rr.toFixed(1)}</b></div><div><span>LIST</span><b class="${tagC}">${V.bull ? 'Top bullish' : 'Top bearish'} #${V.rank}</b></div>
+    </div><canvas></canvas>
+    <div class="pop-f"><span>5m candles · VWAP (dotted) · zones from volume profile</span><button class="ibtn" data-chain="${esc(s)}">Option chain →</button></div>`;
+}
+/* ---- Buildup grid (tiles + top-conviction cards + hover detail) ---- */
+function tileHTML(V, hl) {
+  const NB = V.tot.length, mx = Math.max(...V.tot, 1);
+  let rows = ''; for (let i = NB - 1; i >= 0; i--) rows += `<span class="rw${i === V.pb ? ' cur' : ''}"><i style="width:${(V.up[i] / mx * 100).toFixed(1)}%"></i><i style="width:${(V.dn[i] / mx * 100).toFixed(1)}%"></i></span>`;
+  const yp = (1 - (V.price - V.lo) / ((V.hi - V.lo) || 1)) * 100, yv = (1 - (V.vw - V.lo) / ((V.hi - V.lo) || 1)) * 100;
+  return `<button class="tl ${V.bull ? 'b' : 'r'}${hl ? ' hl' : ''}" data-s="${esc(V.sym)}"><div class="tl-h"><div><b class="tl-s">${esc(V.sym)}</b><span class="tl-p ${V.bull ? 'up' : 'dn'}">${pct(V.pct)}</span></div><span class="tl-r">${pad(V.rank)}</span></div>
+    <div class="tl-tag"><span>${BU[V.bu]}</span>${dotsHTML(V.score)}</div>
+    <div class="tl-prof">${rows}<span class="tl-vw" style="top:${clamp(yv, 0, 100)}%" title="VWAP"></span><span class="tl-ln" style="top:${clamp(yp, 0, 100)}%"></span><span class="tl-px" style="top:${clamp(yp, 6, 94)}%">${f2(V.price)}</span></div></button>`;
+}
+function pickHTML(V) {
+  const lvl = V.bull ? V.sup[0] : V.res[0], a = V.sup[0], b = V.res[0], pos = clamp((V.price - a) / ((b - a) || 1) * 100, 2, 98);
+  return `<button class="pk ${V.bull ? 'b' : 'r'}" data-s="${esc(V.sym)}"><div class="pk-h"><span class="lg" style="background:${logoBg(V.sym)}">${initials(V.sym)}</span><div><b>${esc(V.sym)}</b><small>${U[V.sym].sec}</small></div><span class="ring2 ${V.bull ? 'up' : 'dn'}">${V.score}</span></div>
+    <span class="pk-pill">${V.bull ? 'BULLISH' : 'BEARISH'}</span><div class="pk-big ${V.bull ? 'up' : 'dn'}">${pct(V.pct)}</div><div class="pk-px">₹${f2(V.price)} <span class="${V.bull ? 'up' : 'dn'}">${sgn(V.chg, f2)}</span> · ${BU[V.bu]}</div>
+    <div class="pk-lv"><div><small>${V.bull ? 'SUPPORT 1' : 'RESISTANCE 1'}</small><b>${f2(lvl)}</b></div><div><small>ZONE</small><b>${f2(V.ob[0])}–${f2(V.ob[1])}</b></div></div>
+    <div class="pk-bar" title="S1 se R1 ke beech price kahan hai"><i style="left:${pos}%"></i></div></button>`;
+}
+MODS.grid = {
+  mount(v) {
+    app.gridN = app.gridN || 24;
+    v.innerHTML = phead('Buildup Grid', 'Har tile ek stock: kitna chala, OI kis taraf bana, aur din bhar kis bhaav par sabse zyada volume hua (hara = upar jaate waqt, laal = girte waqt). Upar bullish, neeche bearish, conviction ke hisaab se. Tile par mouse le jao ya tap karo, poori detail khulegi.',
+      `<div class="seg" id="gdN"><button data-n="24">Top 24</button><button data-n="48">Top 48</button><button data-n="999">All</button></div>`) +
+      `<div class="gd-wrap"><div class="gd-main"><div class="gd-h up"><span>▲ Bullish</span><b id="gdBn"></b></div><div class="gd-tiles" id="gdBull"></div>
+        <div class="gd-mid"><span id="gdMid"></span></div>
+        <div class="gd-h dn"><span>▼ Bearish</span><b id="gdRn"></b></div><div class="gd-tiles" id="gdBear"></div></div>
+        <aside class="gd-side"><h3 class="gd-st">Top conviction</h3><div id="gdPk"></div></aside></div>
+      <div class="pop" id="gdPop" hidden></div>
+      <p class="note">Conviction = move kitna bada hai + OI usi taraf bana ya nahi + VWAP ke upar/neeche + volume. Ye ranking market ki haalat batati hai, kharidne-bechne ki salah nahi.</p>`;
+    $$('#gdN button').forEach(b => { b.setAttribute('aria-pressed', +b.dataset.n === app.gridN); b.onclick = () => { app.gridN = +b.dataset.n; $$('#gdN button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    const view = $('#view');
+    this.pin = null; this.cur = null;
+    const tileOf = e => e.target.closest && e.target.closest('.tl, .pk');
+    view.onmouseover = e => { const t = tileOf(e); if (t && !this.pin && matchMedia('(hover: hover)').matches) this.show(t.dataset.s, t); };
+    view.onmouseout = e => { const t = tileOf(e); if (t && !this.pin && !(e.relatedTarget && t.contains(e.relatedTarget))) this.hide(); };
+    view.onclick = e => {
+      const c = e.target.closest('[data-chain]'); if (c) { this.hide(); setSymGo(c.dataset.chain, 'chain'); return; }
+      const t = tileOf(e); if (t) { if (this.pin === t.dataset.s) { this.pin = null; this.hide(); } else { this.pin = t.dataset.s; this.show(t.dataset.s, t); } return; }
+      if (this.pin && !e.target.closest('#gdPop')) { this.pin = null; this.hide(); }
+    };
+  },
+  show(sym, el) {
+    const P = $('#gdPop'), V = stockView(sym, app.tf); rankAll(app.tf);
+    this.cur = sym; P.innerHTML = popHTML(V); P.hidden = false;
+    $$('.tl.on').forEach(x => x.classList.remove('on')); if (el) el.classList.add('on');
+    const r = (el || $(`.tl[data-s="${CSS.escape(sym)}"]`) || P).getBoundingClientRect(), w = P.offsetWidth, h = P.offsetHeight;
+    let x = r.right + 12; if (x + w > innerWidth - 12) x = r.left - w - 12; if (x < 12) x = clamp(r.left, 12, innerWidth - w - 12);
+    let y = clamp(r.top - 20, 12, innerHeight - h - 80); if (x === clamp(r.left, 12, innerWidth - w - 12) && r.bottom + h < innerHeight - 70) y = r.bottom + 8;
+    P.style.left = x + 'px'; P.style.top = y + 'px';
+    stockChart(P.querySelector('canvas'), V);
+  },
+  hide() { const P = $('#gdPop'); if (P) P.hidden = true; this.cur = null; $$('.tl.on').forEach(x => x.classList.remove('on')); },
+  update(ctx) {
+    if (!ctx.minuteChanged && !this.dirty) return;
+    const {bulls, bears} = rankAll(ctx.tf), n = app.gridN, old = {};
+    $$('#view .tl').forEach(el => { old[el.dataset.s] = el.getBoundingClientRect(); });
+    $('#gdBull').innerHTML = bulls.slice(0, n).map((V, i) => tileHTML(V, i < 3)).join('');
+    $('#gdBear').innerHTML = bears.slice(0, n).map((V, i) => tileHTML(V, i < 3)).join('');
+    setText($('#gdBn'), `${bulls.length} stocks`); setText($('#gdRn'), `${bears.length} stocks`);
+    setText($('#gdMid'), `▲ ${bulls.length}  ·  ${tl(ctx.t0)}  ·  ▼ ${bears.length}`);
+    $('#gdPk').innerHTML = [...bulls.slice(0, 3), ...bears.slice(0, 3)].map(pickHTML).join('');
+    if (!REDUCE) $$('#view .tl').forEach(el => { const o = old[el.dataset.s]; if (!o) { el.animate([{opacity: 0, transform: 'scale(.96)'}, {opacity: 1, transform: 'none'}], {duration: 450, easing: 'ease-out'}); return; } const r = el.getBoundingClientRect(), dx = o.left - r.left, dy = o.top - r.top; if (dx || dy) el.animate([{transform: `translate(${dx}px,${dy}px)`}, {transform: 'none'}], {duration: 650, easing: 'cubic-bezier(.2,.8,.2,1)'}); });
+    if (this.cur) { const el = $(`.tl[data-s="${CSS.escape(this.cur)}"]`); this.show(this.cur, el); }
+    this.dirty = false;
+  },
+};
+/* ---- Market flow: every F&O stock's day as a line, funnelled into a ranked column ---- */
+MODS.mflow = {
+  mount(v) {
+    v.innerHTML = phead('Market Flow', `Saare ${UL.length} F&amp;O stocks ek saath. Har patli line ek stock ki din bhar ki chaal hai. Daayein sab rank ke hisaab se line mein lagte hain, aur sabse mazboot aur sabse kamzor stocks alag nikal aate hain. Baayein har sector apne % par baitha hai.`,
+      `<div class="seg" id="mfK"><button data-k="6">Top 6</button><button data-k="10">Top 10</button></div>`) +
+      `<section class="card mf"><div class="mf-top"><canvas id="mfStrip"></canvas></div>
+        <div class="mf-body" id="mfBody"><canvas id="mfCv"></canvas><svg id="mfLinks" class="mf-links" aria-hidden="true"></svg>
+          <div class="mf-list"><div id="mfBull"></div><div id="mfBear"></div></div></div>
+        <div class="tip" id="mfTip" hidden></div></section>
+      <p class="note">Mouse kisi line par le jao to us stock ka naam aur % dikhega. Neeli moti line NIFTY hai. Daayein tile par click = us stock ki option chain.</p>`;
+    app.mfK = app.mfK || 6;
+    $$('#mfK button').forEach(b => { b.setAttribute('aria-pressed', +b.dataset.k === app.mfK); b.onclick = () => { app.mfK = +b.dataset.k; $$('#mfK button').forEach(x => x.setAttribute('aria-pressed', x === b)); this.dirty = true; this.update(lastCtx); }; });
+    const cv = $('#mfCv');
+    cv.onmousemove = e => { const r = cv.getBoundingClientRect(); this.hov = {x: e.clientX - r.left, y: e.clientY - r.top}; if (!this.hraf) this.hraf = requestAnimationFrame(() => { this.hraf = 0; this.draw(lastCtx, 1); }); };
+    cv.onmouseleave = () => { this.hov = null; $('#mfTip').hidden = true; this.draw(lastCtx, 1); };
+    $('.mf-list').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSymGo(b.dataset.s, 'chain'); };
+    this.grow = REDUCE ? 1 : 0; this.hov = null; this.anim = 0; this.hraf = 0;
+  },
+  update(ctx) {
+    if (this.grow < 1) { if (!this.anim) { const t0 = performance.now(); const step = () => { this.grow = Math.min(1, (performance.now() - t0) / 1400); this.draw(lastCtx); if (this.grow < 1 && $('#mfCv')) requestAnimationFrame(step); else this.anim = 0; }; this.anim = requestAnimationFrame(step); } return; }
+    if (ctx.minuteChanged || this.dirty) { this.draw(ctx); this.dirty = false; }
+  },
+  draw(ctx, hoverOnly) {
+    const cv = $('#mfCv'); if (!cv || !ctx) return;
+    const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, mob = W < 560, H = mob ? 430 : 600;
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const C = {put: tok('--put'), call: tok('--call'), fg: tok('--fg'), muted: tok('--muted'), faint: tok('--faint'), line: tok('--line'), acc: tok('--accent'), amb: tok('--amber'), mono: tok('--f-mono'), bg: tok('--panel')};
+    const t0 = ctx.t0, tE = Math.max(1, Math.round(t0 * this.grow)), a = ctx.tf - t0, t1 = Math.min(N, t0 + 1);
+    const now = UL.map(u => ({u, p: this.grow < 1 ? u.pct[tE] : lerp(u.pct[t0], u.pct[t1], a)}));
+    let M = 1; for (const u of UL) for (let t = 0; t <= tE; t += 3) M = Math.max(M, Math.abs(u.pct[t])); M *= 1.06;
+    const RW = mob ? 92 : 168, RC = mob ? 46 : 74, x0 = RW + 8, x1 = W - RC - 10, pt = 14, pb = 22, Y = p => pt + (1 - (p + M) / (2 * M)) * (H - pt - pb), X = t => x0 + t / N * (x1 - x0);
+    const DN = getData('NIFTY'), idx = t => (DN.spot[t] / DN.c.prev - 1) * 100;
+    g.font = `600 9.5px ${C.mono}`; g.textBaseline = 'middle';
+    for (const v of niceTicks(-M, M, 6)) { g.strokeStyle = rgba(C.line, v === 0 ? 1 : 0.7); g.beginPath(); g.moveTo(x0, Y(v)); g.lineTo(x1, Y(v)); g.stroke(); g.fillStyle = C.faint; g.textAlign = 'left'; g.fillText((v > 0 ? '+' : '') + v + '%', x0 + 3, Y(v) - 6); }
+    g.textAlign = 'center'; for (const [t, l] of TT) g.fillText(l, clamp(X(t), x0 + 16, x1 - 16), H - 8);
+    // sector rail
+    const secs = Object.keys(FNO).map(s => { const r = now.filter(x => x.u.sec === s); return {s, v: r.reduce((q, x) => q + x.p, 0) / r.length}; }).sort((p, q) => q.v - p.v);
+    let lastY = -99; const lab = secs.map(o => { const y = Math.max(Y(o.v), lastY + 14); lastY = y; return {...o, y}; });
+    const over = lastY - (H - pb); if (over > 0) lab.forEach(o => { o.y -= over; });
+    g.lineWidth = 2; g.strokeStyle = C.put; g.beginPath(); g.moveTo(RW - 2, pt); g.lineTo(RW - 2, Y(0)); g.stroke(); g.strokeStyle = C.call; g.beginPath(); g.moveTo(RW - 2, Y(0)); g.lineTo(RW - 2, H - pb); g.stroke(); g.lineWidth = 1;
+    for (const o of lab) {
+      const col = o.v >= 0 ? C.put : C.call, bw = clamp(Math.abs(o.v) / M * (RW - 70), 2, RW - 70);
+      g.strokeStyle = rgba(col, 0.5); g.beginPath(); g.moveTo(RW - 2, Y(o.v)); g.lineTo(RW - 10, o.y); g.stroke();
+      g.fillStyle = C.fg; g.textAlign = 'left'; g.fillText(mob ? o.s.slice(0, 6).toUpperCase() : o.s.toUpperCase(), 2, o.y - 3);
+      if (!mob) { g.fillStyle = col; g.textAlign = 'right'; g.fillText(pct(o.v), RW - 12, o.y - 3); g.fillStyle = rgba(col, 0.75); g.fillRect(2, o.y + 3, bw, 2.5); }
+    }
+    // spaghetti
+    const sorted = [...now].sort((p, q) => q.p - p.p), K = app.mfK, hot = new Set([...sorted.slice(0, K), ...sorted.slice(-K)].map(x => x.u.s));
+    let hovS = null;
+    if (this.hov && this.hov.x > x0 && this.hov.x < x1) { const t = clamp(Math.round((this.hov.x - x0) / (x1 - x0) * N), 0, tE); let best = 9; for (const x of now) { const d = Math.abs(Y(x.u.pct[t]) - this.hov.y); if (d < best) { best = d; hovS = x.u; } } if (hovS) { const tip = $('#mfTip'), r = cv.closest('.card').getBoundingClientRect(), cr = cv.getBoundingClientRect(); tip.innerHTML = `<b>${esc(hovS.s)}</b> · ${hovS.sec}<br>${tl(t)} <span class="${hovS.pct[t] >= 0 ? 'up' : 'dn'}">${pct(hovS.pct[t])}</span> · abhi <span class="${hovS.pct[t0] >= 0 ? 'up' : 'dn'}">${pct(hovS.pct[t0])}</span>`; tip.hidden = false; tip.style.left = clamp(cr.left - r.left + this.hov.x + 14, 0, r.width - 200) + 'px'; tip.style.top = (cr.top - r.top + this.hov.y + 14) + 'px'; } }
+    else $('#mfTip').hidden = true;
+    const line = (u, w, col) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); for (let t = 0; t <= tE; t += 2) { const x = X(t), y = Y(u.pct[t]); t ? g.lineTo(x, y) : g.moveTo(x, y); } g.lineTo(X(tE), Y(u.pct[tE])); g.stroke(); };
+    for (const x of now) if (!hot.has(x.u.s)) line(x.u, 1, rgba(x.p >= 0 ? C.put : C.call, hovS ? 0.08 : 0.2));
+    // funnel into rank column
+    const n = sorted.length, rh = (H - pt - pb) / n, zi = sorted.findIndex(x => x.p < 0), zIdx = zi < 0 ? n : zi;
+    for (const [i, x] of sorted.entries()) { const ry = pt + (i + 0.5) * rh; g.strokeStyle = rgba(x.p >= 0 ? C.put : C.call, hot.has(x.u.s) ? 0.5 : 0.1); g.lineWidth = 1; g.beginPath(); g.moveTo(X(tE), Y(x.u.pct[tE])); g.bezierCurveTo(X(tE) + (x1 - X(tE)) * 0.5 + 10, Y(x.u.pct[tE]), x1 - 10, ry, x1 + 2, ry); g.stroke(); }
+    for (const x of now) if (hot.has(x.u.s)) line(x.u, 1.6, rgba(x.p >= 0 ? C.put : C.call, hovS ? 0.3 : 0.95));
+    if (hovS) line(hovS, 2.4, C.fg);
+    g.strokeStyle = C.acc; g.lineWidth = 2.2; g.beginPath(); for (let t = 0; t <= tE; t++) { t ? g.lineTo(X(t), Y(idx(t))) : g.moveTo(X(t), Y(idx(t))); } g.stroke(); g.lineWidth = 1;
+    g.fillStyle = C.acc; g.textAlign = 'left'; g.fillText('NIFTY', X(tE) + 6, Y(idx(tE)) - 8);
+    g.strokeStyle = rgba(C.fg, 0.35); g.setLineDash([2, 3]); g.beginPath(); g.moveTo(X(tE), pt); g.lineTo(X(tE), H - pb); g.stroke(); g.setLineDash([]);
+    // rank column
+    const cx = x1 + 4, cw = RC - 4;
+    sorted.forEach((x, i) => { const y = pt + i * rh; g.fillStyle = rgba(x.p >= 0 ? C.put : C.call, hot.has(x.u.s) ? 0.95 : 0.55); g.fillRect(cx, y, Math.max(1.5, Math.abs(x.p) / M * cw), Math.max(0.8, rh - 0.6)); });
+    const br = (ya, yb, col) => { g.strokeStyle = col; g.lineWidth = 1.5; const L = 7; for (const [xx, d] of [[cx - 3, 1], [cx + cw + 1, -1]]) { g.beginPath(); g.moveTo(xx + d * L, ya); g.lineTo(xx, ya); g.lineTo(xx, yb); g.lineTo(xx + d * L, yb); g.stroke(); } g.lineWidth = 1; };
+    br(pt - 2, pt + K * rh + 2, C.put); br(pt + (n - K) * rh - 2, H - pb + 2, C.call);
+    const zy = pt + zIdx * rh; g.fillStyle = C.fg; g.beginPath(); g.arc(cx - 6, zy, 3.5, 0, 7); g.fill();
+    g.textAlign = 'right'; g.fillStyle = C.put; g.fillText(`▲ ${zIdx}`, cx - 12, zy - 9); g.fillStyle = C.call; g.fillText(`▼ ${n - zIdx}`, cx - 12, zy + 9);
+    if (hoverOnly) return;
+    this.drawStrip(now, secs, M, x0, x1, C, zIdx, n);
+    if (this.grow < 1) return;
+    // side lists + animated links
+    const tile = x => `<button class="mfi" data-s="${esc(x.u.s)}"><b>${esc(x.u.s)}</b><span class="${x.p >= 0 ? 'up' : 'dn'}">${pct(x.p)}</span><i style="width:${clamp(Math.abs(x.p) / M * 100, 4, 100)}%;background:var(${x.p >= 0 ? '--put' : '--call'})"></i></button>`;
+    $('#mfBull').innerHTML = `<div class="mf-lbl up">▲ Strongest</div>` + sorted.slice(0, K).map(tile).join('');
+    $('#mfBear').innerHTML = `<div class="mf-lbl dn">▼ Weakest</div>` + sorted.slice(-K).reverse().map(tile).join('');
+    const svg = $('#mfLinks'); if (!svg || mob) return;
+    const body = $('#mfBody').getBoundingClientRect(), sr = svg.getBoundingClientRect(), cvr = cv.getBoundingClientRect(); svg.setAttribute('height', body.height); svg.style.height = body.height + 'px';
+    let paths = '';
+    const link = (x, i, top) => { const el = $(`#mf${top ? 'Bull' : 'Bear'} [data-s="${CSS.escape(x.u.s)}"]`); if (!el) return; const tr = el.getBoundingClientRect(), ya = cvr.top - sr.top + pt + (i + 0.5) * rh, yb = tr.top - sr.top + tr.height / 2; paths += `<path d="M0,${ya.toFixed(1)} C30,${ya.toFixed(1)} 30,${yb.toFixed(1)} 60,${yb.toFixed(1)}" style="stroke:var(${top ? '--put' : '--call'})"/>`; };
+    sorted.slice(0, K).forEach((x, i) => link(x, i, true)); sorted.slice(-K).forEach((x, j) => link(x, n - K + j, false));
+    svg.innerHTML = paths;
+  },
+  drawStrip(now, secs, M, x0, x1, C, nb, n) {
+    const cv = $('#mfStrip'), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = 62; cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.font = `700 9.5px ${C.mono}`; g.textBaseline = 'middle';
+    const xs1 = Math.min(x1, W - 118), mob = W < 560, X = p => x0 + (p + M) / (2 * M) * (xs1 - x0), mid = 34; x1 = xs1;
+    g.strokeStyle = C.line; g.beginPath(); g.moveTo(x0, mid); g.lineTo(x1, mid); g.stroke();
+    for (const x of now) { const j = (hashS(x.u.s) % 1000) / 1000 - 0.5; g.fillStyle = rgba(x.p >= 0 ? C.put : C.call, 0.8); g.beginPath(); g.arc(X(x.p), mid + j * 22, 2.2, 0, 7); g.fill(); }
+    for (const s of secs) { g.fillStyle = C.fg; g.fillRect(X(s.v) - 0.75, mid - 13, 1.5, 26); }
+    const lead = secs[0], lag = secs[secs.length - 1];
+    const lagT = `${lag.s.toUpperCase()} ${pct(lag.v)}`, leadT = `${lead.s.toUpperCase()} ${pct(lead.v)}`;
+    g.textAlign = 'left'; g.fillStyle = C.call; g.fillText((mob ? '▼ ' : 'LAGGING SECTOR  ') + lagT, x0, 9);
+    g.textAlign = 'right'; g.fillStyle = C.put; g.fillText((mob ? '▲ ' : 'LEADING SECTOR  ') + leadT, x1, mob ? 58 : 9);
+    g.textAlign = 'right'; g.font = `700 15px ${C.mono}`; g.fillStyle = C.put; g.fillText(`▲ ${nb}`, W - 58, 20); g.fillStyle = C.call; g.fillText(`▼ ${n - nb}`, W - 58, 44);
+    g.font = `700 8.5px ${C.mono}`; g.textAlign = 'left'; g.fillStyle = C.muted; g.fillText('BULLISH', W - 54, 20); g.fillText('BEARISH', W - 54, 44);
+  },
+};
 /* ---- Volatility lab ---- */
 MODS.vol = {
   mount(v) {
@@ -1937,7 +2241,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag: support/resistance building (naya)'], ['Quantum flow UI', 'Chalti lehron wala background, glass cards, glow, number roll, draw-in charts (naya)'], ['Light / Dark / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}
@@ -2016,7 +2320,7 @@ function updateChrome(ctx) {
   setText($('#statusTxt'), app.mode === 'live' ? (closed ? 'Market closed' : 'Live') : 'Replay');
   setText($('#clock'), tls(Math.min(app.tf, N)) + ' IST');
   const isPlaying = app.mode === 'live' ? !closed : app.playing;
-  const pb = $('#playBtn'); pb.classList.toggle('on', isPlaying); if (pb._p !== isPlaying) { pb.innerHTML = isPlaying ? PAUSE : PLAY; pb.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play'); pb._p = isPlaying; }
+  const pb = $('#playBtn'); if (pb._p !== isPlaying) { pb.innerHTML = isPlaying ? PAUSE : PLAY; pb.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play'); pb._p = isPlaying; }
   $('#scAv').style.width = (app.edge / N * 100) + '%'; $('#scFl').style.width = (app.tf / N * 100) + '%';
   const inp = $('#scIn'); if (document.activeElement !== inp) inp.value = app.tf;
   setText($('#tlab'), tl(app.tf));
@@ -2075,41 +2379,10 @@ $('#cmdkIn').onkeydown = e => { if (e.key === 'ArrowDown') { cmdSel++; drawCmd()
 $('#cmdkList').onclick = e => { const li = e.target.closest('[data-i]'); if (li) { closeCmd(); cmdList[+li.dataset.i].run(); } };
 $('#cmdk').onclick = e => { if (e.target.id === 'cmdk') closeCmd(); };
 document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#cmdk').hidden ? openCmd() : closeCmd(); } else if (e.key === 'Escape') { closeCmd(); closePicker(); } });
-function setTheme(m) { setTimeout(() => refreshFlow(), 0); THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
+function setTheme(m) { THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
 $('#themeSeg').onclick = e => { const b = e.target.closest('[data-th]'); if (!b) return; setTheme(b.dataset.th); MODS[app.page].dirty = true; render(true); };
 setTheme(THEME);
 
-/* ================= quantum flow: background field, card spotlight, digit roll ================= */
-let refreshFlow = () => {};
-function startFlow() {
-  const cv = $('#flow'); if (!cv || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const g = cv.getContext('2d'); let W = 0, H = 0, P = [], cols = [], light = false, t = 0, skip = false;
-  const spawn = () => ({x: Math.random() * W, y: Math.random() * H, l: 60 + Math.random() * 260, c: Math.floor(Math.random() * 3), s: 0.6 + Math.random() * 0.9});
-  const size = () => { const d = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); P = Array.from({length: Math.round(clamp(W * H / 5200, 90, 320))}, spawn); };
-  refreshFlow = () => { light = getComputedStyle(document.documentElement).colorScheme === 'light'; cols = ['--glow1', '--glow2', '--glow3'].map(tok); g.clearRect(0, 0, W, H); };
-  const frame = () => {
-    requestAnimationFrame(frame); if (document.hidden || (skip = !skip)) return; t += 2;
-    g.globalCompositeOperation = 'destination-out'; g.fillStyle = 'rgba(0,0,0,0.07)'; g.fillRect(0, 0, W, H);
-    g.globalCompositeOperation = light ? 'source-over' : 'lighter'; g.lineWidth = 1.15;
-    for (let c = 0; c < 3; c++) {
-      g.strokeStyle = rgba(cols[c], light ? 0.2 : 0.3); g.beginPath();
-      for (const p of P) {
-        if (p.c !== c) continue;
-        const a = Math.sin(p.x * 0.0023 + t * 0.004) * 1.7 + Math.cos(p.y * 0.0027 - t * 0.003) * 1.7 + Math.sin((p.x + p.y) * 0.0009 + t * 0.001);
-        const nx = p.x + Math.cos(a) * p.s * 2.4, ny = p.y + Math.sin(a) * p.s * 2.4;
-        g.moveTo(p.x, p.y); g.lineTo(nx, ny); p.x = nx; p.y = ny;
-        if ((p.l -= 2) < 0 || nx < -5 || ny < -5 || nx > W + 5 || ny > H + 5) Object.assign(p, spawn());
-      }
-      g.stroke();
-    }
-  };
-  size(); refreshFlow(); addEventListener('resize', () => { size(); refreshFlow(); }); frame();
-}
-let spotRaf = 0, spotE = null;
-document.addEventListener('pointermove', e => {
-  spotE = e; if (spotRaf) return;
-  spotRaf = requestAnimationFrame(() => { spotRaf = 0; const c = spotE.target.closest && spotE.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (spotE.clientX - r.left) + 'px'); c.style.setProperty('--my', (spotE.clientY - r.top) + 'px'); });
-}, {passive: true});
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function roll(el, v, txt) {
   if (!el) return;
@@ -2137,7 +2410,7 @@ function render(force) {
 }
 function mount() {
   const v = $('#view'), m = MODS[app.page];
-  v.innerHTML = ''; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
+  v.innerHTML = ''; v.onmouseover = v.onmouseout = v.onclick = null; v.classList.remove('anim-in'); void v.offsetWidth; v.classList.add('anim-in');
   m.mount(v); m.dirty = true; m.tiles = null; m.br = 0;
   $$('#view .card, #view .cat').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 14)));
   $$('.nav-i').forEach(b => b.setAttribute('aria-current', b.dataset.p === app.page ? 'page' : 'false'));
@@ -2159,7 +2432,7 @@ setInterval(() => {
 }, TICK);
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
-getData('NIFTY'); getData('BANKNIFTY'); buildUniverse(); startFlow();
+getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
 syncSym();
 const h0 = (location.hash || '').slice(1);
 go(MODS[h0] ? h0 : 'overview');

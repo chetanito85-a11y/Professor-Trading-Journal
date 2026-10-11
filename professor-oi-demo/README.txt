@@ -14,13 +14,14 @@ Chalane ka tarika
 - Ya bas "index.html" par double-click kar do, wo bhi kaafi hai.
 - Band karna ho to kaali (terminal) window close kar do.
 
-Andar kya hai (16 pages)
+Andar kya hai (18 pages)
 ------------------------
-Overview, Option Chain, OI Analysis, OI Heatmap, F&O Scanner (~200 stocks),
+Overview, Option Chain, OI Analysis, OI Heatmap, Market Flow, Buildup Grid,
+F&O Scanner (~200 stocks),
 Market Structure, Chart + Walls, GEX & Greeks, Volatility Lab, Straddle & Expiry,
 Strategy Builder, Signal Backtest, Paper Trading + Risk Manager,
 Journal + OI, Alerts (beep + voice), Blueprint.
-Theme: header mein Light / Dark / Auto.
+Theme: header mein Light / AMOLED Dark / Auto.
 
 Dhyan rahe
 ----------
