@@ -1174,7 +1174,6 @@ const IC = {
 };
 const PAGES = [
   {id: 'overview', label: 'Overview', ic: 'grid', grp: 'Live market'},
-  {id: 'tools', label: 'All Tools', ic: 'apps'},
   {id: 'chain', label: 'Option Chain', ic: 'table'},
   {id: 'oi', label: 'OI Analysis', ic: 'layers'},
   {id: 'oicharts', label: 'OI Charts', ic: 'bars', isNew: 1},
@@ -2604,63 +2603,6 @@ MODS.oicharts = {
     $('#cycStat').textContent = L(`Now: ${last ? BU[last] : '—'} · today ${Object.entries(cnt).map(([k, v]) => `${BU[k]} ${(v / tot * 100).toFixed(0)}%`).join(' · ')}`, `Abhi: ${last ? BU[last] : '—'} · aaj ${Object.entries(cnt).map(([k, v]) => `${BU[k]} ${(v / tot * 100).toFixed(0)}%`).join(' · ')}`);
   },
 };
-/* ---- All tools hub ---- */
-const TOOLS = () => {
-  const DN = getData('NIFTY'), t0 = Math.floor(app.tf), sl = a => Array.from(a.slice(0, t0 + 1)), sn = DN.snaps, ser = f => { const o = []; for (let t = 0; t <= t0; t += 3) o.push(f(sn[t], t)); return o; };
-  const breadth = () => { const o = []; for (let t = 0; t <= t0; t += 3) o.push(UL.filter(u => u.pct[t] >= 0).length); return o; };
-  const F = futOI('NIFTY');
-  return [
-    [L('Option chain & OI', 'Option chain aur OI'), [
-      ['chain', null, 'table', 'Option Chain', L('Every strike: OI, change, volume, IV, delta, reversal', 'Har strike: OI, change, volume, IV, delta, reversal'), sl(DN.spot)],
-      ['oi', null, 'layers', 'OI Analysis', L('Three-strike verdicts, strike ladder, intraday change in OI', 'Three-strike verdict, strike ladder, din bhar ka OI change'), ser(s => s.totPc - s.totCc)],
-      ['oi', 'oiTrend', 'layers', 'Smart OI zones', L('Support / resistance building, auto-tagged per strike', 'Har strike par support/resistance building ka auto tag'), ser(s => s.pChg[s.atmK])],
-      ['oicharts', 'ocMulti', 'bars', 'Multi-strike OI', L('Overlay OI of up to 4 strikes on one chart', '4 strikes ka OI ek chart par'), ser(s => s.pChg[s.atmK] - s.cChg[s.atmK]), 1],
-      ['oicharts', 'ocCvp', 'bars', 'Call vs Put OI', L('Total call vs put open interest through the day', 'Din bhar total call vs put OI'), ser(s => s.totP - s.totC), 1],
-      ['oicharts', 'ocPcr', 'bars', 'PCR tracker', L('Intraday PCR with zones, plus PCR by strike', 'Zones ke saath intraday PCR, aur strike-wise PCR'), sl(DN.ser.pcr), 1],
-      ['oicharts', 'ocMp', 'bars', 'Max pain tracker', L('Max pain vs spot through the day', 'Din bhar max pain vs spot'), sl(DN.ser.mp), 1],
-      ['heatmap', null, 'heat', 'OI Heatmap', L('Time × strike grid of fresh writing', 'Time × strike nayi writing ka grid'), ser(s => s.totPc)],
-    ]],
-    [L('Market breadth', 'Market breadth'), [
-      ['mflow', null, 'flowi', 'Market Flow', L('All F&O stocks as live lines, funnelled into a ranking', 'Saare F&O stocks live lines mein, ranking mein judte hue'), breadth()],
-      ['grid', null, 'tiles', 'Buildup Grid', L('Volume-profile tiles ranked by conviction', 'Conviction ke hisaab se volume-profile tiles'), breadth()],
-      ['scanner', null, 'radar', 'F&O Scanner', L('Sector → buildup flow, buildup map, full table', 'Sector → buildup flow, buildup map, poori table'), breadth()],
-      ['structure', null, 'pulse', 'Market Structure', L('Index stocks rising vs falling, key levels', 'Index ke stocks upar vs neeche, key levels'), breadth()],
-    ]],
-    [L('Futures', 'Futures'), [
-      ['oicharts', 'ocCycle', 'bars', 'Futures sentiment cycle', L('Price vs OI state every 5 minutes', 'Har 5 minute price vs OI ki haalat'), sl(F.oi), 1],
-      ['oicharts', 'ocCycle', 'bars', 'Price vs OI', L('Futures price and OI side by side', 'Futures price aur OI saath mein'), sl(F.px), 1],
-    ]],
-    [L('Volatility & expiry', 'Volatility aur expiry'), [
-      ['vol', 'vlIvhv', 'wave', 'IV chart · IV vs HV', L('Is IV rich or cheap against real movement?', 'IV asli chaal ke mukable mehenga hai ya sasta?'), sl(DN.ser.iv)],
-      ['vol', 'vlSmile', 'wave', 'Volatility skew', L('IV smile at 09:15 vs now', 'IV smile 09:15 vs abhi'), sl(DN.ser.iv)],
-      ['vol', 'vlGrid', 'wave', 'IV grid', L('IV of every F&O stock, sortable', 'Har F&O stock ka IV, sort ke saath'), sl(DN.ser.iv)],
-      ['straddle', null, 'clock', 'ATM straddle chart', L('Straddle vs VWAP, expected range to expiry', 'Straddle vs VWAP, expiry tak ki range'), ser(s => s.cP[s.atmK] + s.pP[s.atmK])],
-      ['straddle', 'stDecay', 'clock', 'Premium decay', L('CE, PE and straddle decay since the open', 'Subah se CE, PE aur straddle kitna pighla'), ser((s, t) => sn[t].cP[sn[0].atmK] + sn[t].pP[sn[0].atmK]), 1],
-      ['gex', null, 'gamma', 'Gamma walls · GEX', L('Where dealer hedging steadies or speeds up price', 'Kahan hedging market ko thamti ya tez karti hai'), sl(DN.ser.gex)],
-    ]],
-    [L('Trade & practice', 'Trade aur practice'), [
-      ['strategy', null, 'payoff', 'Strategy Builder', L('Multi-leg payoff, breakevens, POP, Greeks', 'Multi-leg payoff, breakeven, POP, Greeks'), null],
-      ['paper', null, 'wallet', 'Options simulator', L('Paper trading with a risk manager', 'Risk manager ke saath paper trading'), null],
-      ['backtest', null, 'flask', 'Signal Backtest', L('Hit rate of OI signals on history', 'History par OI signals ka hit rate'), null],
-      ['journal', null, 'book', 'Journal + OI', L('Every trade with the market snapshot at entry', 'Har trade ke saath entry ke waqt ka snapshot'), null],
-      ['alerts', null, 'bell', 'Alerts', L('Wall shifts, PCR extremes, GEX flips, voice', 'Wall shift, PCR extreme, GEX flip, awaaz'), null],
-    ]],
-    [L('Data', 'Data'), [
-      ['broker', null, 'plug', 'Broker & Data', L('Connect a broker feed, see live feed health', 'Broker feed jodo, live feed ki health dekho'), null, 1],
-      ['chart', null, 'candles', 'Chart + Walls', L('Candles with wall history and max pain', 'Candles ke saath walls ki history aur max pain'), sl(DN.spot)],
-    ]],
-  ];
-};
-MODS.tools = {
-  mount(v) {
-    v.innerHTML = phead('All Tools', L('Every tool in one place, grouped the way traders work. Each card shows a live mini preview; click to open.', 'Saare tools ek jagah, kaam ke hisaab se. Har card mein live mini preview hai, click karke kholo.')) + '<div id="thBody"></div>';
-    $('#thBody').onclick = e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go, b.dataset.a || null); };
-  },
-  update(ctx) {
-    if (!ctx.minuteChanged && !this.dirty) return; this.dirty = false;
-    $('#thBody').innerHTML = TOOLS().map(([g, items]) => `<h3 class="th-g">${g}</h3><div class="th">${items.map(([p, a, ic, t, d, sp, nw]) => `<button class="tc" data-go="${p}"${a ? ` data-a="${a}"` : ''}><span class="ti">${icon(ic)}</span><span><b>${t}</b><p>${d}</p></span>${sp && sp.length > 1 ? `<span class="tsp">${spark(sp, 'var(--accent)')}</span>` : ''}${nw ? '<span class="nw">NEW</span>' : ''}</button>`).join('')}</div>`).join('');
-  },
-};
 /* ---- simulated data feed (stands in for a broker WebSocket in the demo) ---- */
 const FEED = {tps: 0, lat: 22, ticks: 0, hist: [], up0: Date.now(), subs: {nifty: true, bank: true, stocks: true, idx: true}};
 const SUBS = [['nifty', 'NIFTY option chain', 62], ['bank', 'BANKNIFTY option chain', 62], ['stocks', 'F&O stock futures', 197], ['idx', 'Indices (NIFTY, BANK, VIX)', 3]];
@@ -2683,7 +2625,12 @@ const BROKERS = () => [
 MODS.broker = {
   mount(v) {
     v.innerHTML = phead('Broker & Data', L('Connect your broker’s data feed. Until then the app runs on a simulated feed, shown live below with the same health metrics a real WebSocket would report.', 'Apne broker ka data feed jodo. Tab tak app simulated feed par chalta hai, jiski health neeche live dikh rahi hai, bilkul asli WebSocket jaisi.'), '<span class="pill warn">Demo · simulated feed</span>') +
-      `<div class="bk-hero">
+      `<section class="card" style="margin-bottom:12px"><div class="card-h"><h3>${L('Why “Connect” does not log in yet', '“Connect” abhi login kyon nahi karta')}</h3><span class="pill warn" style="margin-left:auto">Phase 1</span></div><div class="card-b grid g3">
+        <div><b>${L('1 · A server is required', '1 · Server zaroori hai')}</b><p class="note" style="margin-top:4px">${L('Brokers give an API key and a secret. The secret must never sit in a web page, so a small server (on your PC or a VPS) holds it.', 'Broker API key aur secret dete hain. Secret kabhi web page mein nahi rakh sakte, isliye ek chhota server (aapke PC ya VPS par) use rakhta hai.')}</p></div>
+        <div><b>${L('2 · Daily broker login', '2 · Roz broker login')}</b><p class="note" style="margin-top:4px">${L('After you log in on the broker’s page, it redirects to that server with a token that is valid for one trading day.', 'Broker ke page par login karne ke baad wo usi server par token bhejta hai, jo ek trading din chalta hai.')}</p></div>
+        <div><b>${L('3 · Server streams to this app', '3 · Server is app ko data bhejta hai')}</b><p class="note" style="margin-top:4px">${L('The server opens the broker WebSocket and pushes ticks here. This demo page alone cannot do that, which is why it runs a simulated feed.', 'Server broker ka WebSocket kholta hai aur ticks yahan bhejta hai. Ye demo page akela ye nahi kar sakta, isliye simulated feed chal raha hai.')}</p></div>
+      </div></section>
+      <div class="bk-hero">
         <section class="card"><div class="card-h"><h3>Feed status</h3></div><div class="card-b bk-st">
           <div class="bk-big"><span class="dot"></span><span>${L('Simulated feed · streaming', 'Simulated feed · chal raha hai')}</span></div>
           <div class="bk-m"><div><span>TICKS / SEC</span><b id="bkTps">0</b></div><div><span>LATENCY</span><b id="bkLat">0 ms</b></div><div><span>INSTRUMENTS</span><b id="bkIns">0</b></div><div><span>TICKS TODAY</span><b id="bkTot">0</b></div><div><span>UPTIME</span><b id="bkUp">0s</b></div><div><span>RECONNECTS</span><b>0</b></div></div>
@@ -2827,7 +2774,7 @@ MODS.alerts = {
 };
 
 /* ---- Blueprint ---- */
-const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['All Tools', 'Saare tools ek hub mein, live mini preview ke saath (naya)'], ['OI Charts', 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)'], ['Premium decay', 'ATM CE, PE aur straddle ka decay + theta (naya)'], ['Broker & Data', '6 brokers, connect steps, live feed health, tick stream, pipeline (naya)'], ['Live motion', 'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
+const BP_PAGES = [['Overview', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L'], ['Option Chain', 'Full chain, flash updates, highlights, reversal, shift line'], ['OI Analysis', 'Strike ladder, three-strike, intraday change in OI, chart'], ['OI Heatmap', 'Time × strike writing grid with spot path (naya)'], ['F&O Scanner', '~200 stocks, buildup map, sectors, unusual volume (naya)'], ['Market Structure', 'Stocks breadth, strength ring, key levels'], ['Chart + Walls', 'Candles + support/resistance history + max pain (naya)'], ['GEX & Greeks', 'GEX by strike, flip, IV smile, max pain curve (naya)'], ['Straddle & Expiry', 'Straddle vs VWAP, expiry range, FII/DII'], ['Strategy Builder', 'Multi-leg payoff, breakeven, POP, Greeks (naya)'], ['Signal Backtest', 'Har OI signal ka hit rate history par (naya)'], ['Paper Trading + Risk', 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)'], ['Journal + OI', 'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)'], ['Alerts', 'Rules, feed, click-to-replay, beep + voice (naya)'], ['Market Flow', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)'], ['Buildup Grid', 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)'], ['Volatility Lab', 'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)'], ['OI trend by strike', 'ATM ke 5 strikes ka OI trend + auto tag (naya)'], ['HUD design', 'Light aur AMOLED black theme, bracket cards, mono labels'], ['OI Charts', 'Multi-strike OI, call vs put OI, PCR tracker, max pain tracker, futures sentiment cycle (naya)'], ['Premium decay', 'ATM CE, PE aur straddle ka decay + theta (naya)'], ['Broker & Data', '6 brokers, connect steps, live feed health, tick stream, pipeline (naya)'], ['Live motion', 'Market Flow aur Buildup Flow mein behte particles, tiles mein har tick price (naya)'], ['Light / AMOLED / Auto', 'Header se theme badlo'], ['Replay dock', 'Poore din ko play/scrub karo, 1×/5×/20× (naya)']];
 MODS.blueprint = {
   mount(v) {
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('poi-approve') || '{}'); } catch (e) {}

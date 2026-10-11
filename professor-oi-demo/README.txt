@@ -14,9 +14,9 @@ Chalane ka tarika
 - Ya bas "index.html" par double-click kar do, wo bhi kaafi hai.
 - Band karna ho to kaali (terminal) window close kar do.
 
-Andar kya hai (21 pages)
+Andar kya hai (20 pages)
 ------------------------
-Overview, All Tools, Option Chain, OI Analysis, OI Charts, OI Heatmap,
+Overview, Option Chain, OI Analysis, OI Charts, OI Heatmap,
 Market Flow, Buildup Grid,
 F&O Scanner (~200 stocks),
 Market Structure, Chart + Walls, GEX & Greeks, Volatility Lab, Straddle & Expiry,
