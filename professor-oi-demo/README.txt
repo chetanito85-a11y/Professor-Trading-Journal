@@ -22,6 +22,7 @@ Market Structure, Chart + Walls, GEX & Greeks, Volatility Lab, Straddle & Expiry
 Strategy Builder, Signal Backtest, Paper Trading + Risk Manager,
 Journal + OI, Alerts (beep + voice), Blueprint.
 Theme: header mein Light / AMOLED Dark / Auto.
+Bhasha: menu ke neeche English / Hinglish (phone par header mein EN / HIN).
 
 Dhyan rahe
 ----------

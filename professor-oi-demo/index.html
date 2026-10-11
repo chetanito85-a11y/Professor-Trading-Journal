@@ -554,6 +554,87 @@ body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px
   *{transition-duration:.01ms!important}
   .feed li.new,.anim-in,.toast{animation:none}
 }
+/* ---- v5: compact premium type ---- */
+body{font-size:13px;letter-spacing:.003em}
+main{padding:16px 22px 120px}
+.top{padding:8px 16px}
+.brand{font-size:17px}
+.phead{margin-bottom:12px}
+.phead h1{font-size:22px}
+.phead p{font-size:12.5px;line-height:1.55;max-width:80ch;margin-top:4px}
+.card-h{padding:9px 13px}.card-h h3{font-size:9.5px}.card-h .sub{font-size:11px}
+.card-b{padding:11px 13px}
+.kpi{padding:11px 13px 7px}.kpi .lab{font-size:9.5px}.kpi .val{font-size:19px}.kpi .sub{font-size:11px}
+.tbl{font-size:11.5px}.tbl th{font-size:9px;padding:7px 8px}.tbl td{padding:4px 8px}
+.ai{font-size:13.5px}.feed li{font-size:12px}.note{font-size:11.5px}
+.bigv{font-size:25px}.verdict{font-size:24px}.pill{font-size:9.5px;padding:3px 8px}
+.ibtn{font-size:12px;padding:5px 9px}.seg button{font-size:11px;padding:4px 9px}
+.kv{font-size:12px}.kv b{font-size:12px}
+/* ---- v5: premium menu ---- */
+.shell{grid-template-columns:226px minmax(0,1fr)}
+.rail{height:calc(100vh - var(--top) - 62px);max-height:none;padding:14px 12px 10px;gap:1px;border-right:1px solid var(--line);background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 85%,transparent),color-mix(in srgb,var(--panel) 55%,transparent))}
+.rail h6{margin:16px 10px 6px;font:600 9px var(--f-mono);letter-spacing:.2em;color:var(--faint)}
+.rail h6:first-child{margin-top:4px}
+.nav-i{position:relative;gap:11px;padding:7px 10px;border-radius:7px;font:500 12.5px var(--f-body);color:var(--muted);white-space:nowrap;min-height:33px}
+.nav-i span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.nav-i svg{width:16px;height:16px;opacity:.85}
+.nav-i:hover{background:color-mix(in srgb,var(--panel-2) 80%,transparent);color:var(--fg)}
+.nav-i em{display:none!important}
+.nav-i .nb{flex:none;margin-left:auto;font:600 9.5px var(--f-mono);color:var(--muted);padding:1px 6px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel)}
+.nav-i .nb:empty{display:none}
+.nav-i em+.nb:not(:empty){margin-left:6px}
+.nav-i .nb.up{color:var(--put);border-color:color-mix(in srgb,var(--put) 45%,transparent)}
+.nav-i .nb.dn{color:var(--call);border-color:color-mix(in srgb,var(--call) 45%,transparent)}
+.nav-i[aria-current="page"]{background:var(--panel-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line-2)}
+.nav-i[aria-current="page"]::before{content:"";position:absolute;left:-12px;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--fg)}
+.nav-i[aria-current="page"] svg{color:var(--fg);opacity:1}
+.nav-i[aria-current="page"] em{border:0;color:transparent}
+.rail-foot{margin-top:auto;padding:12px 6px 2px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
+.rf-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rf-lbl{font:600 9px var(--f-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.rf-row b{font:600 11px var(--f-mono)}
+.seg.lang{display:grid;grid-template-columns:1fr 1fr;width:100%}
+.seg.lang button{text-align:center}
+.rf-pro{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.rf-pro b{font:700 12.5px var(--f-display)}
+.rf-pro span{font:600 9.5px var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.lang-h{display:none}
+/* ---- v5: scanner flow ---- */
+.cats{gap:8px}
+.cat{flex:1 1 130px;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;border-radius:6px}
+.cat b{font:700 19px var(--f-mono)}
+.cat .sh{width:100%;height:3px;border-radius:2px;background:var(--line)}
+.cat .sh i{display:block;height:100%;border-radius:2px;transition:width .6s}
+.cat .lab{font:700 9.5px var(--f-mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.scflow{position:relative}
+.scflow svg{display:block;overflow:visible}
+.scflow .lk{opacity:.32;transition:opacity .25s;cursor:pointer;animation:lkin .9s cubic-bezier(.2,.8,.2,1) both}
+.scflow svg.dim .lk{opacity:.08}
+.scflow svg.dim .lk.on,.scflow .lk:hover{opacity:.7}
+@keyframes lkin{from{opacity:0}}
+.scflow .nd{cursor:pointer}
+.scflow .ll{fill:none;stroke-width:1.2;stroke-dasharray:3 5;animation:dash 1.1s linear infinite}
+.scflow .ld{cursor:pointer}
+.scflow .ld rect{fill:var(--panel);stroke:var(--line)}
+.scflow .ld:hover rect{stroke:var(--fg)}
+.fl-s{font:700 10px var(--f-mono);letter-spacing:.06em;fill:var(--fg)}
+.fl-v{font:500 9.5px var(--f-mono);fill:var(--muted)}
+.fl-c{font:700 10.5px var(--f-mono);letter-spacing:.08em;fill:var(--fg)}
+.fl-n{font:700 12px var(--f-mono);fill:var(--fg)}
+.fl-t{font:700 12px var(--f-display);fill:var(--fg)}
+.fl-h{font:700 9px var(--f-mono);letter-spacing:.18em;fill:var(--faint)}
+@media (max-width:1100px){
+  .shell{grid-template-columns:64px minmax(0,1fr)}
+  .rail-foot,.nav-i .nb{display:none}
+  .nav-i[aria-current="page"]::before{left:-10px}
+  .lang-h{display:inline-flex}
+}
+@media (max-width:760px){
+  .rail{height:auto;background:var(--panel);border-right:0}
+  .nav-i[aria-current="page"]::before{display:none}
+  .phead h1{font-size:20px}
+}
+@media (prefers-reduced-motion: reduce){.scflow .lk,.scflow .ll{animation:none}}
 </style>
 
 </head>
@@ -575,6 +656,7 @@ body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px
     <span class="clock" id="clock">12:00:00</span>
     <span class="pill hide-s" id="expiry">Exp 13 Oct</span>
     <button class="ibtn" id="openK" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"/></svg><span class="hide-s">Search</span> <kbd class="hide-s">Ctrl K</kbd></button>
+    <div class="seg lang-h langsw" aria-label="Language"><button data-l="en">EN</button><button data-l="hi">HIN</button></div>
     <div class="seg thm" id="themeSeg" aria-label="Theme"><button data-th="light" aria-label="Light theme" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button><button data-th="dark" aria-label="AMOLED dark theme" title="AMOLED dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button><button data-th="auto" title="System ke hisaab se">Auto</button></div>
   </header>
   <div class="tape" aria-label="Ticker"><div class="tape-track" id="tape"></div></div>
@@ -897,6 +979,108 @@ const app = {page: 'overview', sym: 'NIFTY', structSym: 'NIFTY', edge: 150, tf: 
 let THEME = 'auto'; try { THEME = localStorage.getItem('poi-theme') || 'auto'; } catch (e) {}
 if (THEME !== 'auto') document.documentElement.dataset.theme = THEME;
 
+/* ---- language: English / Hinglish ---- */
+let LANG0 = 'en'; try { LANG0 = localStorage.getItem('poi-lang') || 'en'; } catch (e) {}
+app.lang = LANG0;
+const L = (en, hi) => app.lang === 'hi' ? hi : en;
+const EN = new Map(Object.entries({
+  'Abhi': 'Now', 'Demo mein:': 'In this demo:', 'Asli app mein:': 'In the real app:', 'Dhyan rahe:': 'Note:', 'Har din average': 'Average per day', 'Har baar kya hua': 'Every occurrence',
+  'Ticket mein lagao': 'Apply to ticket', 'Spot ki asli chaal': 'Actual spot movement', 'Journal mein dekho': 'View in journal', 'Pages · approve karo': 'Pages · approve',
+  'Header se theme badlo': 'Switch theme from the header', 'Call OI change (neeche)': 'Call OI change (below)', 'IV smile · 09:15 vs abhi': 'IV smile · 09:15 vs now',
+  'Deewarein kya kar rahi thi': 'What the walls were doing', 'OI ke saath sabse bade move': 'Biggest moves backed by OI', 'Spot kahan tha jab entry li': 'Where spot was at entry',
+  'Column heading par click = sort': 'Click a column heading to sort', 'Teen chuni hui strikes, naya upar': 'Three selected strikes, newest first',
+  'Abhi kya demo hai, kya asli banega': 'What is demo now, what becomes real', 'Live cache + har minute ki history': 'Live cache + minute-by-minute history',
+  'Browser ko live push · alerts engine': 'Live push to the browser · alerts engine', 'Spot dono deewaron ke beech kahan hai': 'Where spot sits between the two walls',
+  'Put writing upar, call writing neeche': 'Put writing above, call writing below', 'Solid = expiry par · dashed = aaj (T+0)': 'Solid = at expiry · dashed = today (T+0)',
+  'Row par click karo, us waqt ka OI dekho': 'Click a row to see OI at that moment', 'Har OI signal ka hit rate history par (naya)': 'Hit rate of every OI signal on history (new)',
+  'Kis strike par sabse zyada nayi position bani': 'Strikes with the most fresh positions', 'Ye market ki haalat hai, trade ki salah nahi.': 'This describes the market. It is not trade advice.',
+  'PCR 1.25 ke upar jaaye ya 0.80 ke neeche aaye.': 'PCR goes above 1.25 or below 0.80.', 'ATM ke 5 strikes ka OI trend + auto tag (naya)': 'OI trend of 5 strikes around ATM + auto tag (new)',
+  'Poore din ko play/scrub karo, 1×/5×/20× (naya)': 'Play or scrub the whole day, 1×/5×/20× (new)', 'Multi-leg payoff, breakeven, POP, Greeks (naya)': 'Multi-leg payoff, breakeven, POP, Greeks (new)',
+  'Points, signal ki direction mein (+ = sahi gaya)': 'Points in the signal’s direction (+ = moved as expected)', 'Time × strike writing grid with spot path (naya)': 'Time × strike writing grid with spot path (new)',
+  'IV = options ka andaza · HV = asli chaal (30 min)': 'IV = what options price in · HV = actual movement (30 min)', 'Rules, feed, click-to-replay, beep + voice (naya)': 'Rules, feed, click-to-replay, beep + voice (new)',
+  'GEX by strike, flip, IV smile, max pain curve (naya)': 'GEX by strike, flip, IV smile, max pain curve (new)', 'Chain OI aur straddle 15 minute mein kis taraf chale.': 'Which way chain OI and the straddle moved in 15 minutes.',
+  'Deewar wali strike ka OI change apne peak se 12% gire.': 'OI change at the wall strike drops 12% from its peak.', 'Candles + support/resistance history + max pain (naya)': 'Candles + support/resistance history + max pain (new)',
+  'Neeche ke bars: net writing (hara = puts, laal = calls)': 'Bottom bars: net writing (green = puts, red = calls)', 'Crore mein · neela = thamne wala, peela = tez karne wala': 'In crore · blue = stabilising, yellow = accelerating',
+  'Net GEX positive se negative ya negative se positive ho.': 'Net GEX flips between positive and negative.', '~200 stocks, buildup map, sectors, unusual volume (naya)': '~200 stocks, buildup map, sectors, unusual volume (new)',
+  'Light aur AMOLED black theme, bracket cards, mono labels': 'Light and AMOLED black themes, bracket cards, mono labels', 'Example numbers. Asli app NSE ki end-of-day file se lega.': 'Example numbers. The real app will use NSE’s end-of-day file.',
+  'Sabse badi writing nayi strike par 3 minute tak tik jaaye.': 'The biggest writing holds at a new strike for 3 minutes.', 'Smile ka upar-neeche hona = poori chain mehengi ya sasti hui': 'Smile moving up or down = the whole chain got pricier or cheaper',
+  'Band ki hui trades yahan aayengi, aur Journal + OI mein bhi.': 'Closed trades appear here and in Journal + OI.', 'Spot support ya resistance ke chauthai step ke andar aa jaaye.': 'Spot comes within a quarter strike-step of support or resistance.',
+  'IV vs HV, smile 09:15 vs abhi, IV grid of all F&O stocks (naya)': 'IV vs HV, smile 09:15 vs now, IV grid of all F&O stocks (new)', 'KPIs, walls ki range, AI read, alerts, breadth, F&O pulse, paper P&L': 'KPIs, wall range, AI read, alerts, breadth, F&O pulse, paper P&L',
+  'Trade ke saath OI snapshot, edge by context, paper trades bhi (naya)': 'OI snapshot with each trade, edge by context, paper trades too (new)', 'Har alert par chhoti si awaaz. Upar jaane par oonchi, neeche par neechi.': 'A short sound on every alert. Higher pitch for up moves, lower for down.',
+  'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (naya)': 'Virtual ₹5L, SL/target, loss-limit lock, cooldown, size calculator (new)', 'Lagatar 2 loss ke baad 10 minute ka break. Revenge trading se bachata hai.': 'A 10-minute break after 2 losses in a row. Guards against revenge trading.',
+  'Tile par click = us stock ki option chain. Rang jitna gehra, IV utna zyada.': 'Click a tile to open that stock’s option chain. Darker = higher IV.', 'OI Analysis, Structure, Straddle, BANKNIFTY + saare F&O stocks, F&O Scanner': 'OI Analysis, Structure, Straddle, BANKNIFTY + all F&O stocks, F&O Scanner',
+  'Spot ± ATM straddle = jitna move options market expiry tak price kar raha hai.': 'Spot ± ATM straddle = the move the options market prices in until expiry.', 'Ticks sirf aapke browser mein save hote hain. Final faisla chat mein bata dena.': 'Ticks are saved only in your browser. Share the final call in chat.',
+  'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (naya)': 'Volume-profile tiles, conviction rank, top cards, hover detail with zones chart (new)', 'Saare F&O stocks ki din bhar ki lines, rank column, sector rail, strongest/weakest (naya)': 'Intraday lines for all F&O stocks, rank column, sector rail, strongest/weakest (new)',
+  'Score girta hai: bina SL trade (−5), risk rule todne ki koshish (−8), loss limit hit (−20).': 'Score drops for a trade without SL (−5), trying to break a risk rule (−8), hitting the loss limit (−20).',
+  'Legs chuno, payoff turant dekho. Bhaav live chain se aate hain, yaani "abhi entry karun to kya hoga".': 'Pick legs and see the payoff instantly. Prices come from the live chain, so it shows "what if I enter now".',
+  'Har bar = us level par expiry hone par option buyers ko kitna milega (Cr). Sabse chhota bar = max pain.': 'Each bar = what option buyers receive if expiry settles at that level (Cr). Shortest bar = max pain.',
+  'ATM ke aas paas 5 strikes · hara = put OI change, laal = call OI change · tag = pichhle 30 min ka jhukav': '5 strikes around ATM · green = put OI change, red = call OI change · tag = last 30 min bias',
+  'Index ke apne stocks kitne upar, kitne neeche. Saath mein option chain se key levels aur writing ka heatmap.': 'How many of the index’s own stocks are up or down, plus key levels and a writing heatmap from the option chain.',
+  'Ye poore project ka naksha hai. Har page dekho, pasand aaye to tick karo, aur chat mein batao kya badalna hai.': 'The map of the whole project. Review each page, tick what you like, and say in chat what to change.',
+  'NIFTY aur BANKNIFTY ki poori haalat ek screen par. Har number live update hota hai aur badalne par chamakta hai.': 'The full picture of NIFTY and BANKNIFTY on one screen. Every number updates live and flashes when it changes.',
+  'Positive GEX mein writers girte market mein khareedte aur badhte mein bechte hain, isliye market thama rehta hai.': 'With positive GEX, writers buy dips and sell rallies, which keeps the market steady.',
+  'Negative GEX mein writers move ke saath hi trade karte hain, isliye chaal tez ho sakti hai.': 'With negative GEX, writers trade with the move, so moves can accelerate.',
+  'Teen strikes ka hisaab, strike ladder aur din bhar ka Change in OI. Yahan se samjho writers kis taraf jhuk rahe hain.': 'Three-strike totals, the strike ladder and intraday change in OI. See which way writers are leaning.',
+  'agar ye app dusron ko bechni hai to NSE se data redistribution license lagega. Apne use ke liye broker API kaafi hai.': 'selling this app to others needs a data redistribution licence from NSE. For personal use a broker API is enough.',
+  'Demo: ye history bhi simulated hai. Asli app mein 2+ saal ka real data hoga. Purana nateeja aage ki guarantee nahi hai.': 'Demo: this history is simulated too. The real app will use 2+ years of real data. Past results do not guarantee future ones.',
+  'Ek strike ka call + put din bhar kaise chala, market expiry tak kitni range price kar raha hai, aur FII/DII kya kar rahe hain.': 'How one strike’s call + put moved through the day, the range the market prices until expiry, and what FIIs and DIIs are doing.',
+  'Reversal = wo spot level jahan market ruk ya palat sakta hai (demo formula). Bars us column ke sabse bade number ke mukable hain.': 'Reversal = the spot level where the market may pause or turn (demo formula). Bars are relative to the largest value in each column.',
+  'Option writers ki hedging se market thamta hai ya tez bhaagta hai, ye GEX batata hai. Saath mein IV smile aur max pain ka poora curve.': 'GEX shows whether option writers’ hedging steadies the market or speeds it up, plus the IV smile and the full max pain curve.',
+  'Mouse kisi line par le jao to us stock ka naam aur % dikhega. Neeli moti line NIFTY hai. Daayein tile par click = us stock ki option chain.': 'Hover a line to see the stock and its %. The thick blue line is NIFTY. Click a tile on the right to open its option chain.',
+  'Aap chart ke saamne na ho tab bhi koi badi baat chhoote nahi. Rules on/off karo, feed mein kisi alert par click karke us waqt par replay karo.': 'Never miss a big move, even away from the screen. Toggle rules, and click any alert in the feed to replay that moment.',
+  'Har strike par call aur put ka OI, OI change, volume, bhaav, IV aur delta. Sabse badi writing laal/hare box mein, doosri sabse badi peele mein.': 'Call and put OI, OI change, volume, price, IV and delta at every strike. The biggest writing is boxed in red/green, the second biggest in yellow.',
+  'Har trade ke saath us waqt ki market ki tasveer apne aap save hoti hai. Phir pata chalta hai kis haalat mein aap jeette ho aur kis mein haarte ho.': 'Every trade saves a snapshot of the market at that moment, so you can see in which conditions you win and lose.',
+  'IV kitna mehenga ya sasta hai, din bhar kaise badla, aur kis stock mein IV sabse zyada uchhla. Option khareedne ya bechne se pehle ye dekhna zaroori hai.': 'How rich or cheap IV is, how it moved through the day, and which stocks saw the biggest IV jumps. Check this before buying or selling options.',
+  'Poore din ki writing ek grid mein. Har dabba = 5 minute × ek strike. Safed line spot hai, outline wale dabbe us waqt ka support (hara) aur resistance (laal).': 'The whole day’s writing in one grid. Each cell = 5 minutes × one strike. The line is spot; outlined cells mark support (green) and resistance (red) at that time.',
+  'Nakli ₹5 lakh, live bhaav (demo mein simulated). Har band trade apne aap Journal + OI mein judti hai, aur Risk Manager overtrading aur revenge trading rokta hai.': 'Virtual ₹5 lakh at live prices (simulated in the demo). Every closed trade flows into Journal + OI, and the Risk Manager stops overtrading and revenge trading.',
+  'Conviction = move kitna bada hai + OI usi taraf bana ya nahi + VWAP ke upar/neeche + volume. Ye ranking market ki haalat batati hai, kharidne-bechne ki salah nahi.': 'Conviction = size of the move + whether OI built the same way + above/below VWAP + volume. The ranking describes the market; it is not buy or sell advice.',
+  'data broker API (Upstox / Dhan / Fyers / Angel One / Kite) ke WebSocket se aayega, har tick par update hoga, aur purane din replay ke liye database mein save honge.': 'data will stream from a broker API WebSocket (Upstox / Dhan / Fyers / Angel One / Kite), update on every tick, and past days will be stored for replay.',
+  '5-minute candles ke saath support aur resistance ki deewarein, max pain line aur har 5 minute ki net writing. Deewar kab aur kahan khiski, seedha chart par dikhta hai.': '5-minute candles with support and resistance walls, the max pain line and net writing every 5 minutes. See exactly when and where a wall shifted.',
+  'Example insight: "Near support" wale trades sabse achhe chal rahe hain, "Range squeezing" mein entry lene se bachna chahiye. Asli app ye aapke apne trades se nikalega.': 'Example insight: "Near support" trades do best, and entries during "Range squeezing" are worth avoiding. The real app derives this from your own trades.',
+  'Kaise padhein: ek hi strike par lagatar gehra hara = wahan puts likhe ja rahe hain (support ban raha). Gehra laal = call writing (resistance). Rang ka badalna = writers ka mann badalna.': 'How to read: steady dark green at one strike = puts being written there (support forming). Dark red = call writing (resistance). A colour change = writers changing their mind.',
+  'Row ya gole par click karo, us stock ki option chain khul jaayegi. Long buildup = price ↑ OI ↑ · Short buildup = price ↓ OI ↑ · Short covering = price ↑ OI ↓ · Long unwinding = price ↓ OI ↓': 'Click a row or dot to open that stock’s option chain. Long buildup = price ↑ OI ↑ · Short buildup = price ↓ OI ↑ · Short covering = price ↑ OI ↓ · Long unwinding = price ↓ OI ↓',
+  'sab data ek simulator bana raha hai (ek din ka NIFTY, BANKNIFTY aur ~200 F&O stocks, aur backtest ke liye 30 din ki history). Numbers asli market ke nahi hain. Live feel dikhane ke liye 1 minute = 2 second.': 'all data comes from a simulator (one day of NIFTY, BANKNIFTY and ~200 F&O stocks, plus 30 days of history for the backtest). Numbers are not real market data. To feel live, 1 minute = 2 seconds.',
+  'Har tile ek stock: kitna chala, OI kis taraf bana, aur din bhar kis bhaav par sabse zyada volume hua (hara = upar jaate waqt, laal = girte waqt). Upar bullish, neeche bearish, conviction ke hisaab se. Tile par mouse le jao ya tap karo, poori detail khulegi.': 'Each tile is a stock: how far it moved, which way OI built, and at which prices most volume traded today (green = on up-moves, red = on down-moves). Bullish on top, bearish below, ranked by conviction. Hover or tap a tile for full detail.',
+  'Abhi koi nahi': 'None yet', 'Kuch nahi mila': 'Nothing found', 'Abhi tak koi alert nahi. Market chalega to yahan aayenge.': 'No alerts yet. They appear here as the market moves.',
+  'Is filter mein koi stock nahi. Filter badlo.': 'No stocks match this filter.', 'Legs add karo, payoff yahan dikhega.': 'Add legs to see the payoff here.', 'Koi leg nahi. Upar se preset chuno ya "+ Add leg" dabao.': 'No legs yet. Pick a preset above or press "+ Add leg".',
+  'Abhi koi open position nahi. Ticket se pehla trade lo.': 'No open positions. Place your first trade from the ticket.', 'Abhi koi order nahi.': 'No orders yet.', 'Order fill ho gaya. Neeche positions mein dekho.': 'Order filled. See positions below.',
+  'Daily loss limit hit. Aaj naye orders band hain, positions exit kar sakte ho.': 'Daily loss limit hit. New orders are blocked today; you can still exit positions.', 'Replay chal raha hai. Order ke liye neeche "Live" dabao.': 'Replay is running. Press "Live" below to place orders.',
+  'Ek lot ka risk bhi limit se zyada hai. SL paas rakho ya risk % badhao.': 'Even one lot risks more than your limit. Move the SL closer or raise risk %.', 'Replay mode mein order nahi lagta. Live par jao.': 'Orders cannot be placed in replay. Switch to Live.',
+  'Daily loss limit hit. Aaj naye orders band hain.': 'Daily loss limit hit. New orders are blocked for today.', 'Lagatar 2 loss. 10 minute ka break.': '2 losses in a row. 10-minute break.',
+  'Is signal ka koi data nahi.': 'No data for this signal.', 'Koi signal nahi mila.': 'No signals found.', 'Kam data': 'Low data', 'Har 15 min': 'Every 15 min',
+  'Put writing zyada': 'More put writing', 'Call writing zyada': 'More call writing', 'Nayi writing': 'Fresh writing', 'Total OI (gehra = zyada)': 'Total OI (darker = more)', 'Calls baayein, puts daayein': 'Calls left, puts right',
+  'Kahan bhejein': 'Where to send', 'Awaaz': 'Sound', 'Alert bol kar sunaye, jaise "NIFTY support moved up".': 'Reads the alert aloud, e.g. "NIFTY support moved up".',
+  '09:45 ke baad': 'after 09:45', 'Options mehenge': 'Options rich', 'Options saste': 'Options cheap', '· abhi': '· now', 'Ye UI · React, Tailwind, Framer Motion, charts': 'This UI · React, Tailwind, Framer Motion, charts',
+  'Python FastAPI · OI, Greeks, GEX, walls calculate': 'Python FastAPI · computes OI, Greeks, GEX, walls', 'Broker API jodna, NIFTY live chain, flash animation, login, light/dark theme': 'Connect broker API, NIFTY live chain, flash animation, login, light/dark theme',
+  'Strategy builder, Journal + OI, Signal Backtest (asli history), AI market read (Claude API), mobile PWA': 'Strategy builder, Journal + OI, Signal Backtest (real history), AI market read (Claude API), mobile PWA', 'Python FastAPI (ya Node.js)': 'Python FastAPI (or Node.js)',
+  'Sector → buildup → leaders · band ki motai = stocks ki ginti': 'Sector → buildup → leaders · band thickness = number of stocks', 'Kaunse sector kis buildup mein hain': 'Which sectors are in which buildup', 'X = price change · Y = OI change · bada gola = zyada volume': 'X = price change · Y = OI change · bigger dot = more volume',
+}));
+const EN_RX = [
+  [/^Ek order mein max (\d+) lots\.$/, 'Max $1 lots per order.'], [/^Aaj ke max (\d+) trades ho chuke\.$/, 'Daily limit of $1 trades reached.'],
+  [/^Cooldown (\S+) tak \(lagatar 2 loss\)\.$/, 'Cooldown until $1 (2 losses in a row).'], [/^Margin kam hai\. Chahiye (.+)\.$/, 'Not enough margin. Need $1.'],
+  [/^Cooldown (\S+) tak\. Thoda ruk jao, saans lo\.$/, 'Cooldown until $1. Take a short break.'], [/^Day loss (.+) ne limit cross ki\. Naye orders band\.$/, 'Day loss $1 crossed the limit. New orders blocked.'],
+  [/^SL hit hua to max loss (.+) \((\d+) qty per lot\)\.$/, 'If the SL hits, max loss is $1 ($2 qty per lot).'], [/^Aaj ke (\d+) \+ pichhle (\d+) example trades$/, 'Today’s $1 + earlier $2 example trades'],
+  [/^(\S+) · (\d+) din · signal ke (\d+) min baad$/, '$1 · $2 days · $3 min after the signal'], [/^(\d+) mein se (\d+) baar market (\d+) minute mein upar gaya\.$/, '$2 of $1 times the market moved up within $3 minutes.'],
+  [/^(\d+) mein se (\d+) baar market (\d+) minute mein neeche gaya\.$/, '$2 of $1 times the market moved down within $3 minutes.'],
+  [/^Updated (\S+) · Demo text\. Asli app mein ye Claude API likhega\. Ye market ki haalat hai, trade ki salah nahi\.$/, 'Updated $1 · Demo text. In the real app the Claude API writes this. It describes the market and is not trade advice.'],
+  [/^Saare (\d+) F&O stocks ek jagah\. .*$/, 'All $1 F&O stocks in one place. Reading price and OI together shows whether fresh buyers or sellers are coming in, or traders are cutting positions.'],
+  [/^Saare (\d+) F&O stocks ek saath\. .*$/, 'All $1 F&O stocks at once. Each thin line is one stock’s day. On the right they line up by rank, so the strongest and weakest stand out. On the left each sector sits at its own %.'],
+  [/^Kaunsa OI signal sach mein kaam karta hai\? Pichhle (\d+) din .*$/, 'Which OI signals actually work? See where the market went after each signal over the last $1 days, counted rather than guessed.'],
+  [/^(.*) · bina SL$/, '$1 · no SL'],
+];
+function trText(t) {
+  const k = t.trim(); if (k.length < 3) return null;
+  const v = EN.get(k); if (v) return t.replace(k, v);
+  if (k.length > 12) for (const [rx, rp] of EN_RX) if (rx.test(k)) return t.replace(k, k.replace(rx, rp));
+  return null;
+}
+function trNode(n) { const r = trText(n.nodeValue); if (r != null && r !== n.nodeValue) n.nodeValue = r; }
+function trTree(root) { if (app.lang === 'hi' || !root) return; const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) trNode(n); }
+new MutationObserver(recs => {
+  if (app.lang === 'hi') return;
+  for (const r of recs) { if (r.type === 'characterData') trNode(r.target); else for (const n of r.addedNodes) { if (n.nodeType === 3) trNode(n); else if (n.nodeType === 1) trTree(n); } }
+}).observe(document.body, {childList: true, subtree: true, characterData: true});
+
 /* ================= icons / nav ================= */
 const IC = {
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z', table: 'M3 5h18v14H3zM3 10h18M3 15h18M12 5v14', layers: 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5',
@@ -929,7 +1113,8 @@ const PAGES = [
   {id: 'blueprint', label: 'Blueprint', ic: 'map', grp: 'Plan'},
 ];
 const icon = (n, w = 1.7) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
-$('#rail').innerHTML = PAGES.map(p => `${p.grp ? `<h6>${p.grp}</h6>` : ''}<button class="nav-i" data-p="${p.id}">${icon(p.ic)}<span>${p.label}</span>${p.isNew ? '<em>New</em>' : ''}</button>`).join('');
+$('#rail').innerHTML = PAGES.map(p => `${p.grp ? `<h6>${p.grp}</h6>` : ''}<button class="nav-i" data-p="${p.id}" title="${esc(p.label)}">${icon(p.ic)}<span>${esc(p.label)}</span>${p.isNew ? '<em title="New"></em>' : ''}<small class="nb" id="nb-${p.id}"></small></button>`).join('') +
+  `<div class="rail-foot"><span class="rf-lbl">Language</span><div class="seg lang langsw" aria-label="Language"><button data-l="en">English</button><button data-l="hi">Hinglish</button></div><div class="rf-row"><span class="rf-lbl">Session</span><b id="rfSess">—</b></div><div class="rf-pro"><b>Professor OI</b><span>DEMO · v5</span></div></div>`;
 $('#rail').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) go(b.dataset.p); });
 
 /* ================= small renderers ================= */
@@ -974,14 +1159,21 @@ function feedHTML(evs, clickable) {
   return '<ul class="feed">' + evs.map(e => `<li class="tone-${e.tone}">${clickable ? `<button class="ev" data-t="${e.t}">` : ''}<span class="tm">${tl(e.t)}</span><span><span class="tt">${esc(evTitle(e))}</span><br><span class="dd">${esc(evDetail(e))}</span></span>${clickable ? '</button>' : ''}</li>`).join('') + '</ul>';
 }
 function aiText(D, s) {
-  const c = D.c, st = c.step, sup = wallLv(D, 'S', s.t0), res = wallLv(D, 'R', s.t0), ch = (s.S / c.prev - 1) * 100;
-  const mood = ch > 0.4 ? 'mazboot tezi mein hai' : ch > 0.1 ? 'halki tezi mein hai' : ch < -0.4 ? 'kaafi kamzor hai' : ch < -0.1 ? 'halke dabaav mein hai' : 'lagbhag flat hai';
+  const c = D.c, st = c.step, sup = wallLv(D, 'S', s.t0), res = wallLv(D, 'R', s.t0), ch = (s.S / c.prev - 1) * 100, P = s.pcr.toFixed(2);
+  const mood = ch > 0.4 ? L('is trading strongly higher', 'mazboot tezi mein hai') : ch > 0.1 ? L('is mildly higher', 'halki tezi mein hai') : ch < -0.4 ? L('is clearly weak', 'kaafi kamzor hai') : ch < -0.1 ? L('is under mild pressure', 'halke dabaav mein hai') : L('is roughly flat', 'lagbhag flat hai');
   const w = wallsMsg(D, s.t0).key;
-  const wh = {up: 'Support aur resistance upar khisak rahe hain, yaani buyers ka haath upar hai.', down: 'Deewarein neeche aa rahi hain, sellers dabaav bana rahe hain.', squeeze: 'Upar ki deewar neeche aur neeche ki upar aa rahi hai. Range sikud rahi hai, bada move paas ho sakta hai.', spread: 'Deewarein door ja rahi hain, aaj range wala din lag raha hai.', same: 'Support aur resistance ek hi strike par hain, faisla jaldi ho sakta hai.', hold: 'Dono deewarein apni jagah tiki hui hain.'}[w];
-  const near = res - s.S <= st * 0.5 ? `Spot resistance ${res} ke bahut paas hai, yahan rukawat aa sakti hai.` : s.S - sup <= st * 0.5 ? `Spot support ${sup} ke bahut paas hai, yahan sahara mil sakta hai.` : `Spot ${sup} ke support aur ${res} ke resistance ke beech mein hai.`;
-  const pc = s.pcr > 1.2 ? `PCR ${s.pcr.toFixed(2)} hai, puts zyada likhe ja rahe hain, jhukav bullish hai.` : s.pcr < 0.85 ? `PCR ${s.pcr.toFixed(2)} hai, call writing bhaari hai, jhukav bearish hai.` : `PCR ${s.pcr.toFixed(2)} hai, dono taraf lagbhag barabar writing hai.`;
-  const gx = s.gex > 0 ? 'GEX positive hai, isliye bade jhatke kam aur range mein chaal ki umeed zyada hai.' : 'GEX negative hai, chaal tez ho sakti hai, stop loss soch kar rakhein.';
-  return `${c.sym} ${inr2(s.S)} par hai aur din mein ${pct(ch)} ke saath ${mood}. ${near} ${wh} ${pc} ${gx}`;
+  const wh = (app.lang === 'hi'
+    ? {up: 'Support aur resistance upar khisak rahe hain, yaani buyers ka haath upar hai.', down: 'Deewarein neeche aa rahi hain, sellers dabaav bana rahe hain.', squeeze: 'Upar ki deewar neeche aur neeche ki upar aa rahi hai. Range sikud rahi hai, bada move paas ho sakta hai.', spread: 'Deewarein door ja rahi hain, aaj range wala din lag raha hai.', same: 'Support aur resistance ek hi strike par hain, faisla jaldi ho sakta hai.', hold: 'Dono deewarein apni jagah tiki hui hain.'}
+    : {up: 'Support and resistance are both moving up, so buyers have the upper hand.', down: 'Both walls are moving down as sellers press.', squeeze: 'The ceiling is coming down and the floor is rising. The range is narrowing and a big move may be near.', spread: 'The walls are drifting apart; it looks like a range day.', same: 'Support and resistance sit on the same strike, so a decision may come soon.', hold: 'Both walls are holding their ground.'})[w];
+  const near = res - s.S <= st * 0.5 ? L(`Spot is very close to resistance at ${res} and may stall here.`, `Spot resistance ${res} ke bahut paas hai, yahan rukawat aa sakti hai.`)
+    : s.S - sup <= st * 0.5 ? L(`Spot is very close to support at ${sup} and may find buyers here.`, `Spot support ${sup} ke bahut paas hai, yahan sahara mil sakta hai.`)
+    : L(`Spot sits between support at ${sup} and resistance at ${res}.`, `Spot ${sup} ke support aur ${res} ke resistance ke beech mein hai.`);
+  const pc = s.pcr > 1.2 ? L(`PCR is ${P}: more puts are being written, a bullish tilt.`, `PCR ${P} hai, puts zyada likhe ja rahe hain, jhukav bullish hai.`)
+    : s.pcr < 0.85 ? L(`PCR is ${P}: call writing is heavy, a bearish tilt.`, `PCR ${P} hai, call writing bhaari hai, jhukav bearish hai.`)
+    : L(`PCR is ${P}: writing is roughly balanced on both sides.`, `PCR ${P} hai, dono taraf lagbhag barabar writing hai.`);
+  const gx = s.gex > 0 ? L('GEX is positive, so sharp swings are less likely and range-bound trade is more likely.', 'GEX positive hai, isliye bade jhatke kam aur range mein chaal ki umeed zyada hai.')
+    : L('GEX is negative, so moves can be fast. Place stop losses with care.', 'GEX negative hai, chaal tez ho sakti hai, stop loss soch kar rakhein.');
+  return L(`${c.sym} is at ${inr2(s.S)}, ${pct(ch)} on the day, and ${mood}. ${near} ${wh} ${pc} ${gx}`, `${c.sym} ${inr2(s.S)} par hai aur din mein ${pct(ch)} ke saath ${mood}. ${near} ${wh} ${pc} ${gx}`);
 }
 
 /* ================= pages ================= */
@@ -1616,6 +1808,7 @@ MODS.scanner = {
     v.innerHTML = phead('F&amp;O Scanner', `Saare ${UL.length} F&amp;O stocks ek jagah. Price aur OI saath dekh ke pata chalta hai ki naye buyers aa rahe hain, naye sellers, ya log position kaat rahe hain.`,
       `<input class="srch" id="scQ" placeholder="Stock search…" value="${esc(f.q)}" aria-label="Search stock"><select class="sel" id="scSec" aria-label="Sector"><option value="ALL">All sectors</option>${Object.keys(FNO).map(x => `<option ${f.sec === x ? 'selected' : ''}>${x}</option>`).join('')}</select><button class="ibtn" id="scUn" aria-pressed="${f.unusual}">⚡ Unusual volume</button>`) +
       `<div class="cats" id="scCats" style="margin-bottom:12px"></div>
+      <section class="card" style="margin-bottom:12px"><div class="card-h"><h3>Buildup flow</h3><span class="sub">Sector → buildup → leaders · band ki motai = stocks ki ginti</span></div><div class="card-b"><div class="chart scflow" id="scFlow"></div></div></section>
       <div class="grid g3">
         <section class="card span2"><div class="card-h"><h3>Buildup map</h3><span class="sub">X = price change · Y = OI change · bada gola = zyada volume</span></div><div class="card-b"><div class="chart map" id="scMap"></div></div></section>
         <section class="card"><div class="card-h"><h3>Sectors</h3><span class="sub">Avg change · long/short buildup</span></div><div class="card-b"><div class="secs" id="scSecs"></div></div></section>
@@ -1640,7 +1833,8 @@ MODS.scanner = {
     const rows = scanRows(ctx.tf), f = app.scan;
     if (ctx.minuteChanged || this.dirty) {
       const cnt = {ALL: rows.length}; for (const r of rows) cnt[r.bu] = (cnt[r.bu] || 0) + 1;
-      $('#scCats').innerHTML = ['ALL', 'LB', 'SB', 'SC', 'LU', 'NT'].map(c => `<button class="cat" data-c="${c}" aria-pressed="${f.cat === c}">${c === 'ALL' ? 'All stocks' : `<span class="bu ${c}">${BU[c]}</span>`}<b>${cnt[c] || 0}</b></button>`).join('');
+      const CCAT = {ALL: 'var(--fg)', LB: 'var(--put)', SC: 'color-mix(in srgb,var(--put) 50%,var(--panel))', NT: 'var(--faint)', LU: 'color-mix(in srgb,var(--call) 50%,var(--panel))', SB: 'var(--call)'};
+      $('#scCats').innerHTML = ['ALL', 'LB', 'SC', 'NT', 'LU', 'SB'].map(c => `<button class="cat" data-c="${c}" aria-pressed="${f.cat === c}"><span class="lab">${c === 'ALL' ? 'All stocks' : BU[c]}</span><b>${cnt[c] || 0}</b><span class="sh"><i style="width:${((cnt[c] || 0) / rows.length * 100).toFixed(1)}%;background:${CCAT[c]}"></i></span></button>`).join('');
       const secs = Object.keys(FNO).map(x => { const rs = rows.filter(r => r.sec === x); return {x, avg: rs.reduce((a, r) => a + r.p, 0) / rs.length, lb: rs.filter(r => r.bu === 'LB').length, sb: rs.filter(r => r.bu === 'SB').length}; }).sort((a, b) => b.avg - a.avg);
       $('#scSecs').innerHTML = secs.map(x => `<button class="sec" data-sec="${x.x}" aria-pressed="${f.sec === x.x}" style="background:color-mix(in srgb,var(${x.avg >= 0 ? '--put' : '--call'}) ${Math.round(clamp(Math.abs(x.avg) / 2, 0.06, 0.7) * 60)}%,var(--panel))"><b>${x.x}</b><span>${pct(x.avg)} · ${x.lb}/${x.sb}</span></button>`).join('');
       const list = rows.filter(r => this.match(r)).sort((a, b) => { const x = a[f.sort], y = b[f.sort]; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * f.dir; });
@@ -1650,10 +1844,60 @@ MODS.scanner = {
       box.innerHTML = list.length ? `<table class="tbl scan" style="min-width:860px"><thead><tr>${th('s', 'Symbol', 'l')}${th('px', 'LTP')}${th('p', 'Chg %')}${th('oi', 'Fut OI')}${th('oc', 'OI chg %')}<th class="c">Buildup</th>${th('iv', 'IV')}${th('pcr', 'PCR')}${th('vx', 'Volume ×')}</tr></thead><tbody>${list.map(r => `<tr data-s="${esc(r.s)}"><td class="l"><b>${esc(r.s)}</b> <span class="mut" style="font-family:var(--f-body);font-size:11px">${r.sec}</span></td><td><b class="v" data-px></b></td><td data-p></td><td>${inr(r.oi)}</td><td class="${r.oc >= 0 ? 'up' : 'dn'}">${pct(r.oc, 1)}</td><td class="c"><span class="bu ${r.bu}">${BU[r.bu]}</span></td><td>${r.iv.toFixed(1)} <span class="${r.ivc >= 0 ? 'up' : 'dn'}" style="font-size:10.5px">${sgn(r.ivc, x => x.toFixed(1))}</span></td><td>${r.pcr.toFixed(2)}</td><td class="${r.vx >= 2 ? 'amb' : ''}">${r.vx.toFixed(1)}×${r.vx >= 2 ? ' ⚡' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="empty" style="padding:14px">Is filter mein koi stock nahi. Filter badlo.</p>';
       box.scrollTop = sc;
       this.refs = {}; $$('#scTbl tr[data-s]').forEach(tr => this.refs[tr.dataset.s] = {px: tr.querySelector('[data-px]'), p: tr.querySelector('[data-p]')});
-      this.drawMap(rows);
+      this.drawMap(rows); this.drawFlow(rows);
       this.dirty = false;
     }
     for (const r of rows) { const R = this.refs[r.s]; if (!R) continue; flash(R.px, +r.px.toFixed(2), inr2(r.px)); setText(R.p, pct(r.p)); R.p.className = r.p >= 0 ? 'up' : 'dn'; }
+  },
+  drawFlow(rows) {
+    const el = $('#scFlow'); if (!el) return;
+    const W = Math.max(300, el.clientWidth), mob = W < 700, H = mob ? 470 : 500, n = rows.length;
+    const CATS = ['LB', 'SC', 'NT', 'LU', 'SB'], CC = {LB: 'var(--put)', SC: 'color-mix(in srgb,var(--put) 50%,var(--panel))', NT: 'var(--faint)', LU: 'color-mix(in srgb,var(--call) 50%,var(--panel))', SB: 'var(--call)'};
+    const secs = Object.keys(FNO).map(s => { const rs = rows.filter(r => r.sec === s); return {s, rs, avg: rs.reduce((a, r) => a + r.p, 0) / rs.length}; }).sort((a, b) => b.avg - a.avg);
+    const cats = CATS.map(c => ({c, rs: rows.filter(r => r.bu === c)})).filter(c => c.rs.length);
+    const pt = 22, pb = 8, gA = 4, gB = 18, nw = 7, xA = mob ? 104 : 196, xB = mob ? W - 150 : Math.round(W * 0.46), lblW = mob ? 0 : 150, xC = W - (mob ? 0 : 250);
+    const availA = H - pt - pb - gA * (secs.length - 1), availB = H - pt - pb - gB * (cats.length - 1);
+    let y = pt; for (const s of secs) { s.h = s.rs.length / n * availA; s.y = y; s.o = 0; y += s.h + gA; }
+    y = pt; for (const c of cats) { c.h = c.rs.length / n * availB; c.y = y; c.o = 0; y += c.h + gB; }
+    let svg = '', links = '';
+    const xm = (xA + nw + xB) / 2;
+    for (const s of secs) for (const c of cats) {
+      const k = s.rs.filter(r => r.bu === c.c).length; if (!k) continue;
+      const ha = k / n * availA, hb = k / n * availB, y0 = s.y + s.o, y1 = c.y + c.o; s.o += ha; c.o += hb;
+      links += `<path class="lk" data-sec="${s.s}" data-c="${c.c}" data-k="${k}" d="M${xA + nw},${y0.toFixed(1)} C${xm},${y0.toFixed(1)} ${xm},${y1.toFixed(1)} ${xB},${y1.toFixed(1)} L${xB},${(y1 + hb).toFixed(1)} C${xm},${(y1 + hb).toFixed(1)} ${xm},${(y0 + ha).toFixed(1)} ${xA + nw},${(y0 + ha).toFixed(1)}Z" style="fill:${CC[c.c]}"/>`;
+    }
+    svg += `<g class="lks">${links}</g>`;
+    let ly = -99; const lys = secs.map(s => (ly = Math.max(s.y + s.h / 2, ly + 13)));
+    const over = ly - (H - pb - 4); if (over > 0) for (let i = lys.length - 1, lim = H - pb - 4; i >= 0; i--) { lys[i] = Math.min(lys[i], lim); lim = lys[i] - 13; }
+    secs.forEach((s, i) => {
+      const col = s.avg >= 0 ? 'var(--put)' : 'var(--call)', cy = s.y + s.h / 2, yl = lys[i];
+      svg += `<g class="nd" data-sec="${s.s}"><rect x="${xA}" y="${s.y.toFixed(1)}" width="${nw}" height="${Math.max(1, s.h).toFixed(1)}" rx="2" style="fill:${col}"/>${Math.abs(yl - cy) > 2 ? `<path d="M${xA - 2},${cy.toFixed(1)} L${xA - 6},${yl.toFixed(1)}" style="stroke:var(--line-2);fill:none"/>` : ''}<text x="${xA - 8}" y="${(yl + 3.5).toFixed(1)}" text-anchor="end" class="fl-s">${s.s.toUpperCase()} <tspan class="fl-v" style="fill:${col}">${pct(s.avg)}</tspan><tspan class="fl-v"> · ${s.rs.length}</tspan></text></g>`;
+    });
+    for (const c of cats) {
+      const cy = c.y + c.h / 2;
+      svg += `<g class="nd" data-c="${c.c}"><rect x="${xB}" y="${c.y.toFixed(1)}" width="${nw}" height="${Math.max(2, c.h).toFixed(1)}" rx="2" style="fill:${CC[c.c]}"/><text x="${xB + nw + 8}" y="${(cy - 2).toFixed(1)}" class="fl-c">${BU[c.c].toUpperCase()}</text><text x="${xB + nw + 8}" y="${(cy + 12).toFixed(1)}" class="fl-n">${c.rs.length} <tspan class="fl-v">· ${(c.rs.length / n * 100).toFixed(0)}%</tspan></text></g>`;
+    }
+    if (!mob) {
+      const lead = []; for (const c of cats) if (c.c !== 'NT') c.rs.slice().sort((a, b) => Math.abs(b.oc) - Math.abs(a.oc)).slice(0, 3).forEach(r => lead.push({r, c}));
+      const step = (H - pt - pb) / Math.max(lead.length, 1);
+      lead.forEach(({r, c}, i) => {
+        const yy = pt + (i + 0.5) * step, ys = c.y + c.h / 2, x0 = xB + nw + lblW;
+        svg += `<path class="ll" d="M${x0},${ys.toFixed(1)} C${(x0 + xC) / 2},${ys.toFixed(1)} ${(x0 + xC) / 2},${yy.toFixed(1)} ${xC - 6},${yy.toFixed(1)}" style="stroke:${CC[c.c]}"/>`;
+        svg += `<g class="ld" data-s="${esc(r.s)}"><rect x="${xC - 4}" y="${(yy - 13).toFixed(1)}" width="${W - xC + 4}" height="26" rx="4"/><circle cx="${xC + 6}" cy="${yy.toFixed(1)}" r="3.5" style="fill:${CC[c.c]}"/><text x="${xC + 16}" y="${(yy + 4).toFixed(1)}" class="fl-t">${esc(r.s)}</text><text x="${W - 70}" y="${(yy + 4).toFixed(1)}" text-anchor="end" class="fl-n" style="fill:var(${r.p >= 0 ? '--put' : '--call'})">${pct(r.p)}</text><text x="${W - 6}" y="${(yy + 4).toFixed(1)}" text-anchor="end" class="fl-v">OI ${pct(r.oc, 1)}</text></g>`;
+      });
+      svg += `<text x="${xC - 4}" y="12" class="fl-h">LEADERS BY OI CHANGE</text>`;
+    }
+    svg += `<text x="${xA - 8}" y="12" text-anchor="end" class="fl-h">SECTOR</text><text x="${xB}" y="12" class="fl-h">BUILDUP</text>`;
+    el.innerHTML = `<svg width="${W}" height="${H}" role="img" aria-label="Sector to buildup flow">${svg}</svg><div class="tip" id="flTip" hidden></div>`;
+    const s = el.querySelector('svg'), tip = $('#flTip');
+    const hl = (k, v) => { s.classList.add('dim'); s.querySelectorAll('.lk').forEach(p => p.classList.toggle('on', p.dataset[k] === v)); };
+    s.onmouseover = e => {
+      const lk = e.target.closest('.lk'), nd = e.target.closest('.nd');
+      if (lk) { s.classList.add('dim'); s.querySelectorAll('.lk').forEach(p => p.classList.toggle('on', p === lk)); const b = el.getBoundingClientRect(); tip.innerHTML = `<b>${lk.dataset.sec}</b> → ${BU[lk.dataset.c]}<br>${lk.dataset.k} stocks`; tip.hidden = false; tip.style.left = clamp(e.clientX - b.left + 12, 0, b.width - 180) + 'px'; tip.style.top = (e.clientY - b.top + 12) + 'px'; }
+      else if (nd) { tip.hidden = true; nd.dataset.sec ? hl('sec', nd.dataset.sec) : hl('c', nd.dataset.c); }
+    };
+    s.onmouseleave = () => { s.classList.remove('dim'); tip.hidden = true; };
+    s.onclick = e => { const g = e.target.closest('.ld'); if (g) { setSymGo(g.dataset.s, 'chain'); return; } const nd = e.target.closest('.nd'); if (nd) { const f = app.scan; if (nd.dataset.sec) { f.sec = f.sec === nd.dataset.sec ? 'ALL' : nd.dataset.sec; $('#scSec').value = f.sec; } else f.cat = f.cat === nd.dataset.c ? 'ALL' : nd.dataset.c; this.dirty = true; this.update(lastCtx); } };
   },
   drawMap(rows) {
     const el = $('#scMap'), w = Math.max(280, el.clientWidth), h = w < 560 ? 300 : 390, pl = 46, pb = 26, pt = 10, pr = 12;
@@ -2141,8 +2385,8 @@ MODS.vol = {
     $$('#vlK .card').forEach((c, i) => c.style.setProperty('--i', i));
     const all = [...iv, ...hv], lo = Math.min(...all) - 0.6, hi = Math.max(...all) + 0.6;
     svgChart($('#vlIvhv'), {h: 230, x0: 0, x1: N, y0: lo, y1: hi, yf: x => x.toFixed(1) + '%', pl: 48, anim: this.dirty, label: 'IV vs HV', series: [{v: hv, x: hx, c: 'var(--glow1)', dot: 1}, {v: iv, c: 'var(--glow3)', dot: 1, w: 2}]});
-    const read = hvNow == null ? 'HV ke liye 30 minute ka data chahiye. 09:45 ke baad dikhega.' : ivNow > hvNow * 1.15 ? 'Options mehenge hain: IV, asli chaal (HV) se kaafi upar hai. Option bechne walon ke liye premium achha hai, khareedne wale dhyan se.' : ivNow < hvNow * 0.85 ? 'Options saste hain: market jitna hil raha hai, options utna price nahi kar rahe. Khareedne walon ke liye behtar haalat.' : 'IV aur HV paas-paas hain. Options lagbhag sahi bhaav par hain.';
-    $('#vlRead').innerHTML = `<p class="ai" style="min-height:0;font-size:14px">${read} ${ivCh > 0.3 ? 'Subah se IV badha hai, yaani darr ya demand badh rahi hai.' : ivCh < -0.3 ? 'Subah se IV gira hai, premium pighal raha hai (IV crush).' : 'Subah se IV lagbhag wahi hai.'}</p><p class="meta">Ye market ki haalat hai, trade ki salah nahi.</p>`;
+    const read = hvNow == null ? L('HV needs 30 minutes of data. It appears after 09:45.', 'HV ke liye 30 minute ka data chahiye. 09:45 ke baad dikhega.') : ivNow > hvNow * 1.15 ? L('Options are rich: IV is well above actual movement (HV). Premium suits sellers; buyers should be careful.', 'Options mehenge hain: IV, asli chaal (HV) se kaafi upar hai. Option bechne walon ke liye premium achha hai, khareedne wale dhyan se.') : ivNow < hvNow * 0.85 ? L('Options are cheap: the market is moving more than options price in. Conditions favour buyers.', 'Options saste hain: market jitna hil raha hai, options utna price nahi kar rahe. Khareedne walon ke liye behtar haalat.') : L('IV and HV are close. Options are roughly fairly priced.', 'IV aur HV paas-paas hain. Options lagbhag sahi bhaav par hain.');
+    $('#vlRead').innerHTML = `<p class="ai" style="min-height:0;font-size:14px">${read} ${ivCh > 0.3 ? L('IV has risen since the open, so fear or demand is building.', 'Subah se IV badha hai, yaani darr ya demand badh rahi hai.') : ivCh < -0.3 ? L('IV has fallen since the open; premium is melting (IV crush).', 'Subah se IV gira hai, premium pighal raha hai (IV crush).') : L('IV is about where it opened.', 'Subah se IV lagbhag wahi hai.')}</p><p class="meta">Ye market ki haalat hai, trade ki salah nahi.</p>`;
     const S0 = D.snaps[0], xs = [...D.strikes], a1 = [...S0.cIV], a2 = [...s.cIV], ys = [...a1, ...a2];
     const xt = [0, Math.floor(D.K / 4), Math.floor(D.K / 2), Math.floor(3 * D.K / 4), D.K - 1].map(i => [D.strikes[i], inr(D.strikes[i])]);
     svgChart($('#vlSmile'), {h: 220, x0: xs[0], x1: xs[D.K - 1], y0: Math.min(...ys) - 0.4, y1: Math.max(...ys) + 0.4, yf: x => x.toFixed(1) + '%', pl: 48, xt, anim: this.dirty, label: 'IV smile open vs now',
@@ -2330,6 +2574,12 @@ function updateChrome(ctx) {
     const evs = getData(SYM_PAGES.has(app.page) ? app.sym : 'NIFTY').events.filter(e => e.t <= app.edge && e.type === 'shift');
     $('#scMk').innerHTML = evs.map(e => `<span class="mk" style="left:${e.t / N * 100}%;background:var(${e.tone === 'up' ? '--put' : '--call'})" title="${esc(evTitle(e))}"></span>`).join('') + TT.slice(1, -1).map(([t, l]) => `<span class="hr" style="left:${t / N * 100}%">${l}</span>`).join('');
   }
+  setText($('#rfSess'), (app.mode === 'live' ? (app.edge >= N ? 'Closed' : 'Live') : 'Replay') + ' · ' + tl(app.tf));
+  if (ctx.minuteChanged) {
+    const nbA = $('#nb-alerts'); if (nbA) setText(nbA, String(eventsUpTo(['NIFTY', 'BANKNIFTY'], app.tf).filter(e => app.rules[e.type]).length));
+    const nbP = $('#nb-paper'), ps = paperStats(); if (nbP) { setText(nbP, paper.trades ? sgn(ps.day, compact) : ''); nbP.className = 'nb ' + (ps.day >= 0 ? 'up' : 'dn'); }
+    const nbF = $('#nb-mflow'); if (nbF) { setText(nbF, '▲' + UL.filter(u => u.pct[ctx.t0] >= 0).length); nbF.className = 'nb up'; }
+  }
   updateTape(ctx);
 }
 $('#playBtn').onclick = () => {
@@ -2368,7 +2618,8 @@ function fireToasts(a, b) {
 
 const cmdItems = () => [...PAGES.map(p => ({l: p.label, h: 'Page', run: () => go(p.id)})), ...['NIFTY', 'BANKNIFTY', ...UL.map(u => u.s)].map(s => ({l: `${s} option chain`, h: CFG[s] ? CFG[s].name : U[s].sec, run: () => setSymGo(s, 'chain')})),
   {l: 'Jump to live', h: 'Replay', run: () => $('#liveBtn').click()}, {l: 'Replay from 09:15 at 20×', h: 'Replay', run: () => { app.mode = 'replay'; app.tf = 0; app.playing = true; app.speed = 20; render(true); }},
-  {l: 'Light theme', h: 'Theme', run: () => { setTheme('light'); MODS[app.page].dirty = true; render(true); }}, {l: 'Dark theme', h: 'Theme', run: () => { setTheme('dark'); MODS[app.page].dirty = true; render(true); }}];
+  {l: 'Light theme', h: 'Theme', run: () => { setTheme('light'); MODS[app.page].dirty = true; render(true); }}, {l: 'Dark theme', h: 'Theme', run: () => { setTheme('dark'); MODS[app.page].dirty = true; render(true); }},
+  {l: 'Language: English', h: 'Language', run: () => switchLang('en')}, {l: 'Language: Hinglish', h: 'Language', run: () => switchLang('hi')}];
 let cmdSel = 0, cmdList = [];
 function openCmd() { $('#cmdk').hidden = false; const i = $('#cmdkIn'); i.value = ''; drawCmd(); i.focus(); }
 function closeCmd() { $('#cmdk').hidden = true; }
@@ -2382,6 +2633,15 @@ document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.ke
 function setTheme(m) { THEME = m; const r = document.documentElement; if (m === 'auto') delete r.dataset.theme; else r.dataset.theme = m; try { localStorage.setItem('poi-theme', m); } catch (e) {} $$('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === m)); }
 $('#themeSeg').onclick = e => { const b = e.target.closest('[data-th]'); if (!b) return; setTheme(b.dataset.th); MODS[app.page].dirty = true; render(true); };
 setTheme(THEME);
+function setLang(l) {
+  app.lang = l; try { localStorage.setItem('poi-lang', l); } catch (e) {}
+  document.documentElement.lang = l === 'hi' ? 'hi-Latn' : 'en';
+  $$('.langsw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === l));
+  $('#cmdkIn').placeholder = L('Type a page or symbol… (e.g. RELIANCE, heatmap)', 'Page ya symbol likho… (jaise RELIANCE, heatmap)');
+  $('#pkIn').placeholder = L('Search stocks…', 'Stock search karo…');
+}
+const switchLang = l => { if (l === app.lang) return; setLang(l); mount(); trTree(document.body); };
+document.addEventListener('click', e => { const b = e.target.closest('.langsw [data-l]'); if (b) switchLang(b.dataset.l); });
 
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function roll(el, v, txt) {
@@ -2433,7 +2693,7 @@ setInterval(() => {
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { MODS[app.page].dirty = true; render(true); }, 150); });
 
 getData('NIFTY'); getData('BANKNIFTY'); buildUniverse();
-syncSym();
+syncSym(); setLang(app.lang);
 const h0 = (location.hash || '').slice(1);
 go(MODS[h0] ? h0 : 'overview');
 })();
