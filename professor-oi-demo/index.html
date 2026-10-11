@@ -2356,7 +2356,7 @@ MODS.backtest = {
   update() { if (this.dirty) { this.draw(); this.dirty = false; } },
   draw() {
     const b = app.bt, rows = SIGNALS.map(sg => ({sg, st: btStats(b.sym, sg, b.H)}));
-    setText($('#btSub'), `${b.sym} · ${BT_DAYS} din · signal ke ${b.H} min baad`);
+    setText($('#btSub'), `${b.sym} · ${BT.dates.length} din · signal ke ${b.H} min baad`);
     const verdict = st => st.n < 5 ? ['Kam data', ''] : st.rate >= 60 ? ['Strong', 'up'] : st.rate >= 50 ? ['Okay', 'warn'] : ['Weak', 'dn'];
     $('#btBoard').innerHTML = `<table class="tbl" style="min-width:640px"><thead><tr><th class="l">Signal</th><th class="l">Direction</th><th>Times</th><th class="l">Hit rate</th><th>Avg move</th><th class="c">Verdict</th></tr></thead><tbody>${[...rows].sort((x, y) => y.st.rate - x.st.rate).map(({sg, st}) => { const [vt, vc] = verdict(st); return `<tr data-sig="${sg.id}" class="tr-row ${sg.id === b.sig ? 'sel' : ''}"><td class="l"><b style="font-family:var(--f-body)">${sg.name}</b></td><td class="l ${sg.dir > 0 ? 'up' : 'dn'}">${sg.dir > 0 ? '▲ Bullish' : '▼ Bearish'}</td><td>${st.n}</td><td class="l"><div class="wr" style="grid-template-columns:1fr 44px;padding:0;min-width:130px"><span class="b"><i style="width:${st.rate}%;background:var(${st.rate >= 50 ? '--put' : '--call'})"></i></span><span>${st.rate.toFixed(0)}%</span></div></td><td class="${st.avg >= 0 ? 'up' : 'dn'}">${sgn(st.avg, x => x.toFixed(1))} pts</td><td class="c"><span class="pill ${vc}">${vt}</span></td></tr>`; }).join('')}</tbody></table>`;
     const {sg, st} = rows.find(x => x.sg.id === b.sig) || rows[0];
@@ -4024,6 +4024,44 @@ MODS.broker.aiCard = function () {
   $('#aiEvery').onchange = e => post('config', {every: +e.target.value});
   $('#aiOn').onchange = e => post('config', {enabled: e.target.checked});
   $('#aiGen').onclick = () => post('generate', {});
+};
+
+/* ---- Signal Backtest on the days the connector has stored ---- */
+const BTL = {sim: null, live: null, loading: false};
+async function btLoadLive() {
+  const days = await fetch('/api/days', {cache: 'no-store'}).then(r => r.json());
+  const by = {}; for (const d of days) if (CFG[d.sym] && d.minutes >= 20) (by[d.day] = by[d.day] || {})[d.sym] = 1;
+  const dates = Object.keys(by).sort(), lab = d => new Date(d + 'T12:00:00+05:30').toLocaleDateString('en-IN', {day: '2-digit', month: 'short', timeZone: 'Asia/Kolkata'});
+  const out = {dates: dates.map(lab), days: {NIFTY: [], BANKNIFTY: []}, live: true};
+  for (const day of dates) for (const sym of ['NIFTY', 'BANKNIFTY']) {
+    if (!by[day][sym]) continue;
+    const j = await fetch(`/api/day?sym=${sym}&day=${day}`, {cache: 'no-store'}).then(r => r.ok ? r.json() : null).catch(() => null);
+    if (!j || !j.minutes || !j.minutes.length) continue;
+    if (!LD.sim[sym]) LD.sim[sym] = DATA[sym] && !DATA[sym].live ? DATA[sym] : gen(sym);
+    const D = buildLiveD(sym, j); if (!D) continue;
+    out.days[sym].push({date: lab(day), spot: D.spot, evs: D.events.filter(e => e.t > D.first)});
+  }
+  return out;
+}
+const _btMount = MODS.backtest.mount;
+MODS.backtest.mount = function (v) {
+  _btMount.call(this, v);
+  if (!BTL.sim) BTL.sim = BT;
+  if (!LIVE.on) return;
+  app.btSrc = app.btSrc || 'demo';
+  const tools = v.querySelector('.phead .ptools'); if (!tools) return;
+  tools.insertAdjacentHTML('afterbegin', `<div class="seg" id="btSrc"><button data-src="demo">${L('Demo history', 'Demo history')}</button><button data-src="live">${L('My stored days', 'Mere stored din')}</button></div>`);
+  const note = [...v.querySelectorAll(':scope > p.note')].pop();
+  const set = src => {
+    app.btSrc = src; $$('#btSrc button').forEach(b => b.setAttribute('aria-pressed', b.dataset.src === src));
+    if (src === 'demo') { BT = BTL.sim; if (note) note.textContent = L('Demo history (simulated). Switch to “My stored days” to test the signals on the market data your connector saved.', 'Demo history (simulated). Connector ke save kiye asli data par signals dekhne ke liye “Mere stored din” chuno.'); this.draw(); return; }
+    const done = () => { BT = BTL.live; const n = BT.dates.length; if (note) note.textContent = n ? L(`${n} stored day${n > 1 ? 's' : ''} from your connector. A few days give noisy numbers; the scoreboard firms up after a few weeks of data. Past results do not guarantee future moves.`, `Connector ke ${n} stored din. Kam dinon mein numbers kachche hote hain; kuch hafton ke data ke baad scoreboard pakka hota hai. Purana nateeja aage ki guarantee nahi.`) : L('No stored days yet. Keep the connector running in market hours; each day is saved automatically.', 'Abhi koi stored din nahi. Market time mein connector chalne do; har din apne aap save hota hai.'); this.draw(); };
+    if (BTL.live) return done();
+    setText($('#btSub'), L('Loading your stored days…', 'Stored din load ho rahe hain…'));
+    BTL.loading = true; btLoadLive().then(x => { BTL.live = x; BTL.loading = false; if (app.page === 'backtest' && app.btSrc === 'live') done(); }).catch(() => { BTL.loading = false; setText($('#btSub'), L('Could not load stored days.', 'Stored din load nahi ho paaye.')); });
+  };
+  $$('#btSrc button').forEach(b => b.onclick = () => set(b.dataset.src));
+  set(app.btSrc);
 };
 
 /* ================= routing + loop ================= */
